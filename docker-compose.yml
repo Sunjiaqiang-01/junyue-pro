@@ -1,0 +1,124 @@
+# 君悦SPA - Docker开发环境配置
+version: '3.8'
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:16-alpine
+    container_name: junyue-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: junyue_user
+      POSTGRES_PASSWORD: junyue_password_dev
+      POSTGRES_DB: junyue_spa
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - junyue-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U junyue_user -d junyue_spa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis缓存（可选，用于会话和缓存）
+  redis:
+    image: redis:7-alpine
+    container_name: junyue-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - junyue-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Next.js应用（开发模式）
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: junyue-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # 数据库配置
+      DATABASE_URL: "postgresql://junyue_user:junyue_password_dev@postgres:5432/junyue_spa"
+      DIRECT_URL: "postgresql://junyue_user:junyue_password_dev@postgres:5432/junyue_spa"
+      
+      # Redis配置
+      REDIS_URL: "redis://redis:6379"
+      
+      # NextAuth配置
+      NEXTAUTH_SECRET: "dev-secret-key-change-in-production"
+      NEXTAUTH_URL: "http://localhost:3000"
+      
+      # 腾讯地图API
+      NEXT_PUBLIC_TENCENT_MAP_KEY: "XF5BZ-SACWC-J7V27-A36VI-TWGQ3-N2BWX"
+      
+      # 开发模式标识
+      NODE_ENV: "development"
+    volumes:
+      # 代码热重载
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      # 上传文件持久化
+      - uploads-data:/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - junyue-network
+    command: npm run dev
+
+  # Prisma Studio（数据库可视化管理，可选）
+  prisma-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: junyue-prisma-studio
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    environment:
+      DATABASE_URL: "postgresql://junyue_user:junyue_password_dev@postgres:5432/junyue_spa"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - junyue-network
+    command: npx prisma studio --port 5555
+    profiles:
+      - tools  # 可选服务，使用 docker-compose --profile tools up 启动
+
+# 数据卷
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  uploads-data:
+    driver: local
+
+# 网络
+networks:
+  junyue-network:
+    driver: bridge
+

@@ -1,0 +1,59 @@
+# 君悦SPA - Docker忽略文件
+
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Next.js
+.next
+out
+build
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+.cursor
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Database
+prisma/migrations/migration_lock.toml
+*.sql
+*.db
+
+# Documentation
+*.md
+!README.md
+
+# Uploads (will be mounted as volume)
+public/uploads
+uploads
+
+# Test
+coverage
+.nyc_output
+
+# Misc
+*.log
+.cache
+

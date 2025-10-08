@@ -101,7 +101,7 @@ Content-Type: application/json     // POST/PUT请求必需
 
 ---
 
-## 👤 用户端API (35个接口)
+## 👤 用户端API (37个接口)
 
 ### 1. 认证相关 (5个)
 
@@ -872,9 +872,54 @@ Response:
 
 ---
 
-### 6. 收藏功能 (3个)
+### 6. 反馈功能 (2个)
 
-#### 6.1 收藏技师
+#### 6.1 提交反馈
+```typescript
+POST /api/user/feedbacks
+权限: User
+
+Request:
+{
+  "content": "希望增加更多服务项目"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "message": "反馈已提交，我们会尽快处理"
+  }
+}
+```
+
+#### 6.2 我的反馈
+```typescript
+GET /api/user/feedbacks/me
+权限: User
+
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "clx...",
+      "content": "希望增加更多服务项目",
+      "reply": "感谢您的建议，我们会考虑",
+      "status": "REPLIED",
+      "createdAt": "2025-10-08T10:00:00Z",
+      "repliedAt": "2025-10-08T14:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### 7. 收藏功能 (3个)
+
+#### 7.1 收藏技师
 ```typescript
 POST /api/user/favorites
 权限: User
@@ -891,7 +936,7 @@ Response:
 }
 ```
 
-#### 6.2 取消收藏
+#### 7.2 取消收藏
 ```typescript
 DELETE /api/user/favorites/:therapistId
 权限: User
@@ -903,7 +948,7 @@ Response:
 }
 ```
 
-#### 6.3 我的收藏
+#### 7.3 我的收藏
 ```typescript
 GET /api/user/favorites
 权限: User
@@ -1035,6 +1080,279 @@ Response:
       "pendingAmount": 0,
       "settledAmount": 249
     }
+  }
+}
+```
+
+---
+
+## 🤝 代理端API (10个接口)
+
+### 1. 认证相关 (1个)
+
+#### 1.1 代理登录
+```typescript
+POST /api/agent/auth/login
+权限: Public
+
+Request:
+{
+  "phone": "15000000000",
+  "password": "agent123"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "agent": {
+      "id": "clx...",
+      "name": "张三代理",
+      "phone": "150****0000",
+      "inviteCode": "AGENT001",
+      "commissionRate": 10
+    }
+  }
+}
+```
+
+---
+
+### 2. 个人资料 (2个)
+
+#### 2.1 获取个人资料
+```typescript
+GET /api/agent/profile
+权限: Agent
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "name": "张三代理",
+    "phone": "150****0000",
+    "inviteCode": "AGENT001",
+    "commissionRate": 10,
+    "totalEarnings": 50000,
+    "withdrawableBalance": 20000,
+    "status": "ACTIVE",
+    "createdAt": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+#### 2.2 更新个人资料
+```typescript
+PUT /api/agent/profile
+权限: Agent
+
+Request:
+{
+  "name": "张三代理",
+  "password": "newpassword"
+}
+
+Response:
+{
+  "success": true,
+  "message": "资料更新成功"
+}
+```
+
+---
+
+### 3. 收益管理 (3个)
+
+#### 3.1 收益列表
+```typescript
+GET /api/agent/earnings
+权限: Agent
+
+Query:
+{
+  page?: number
+  status?: EarningStatus
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "clx...",
+        "order": {
+          "orderNo": "JY...",
+          "totalAmount": 498
+        },
+        "amount": 49.8,
+        "status": "SETTLED",
+        "createdAt": "2025-10-01T10:00:00Z",
+        "settledAt": "2025-10-02T10:00:00Z"
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "pageSize": 20
+  }
+}
+```
+
+#### 3.2 收益统计
+```typescript
+GET /api/agent/statistics
+权限: Agent
+
+Response:
+{
+  "success": true,
+  "data": {
+    "totalEarnings": 50000,
+    "pendingEarnings": 5000,
+    "settledEarnings": 45000,
+    "totalInvitedUsers": 200,
+    "totalInvitedTherapists": 50,
+    "totalOrders": 1000,
+    "thisMonthEarnings": 8000
+  }
+}
+```
+
+#### 3.3 邀请记录
+```typescript
+GET /api/agent/invitations
+权限: Agent
+
+Query:
+{
+  type?: 'user' | 'therapist'
+  page?: number
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "clx...",
+        "inviteeType": "user",
+        "inviteeId": "clx...",
+        "inviteeName": "张三",
+        "totalOrders": 10,
+        "totalEarnings": 498,
+        "createdAt": "2025-10-01T10:00:00Z"
+      }
+    ],
+    "total": 250,
+    "page": 1,
+    "pageSize": 20
+  }
+}
+```
+
+---
+
+### 4. 提现管理 (4个)
+
+#### 4.1 申请提现
+```typescript
+POST /api/agent/withdrawals
+权限: Agent
+
+Request:
+{
+  "amount": 5000,
+  "method": "ALIPAY",
+  "account": "13900139000",
+  "accountName": "张三"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "withdrawalId": "clx...",
+    "message": "提现申请已提交，1-3个工作日到账"
+  }
+}
+```
+
+#### 4.2 提现记录
+```typescript
+GET /api/agent/withdrawals
+权限: Agent
+
+Query:
+{
+  page?: number
+  status?: WithdrawalStatus
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "clx...",
+        "amount": 5000,
+        "fee": 0,
+        "actualAmount": 5000,
+        "method": "ALIPAY",
+        "account": "139****9000",
+        "status": "COMPLETED",
+        "appliedAt": "2025-10-01T10:00:00Z",
+        "completedAt": "2025-10-02T14:00:00Z"
+      }
+    ],
+    "total": 10,
+    "page": 1,
+    "pageSize": 20
+  }
+}
+```
+
+#### 4.3 提现详情
+```typescript
+GET /api/agent/withdrawals/:id
+权限: Agent
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "amount": 5000,
+    "fee": 0,
+    "actualAmount": 5000,
+    "method": "ALIPAY",
+    "account": "13900139000",
+    "accountName": "张三",
+    "status": "COMPLETED",
+    "appliedAt": "2025-10-01T10:00:00Z",
+    "approvedAt": "2025-10-01T14:00:00Z",
+    "completedAt": "2025-10-02T14:00:00Z",
+    "transactionNo": "TX123456789"
+  }
+}
+```
+
+#### 4.4 提现统计
+```typescript
+GET /api/agent/withdrawals/statistics
+权限: Agent
+
+Response:
+{
+  "success": true,
+  "data": {
+    "totalWithdrawn": 30000,
+    "pendingAmount": 5000,
+    "withdrawableBalance": 20000,
+    "totalWithdrawals": 15
   }
 }
 ```
@@ -1297,6 +1615,16 @@ Response:
   "success": true,
   "message": "已拒单，定金已退还用户为积分"
 }
+
+// 后端自动执行逻辑：
+// 1. 更新订单状态为REJECTED
+// 2. 退还积分规则（"只换不退"政策）：
+//    - 用户使用的临时积分 → 退还为临时积分（延续60天有效期）
+//    - 用户使用的正式积分 → 退还为正式积分
+//    - 现金支付部分 → 退还为正式积分（1元=1积分）
+// 3. 创建PointRecord记录（type: REFUND）
+// 4. 更新用户积分余额
+// 5. 语音/短信通知用户
 ```
 
 #### 3.4 订单详情
@@ -1351,6 +1679,16 @@ Response:
   "success": true,
   "message": "服务已完成，尾款已到账"
 }
+
+// 后端自动执行逻辑：
+// 1. 更新订单状态为COMPLETED
+// 2. 技师余额增加尾款金额
+// 3. 触发分佣计算：
+//    - 检查是否有推荐关系
+//    - 创建UserEarning记录（用户推荐佣金10%）
+//    - 创建TherapistEarning记录（技师推荐分成5%）
+//    - 创建AgentEarning记录（代理佣金，如配置）
+// 4. 更新相关统计数据
 ```
 
 #### 3.8 订单统计
@@ -1637,7 +1975,7 @@ Response:
 
 ---
 
-## 🔧 管理端API (50个接口)
+## 🔧 管理端API (61个接口)
 
 ### 1. 认证相关 (3个)
 
@@ -2838,13 +3176,21 @@ Request (multipart/form-data):
   type: 'avatar' | 'photo' | 'video' | 'evidence'
 }
 
+说明:
+- 图片自动压缩转WebP格式（最大1200px）
+- 视频最大100MB，图片最大5MB
+- 文件存储在服务器本地 /uploads/ 目录
+- 通过Nginx静态托管，华纳云CN2线路加速
+
 Response:
 {
   "success": true,
   "data": {
-    "url": "https://cdn.junyue-spa.com/...",
-    "filename": "xxx.jpg",
-    "size": 102400
+    "url": "/uploads/photos/abc123.webp",
+    "filename": "abc123.webp",
+    "size": 45678,
+    "originalSize": 204800,  // 原始大小
+    "savings": "77.7%"        // 压缩率（仅图片）
   }
 }
 ```
@@ -2927,6 +3273,220 @@ Response:
 
 ---
 
+### 8. 服务项目管理 (5个)
+
+#### 8.1 服务项目列表
+```typescript
+GET /api/admin/services
+权限: Admin
+
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "clx...",
+      "name": "基础舒缓SPA",
+      "description": "基础舒缓SPA，体推，全身推油...",
+      "price": 498,
+      "duration": 60,
+      "depositRate": 50,
+      "features": ["全身按摩", "精油spa"],
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+#### 8.2 添加服务项目
+```typescript
+POST /api/admin/services
+权限: Admin
+
+Request:
+{
+  "name": "基础舒缓SPA",
+  "description": "基础舒缓SPA，体推，全身推油...",
+  "price": 498,
+  "duration": 60,
+  "depositRate": 50,
+  "features": ["全身按摩", "精油spa"]
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "message": "服务项目创建成功"
+  }
+}
+```
+
+#### 8.3 更新服务项目
+```typescript
+PUT /api/admin/services/:id
+权限: Admin
+
+Request:
+{
+  "name": "基础舒缓SPA",
+  "price": 498,
+  "isActive": true
+}
+
+Response:
+{
+  "success": true,
+  "message": "服务项目更新成功"
+}
+```
+
+#### 8.4 删除服务项目
+```typescript
+DELETE /api/admin/services/:id
+权限: Admin
+
+Response:
+{
+  "success": true,
+  "message": "服务项目已删除"
+}
+```
+
+#### 8.5 排序调整
+```typescript
+PUT /api/admin/services/:id/sort
+权限: Admin
+
+Request:
+{
+  "order": 2
+}
+
+Response:
+{
+  "success": true,
+  "message": "排序已更新"
+}
+```
+
+---
+
+### 9. 城市/区域管理 (6个)
+
+#### 9.1 城市列表
+```typescript
+GET /api/admin/cities
+权限: Admin
+
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "clx...",
+      "name": "北京",
+      "province": "北京",
+      "isActive": true,
+      "areas": [
+        {
+          "id": "clx...",
+          "name": "朝阳区"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### 9.2 添加城市
+```typescript
+POST /api/admin/cities
+权限: Admin
+
+Request:
+{
+  "name": "上海",
+  "province": "上海"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "message": "城市添加成功"
+  }
+}
+```
+
+#### 9.3 更新城市
+```typescript
+PUT /api/admin/cities/:id
+权限: Admin
+
+Request:
+{
+  "name": "上海",
+  "isActive": true
+}
+
+Response:
+{
+  "success": true,
+  "message": "城市更新成功"
+}
+```
+
+#### 9.4 删除城市
+```typescript
+DELETE /api/admin/cities/:id
+权限: Admin
+
+Response:
+{
+  "success": true,
+  "message": "城市已删除"
+}
+```
+
+#### 9.5 添加区域
+```typescript
+POST /api/admin/cities/:id/areas
+权限: Admin
+
+Request:
+{
+  "name": "朝阳区"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "clx...",
+    "message": "区域添加成功"
+  }
+}
+```
+
+#### 9.6 删除区域
+```typescript
+DELETE /api/admin/areas/:id
+权限: Admin
+
+Response:
+{
+  "success": true,
+  "message": "区域已删除"
+}
+```
+
+---
+
 ## ⚠️ 错误码说明
 
 ### HTTP状态码
@@ -2987,11 +3547,12 @@ Response:
 ---
 
 **总计接口数**:
-- 用户端: 35个
+- 用户端: 37个 (+2 反馈功能)
 - 技师端: 30个
-- 管理端: 50个
+- 代理端: 10个 (新增)
+- 管理端: 61个 (+11 服务项目、城市管理)
 - 通用: 5个
-- **合计: 120个接口**
+- **合计: 143个接口**
 
 ---
 
