@@ -1,9 +1,48 @@
-# 君悦SPA平台 - 奢华极简主义设计方案
+# 君悦SPA平台 - 奢华极简主义设计方案 v2.0
 
 > **设计师**: AI Design Team  
 > **设计理念**: Luxury Minimalism（奢华极简主义）  
-> **技术栈**: 21st.dev Component Library + Next.js + Tailwind CSS  
-> **更新日期**: 2025-10-05
+> **业务模式**: 技师展示平台 + 客服中介预约（v2.0简化版）  
+> **技术栈**: 21st.dev Component Library + Next.js + Tailwind CSS v3.4.17  
+> **更新日期**: 2025-10-11  
+> ⚠️ **重要**: 必须使用Tailwind CSS v3.x，21st.dev组件不兼容v4
+
+---
+
+## 📌 业务模型说明（v2.0）
+
+### 重大变更
+**v1.0 → v2.0 业务调整**：
+- ❌ 删除：用户注册/登录、订单系统、支付系统、积分系统、评价系统、代理端
+- ✅ 保留：用户端浏览技师（无需登录）、技师注册管理、管理端审核
+- ✅ 新增：客服联系功能、联系方式权限控制
+
+### 核心流程
+```
+用户 → 浏览技师信息 → 点击"联系客服预约" → 添加客服微信
+→ 客服查看技师联系方式 → 撮合预约 → 平台收取服务费
+```
+
+### 页面需求
+- **用户端**：首页、技师列表、技师详情、客服联系弹窗（5个页面）
+- **技师端**：登录、注册、资料管理、审核状态、个人中心（6个页面）
+- **管理端**：登录、数据看板、技师审核、客服配置（4个页面）
+
+**总计**：15个页面（原50+个）
+
+### 组件使用调整
+**v2.0业务模型下的组件使用策略**：
+
+本设计方案中的35个组件库选型保持不变，预留未来业务扩展。当前开发阶段：
+
+- ✅ **优先实现**：登录/注册、技师展示、文件上传、数据管理、客服联系等组件
+- ⚠️ **暂不使用**：订单追踪、支付表单、积分系统、评价系统相关组件（组件保留，应用场景暂不开发）
+- ✅ **新增场景**：客服联系弹窗（使用Modal组件）
+
+**开发优先级说明**：
+1. **P0（必须）**: 技师卡片、画廊、筛选器、客服按钮（用户端核心）
+2. **P1（重要）**: 表单组件、文件上传、审核管理（技师端和管理端）
+3. **P2（可选）**: 日历时间表、统计卡片（未来功能扩展）
 
 ---
 
@@ -1077,6 +1116,97 @@ npm install qrcode.react react-copy-to-clipboard
 - ✅ 技术栈成熟稳定，开发效率高
 
 **下一步**: 初始化项目 → 安装依赖 → 集成组件 → 开发业务逻辑 → 测试上线
+
+---
+
+## ⚠️ 技术实施注意事项
+
+### Tailwind CSS版本锁定（重要）
+
+**必须使用Tailwind CSS v3.4.17，严禁升级到v4！**
+
+#### 原因说明
+- 21st.dev组件库基于Tailwind v3开发
+- v4的配置语法与v3完全不兼容
+- v4的自定义颜色扩展机制发生重大变化
+- v4使用 `@theme inline` 等新语法，会导致现有组件失效
+
+#### 正确的安装方式
+```bash
+# 安装指定版本
+npm install -D tailwindcss@3.4.17 postcss@8.4.49 autoprefixer@10.4.20
+```
+
+#### PostCSS配置（postcss.config.mjs）
+```javascript
+const config = {
+  plugins: {
+    tailwindcss: {},      // v3语法
+    autoprefixer: {},
+  },
+};
+export default config;
+```
+
+#### Tailwind配置（tailwind.config.ts）
+```typescript
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        'primary-gold': '#D4AF37',    // 君悦金
+        'primary-purple': '#8B5CF6',  // 渐变紫
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+};
+export default config;
+```
+
+#### 全局样式（globals.css）
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ❌ 禁止使用v4语法：
+@plugin "tailwindcss-animate"
+@custom-variant dark
+@theme inline { ... }
+oklch(...)
+*/
+```
+
+### 组件集成清单
+
+**每次添加21st.dev组件后必须检查：**
+1. ✅ 所有自定义颜色已在 `tailwind.config.ts` 中定义
+2. ✅ 组件依赖的npm包已安装
+3. ✅ 清除 `.next` 缓存并重启开发服务器
+4. ✅ 验证UI效果正常显示
+
+### 常见问题快速修复
+
+**问题：渐变效果不显示**
+```bash
+# 1. 停止开发服务器
+# 2. 清除缓存
+rm -rf .next
+# 3. 重启
+npm run dev
+```
+
+**问题：Cannot find module '@tailwindcss/postcss'**
+- 原因：使用了v4的PostCSS插件
+- 解决：检查并修复 `postcss.config.mjs` 为v3语法
 
 ---
 

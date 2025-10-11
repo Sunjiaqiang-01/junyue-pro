@@ -1,0 +1,293 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==================== 技师相关表 (5张) ====================
+
+// 1. 技师表
+model Therapist {
+  id                  String            @id @default(cuid())
+  phone               String            @unique
+  password            String
+  nickname            String
+  
+  age                 Int
+  height              Int
+  weight              Int
+  city                String
+  areas               String[]
+  
+  status              TherapistStatus   @default(PENDING)
+  auditReason         String?
+  
+  isOnline            Boolean           @default(false)
+  lastOnlineAt        DateTime?
+  
+  isNew               Boolean           @default(true)
+  isFeatured          Boolean           @default(false)
+  
+  // 邀请码（可选）
+  inviteCode          String            @unique
+  invitedBy           String?
+  inviter             Therapist?        @relation("TherapistInvitations", fields: [invitedBy], references: [inviteCode])
+  invitees            Therapist[]       @relation("TherapistInvitations")
+  
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  auditedAt           DateTime?
+  
+  profile             TherapistProfile?
+  photos              TherapistPhoto[]
+  videos              TherapistVideo[]
+  schedules           TherapistSchedule[]
+  notifications       Notification[]
+  
+  @@index([phone])
+  @@index([status])
+  @@index([city])
+  @@index([isOnline])
+  @@index([createdAt])
+  @@map("therapists")
+}
+
+enum TherapistStatus {
+  PENDING   // 待审核
+  APPROVED  // 已通过
+  REJECTED  // 已拒绝
+  BANNED    // 已封禁
+}
+
+// 2. 技师资料表
+model TherapistProfile {
+  id              String        @id @default(cuid())
+  therapistId     String        @unique
+  therapist       Therapist     @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  introduction    String        @db.Text
+  specialties     String[]
+  
+  // 联系方式（仅管理端可见）
+  wechat          String?
+  qq              String?
+  phone           String?
+  
+  serviceType     ServiceType[]
+  serviceAddress  String?
+  serviceLat      Decimal?      @db.Decimal(10, 7)
+  serviceLng      Decimal?      @db.Decimal(10, 7)
+  serviceRadius   Int?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([therapistId])
+  @@map("therapist_profiles")
+}
+
+enum ServiceType {
+  VISIT_CLIENT  // 上门服务
+  CLIENT_VISIT  // 客户到店
+  NEGOTIATE     // 双方协商
+}
+
+// 3. 技师照片表
+model TherapistPhoto {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  url         String
+  order       Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([therapistId])
+  @@index([order])
+  @@map("therapist_photos")
+}
+
+// 4. 技师视频表
+model TherapistVideo {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  url         String
+  coverUrl    String?
+  duration    Int?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([therapistId])
+  @@map("therapist_videos")
+}
+
+// 5. 技师时间表（可选保留）
+model TherapistSchedule {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  date        DateTime  @db.Date
+  startTime   String
+  endTime     String
+  
+  isAvailable Boolean   @default(true)
+  isRecurring Boolean   @default(false)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([therapistId, date, startTime])
+  @@index([therapistId])
+  @@index([date])
+  @@map("therapist_schedules")
+}
+
+// ==================== 服务相关表 (2张) ====================
+
+// 6. 城市表
+model City {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  code      String    @unique
+  
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  areas     Area[]
+  
+  @@index([isActive])
+  @@index([order])
+  @@map("cities")
+}
+
+// 7. 区域表
+model Area {
+  id        String    @id @default(cuid())
+  cityId    String
+  city      City      @relation(fields: [cityId], references: [id])
+  name      String
+  code      String
+  
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@unique([cityId, name])
+  @@index([cityId])
+  @@index([isActive])
+  @@map("areas")
+}
+
+// ==================== 系统相关表 (4张) ====================
+
+// 8. 管理员表
+model Admin {
+  id          String      @id @default(cuid())
+  username    String      @unique
+  password    String
+  name        String
+  
+  role        AdminRole   @default(ADMIN)
+  
+  lastLoginAt DateTime?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([username])
+  @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN  // 超级管理员
+  ADMIN        // 管理员
+  OPERATOR     // 运营
+}
+
+// 9. 通知消息表
+model Notification {
+  id          String           @id @default(cuid())
+  
+  therapistId String?
+  therapist   Therapist?       @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  type        NotificationType
+  title       String
+  content     String           @db.Text
+  
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+  
+  createdAt   DateTime         @default(now())
+  
+  @@index([therapistId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  SYSTEM      // 系统通知
+  AUDIT       // 审核通知
+  ANNOUNCEMENT // 公告通知
+}
+
+// 10. 公告表
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    @db.Text
+  
+  type        AnnouncementType @default(NOTICE)
+  
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([type])
+  @@index([isPublished])
+  @@index([publishedAt])
+  @@map("announcements")
+}
+
+enum AnnouncementType {
+  NOTICE      // 通知
+  ACTIVITY    // 活动
+  MAINTENANCE // 维护
+}
+
+// 11. 客服配置表
+model CustomerService {
+  id              String   @id @default(cuid())
+  wechatQrCode    String   // 客服微信二维码URL
+  wechatId        String?  // 客服微信号
+  phone           String?  // 客服电话
+  workingHours    String   // 工作时间（如：9:00-22:00）
+  
+  isActive        Boolean  @default(true)
+  order           Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([isActive])
+  @@map("customer_services")
+}

@@ -1,193 +1,43 @@
-# 君悦SPA - Git忽略文件配置
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# ===============================================
-# Dependencies / 依赖
-# ===============================================
-node_modules/
+# dependencies
+/node_modules
 /.pnp
-.pnp.js
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# ===============================================
-# Testing / 测试
-# ===============================================
+# testing
 /coverage
 
-# ===============================================
-# Next.js / Next.js构建文件
-# ===============================================
+# next.js
 /.next/
 /out/
-.next/
-out/
 
-# Production build / 生产构建
-build/
-dist/
+# production
+/build
 
-# ===============================================
-# Environment Variables / 环境变量
-# ===============================================
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env*.local
+# misc
+.DS_Store
+*.pem
 
-# ===============================================
-# Logs / 日志文件
-# ===============================================
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
 
-# ===============================================
-# IDE / 编辑器
-# ===============================================
-# VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
+# env files (can opt-in for committing if needed)
+.env*
 
-# Cursor (基于VSCode)
-.cursor/
+# vercel
+.vercel
 
-# WebStorm
-.idea/
-*.iml
-*.iws
-
-# ===============================================
-# OS / 操作系统
-# ===============================================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-
-# Linux
-*~
-
-# ===============================================
-# Database / 数据库
-# ===============================================
-# Prisma
-prisma/.env
-prisma/migrations/migration_lock.toml
-
-# Database dumps
-*.sql
-*.sqlite
-*.sqlite3
-*.db
-
-# ===============================================
-# Docker / Docker相关
-# ===============================================
-# Docker volumes
-docker/postgres-data/
-docker/redis-data/
-
-# Docker compose override
-docker-compose.override.yml
-
-# ===============================================
-# Uploads / 上传文件 (开发环境)
-# ===============================================
-# 开发环境的上传文件不提交，生产环境在服务器上
-public/uploads/
-uploads/
-
-# ===============================================
-# Backup / 备份文件
-# ===============================================
-*.backup
-*.bak
-backups/
-
-# ===============================================
-# Temporary files / 临时文件
-# ===============================================
-*.tmp
-*.temp
-.cache/
-.temp/
-
-# ===============================================
-# TypeScript / TypeScript编译
-# ===============================================
+# typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# ===============================================
-# Package manager / 包管理器
-# ===============================================
-# Yarn
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# pnpm
-.pnpm-store/
-
-# ===============================================
-# Vercel / Vercel部署
-# ===============================================
-.vercel
-
-# ===============================================
-# SemiPay / 支付系统
-# ===============================================
-# SemiPay相关配置不提交
-semipay-config.json
-
-# ===============================================
-# SSL Certificates / SSL证书
-# ===============================================
-*.pem
-*.key
-*.crt
-*.cert
-
-# ===============================================
-# Project specific / 项目特定
-# ===============================================
-# 测试数据
-seed-data/test/
-
-# 导出文件
-exports/
-
-# 临时文档（开发过程中的草稿等）
-*.draft.md
-NOTES.md
-
-# ===============================================
-# Keep these / 保留这些文件
-# ===============================================
-# 项目文档保留
-!项目需求文档.md
-!数据库设计文档.md
-!API接口文档.md
-!开发计划.md
-!君悦SPA-高级设计方案.md
-!README.md
-!CHANGELOG.md
-!logo.png
-
+/src/generated/prisma
