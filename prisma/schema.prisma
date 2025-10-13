@@ -16,15 +16,19 @@ datasource db {
 // 1. 技师表
 model Therapist {
   id                  String            @id @default(cuid())
-  phone               String            @unique
+  username            String            @unique // 🆕 用户名登录
   password            String
+  email               String?           // 🆕 邮箱（找回密码用）
+  phone               String?           // 改为可选
   nickname            String
   
   age                 Int
   height              Int
   weight              Int
+  cardValue           String?           // 🆕 牌值，例如 "17cm"
   city                String
   areas               String[]
+  location            Json?             // 🆕 位置信息 {name, street, latitude, longitude}
   
   status              TherapistStatus   @default(PENDING)
   auditReason         String?
@@ -35,11 +39,9 @@ model Therapist {
   isNew               Boolean           @default(true)
   isFeatured          Boolean           @default(false)
   
-  // 邀请码（可选）
-  inviteCode          String            @unique
-  invitedBy           String?
-  inviter             Therapist?        @relation("TherapistInvitations", fields: [invitedBy], references: [inviteCode])
-  invitees            Therapist[]       @relation("TherapistInvitations")
+  // 注册验证码（管理员生成）
+  registrationCodeId  String?
+  registrationCode    RegistrationCode? @relation(fields: [registrationCodeId], references: [id])
   
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
@@ -51,6 +53,8 @@ model Therapist {
   schedules           TherapistSchedule[]
   notifications       Notification[]
   
+  @@index([username])
+  @@index([email])
   @@index([phone])
   @@index([status])
   @@index([city])
@@ -74,11 +78,6 @@ model TherapistProfile {
   
   introduction    String        @db.Text
   specialties     String[]
-  
-  // 联系方式（仅管理端可见）
-  wechat          String?
-  qq              String?
-  phone           String?
   
   serviceType     ServiceType[]
   serviceAddress  String?
@@ -220,6 +219,22 @@ enum AdminRole {
   OPERATOR     // 运营
 }
 
+// 10. 必看攻略内容表
+model GuideContent {
+  id        String   @id @default(cuid())
+  title     String   @default("必看攻略")
+  content   String   @db.Text  // Markdown格式内容
+  order     Int      @default(1)
+  isActive  Boolean  @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([order])
+  @@map("guide_contents")
+}
+
 // 9. 通知消息表
 model Notification {
   id          String           @id @default(cuid())
@@ -290,4 +305,92 @@ model CustomerService {
   
   @@index([isActive])
   @@map("customer_services")
+}
+
+// 12. 验证码表
+model VerificationCode {
+  id          String   @id @default(cuid())
+  email       String   // 邮箱地址
+  code        String   // 6位验证码
+  type        CodeType @default(RESET_PASSWORD) // 验证码类型
+  
+  expiresAt   DateTime // 过期时间
+  usedAt      DateTime? // 使用时间
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([email])
+  @@index([code])
+  @@index([expiresAt])
+  @@map("verification_codes")
+}
+
+enum CodeType {
+  RESET_PASSWORD  // 重置密码
+  EMAIL_VERIFY    // 邮箱验证
+}
+
+// 13. 安全日志表（防暴力破解）
+model SecurityLog {
+  id          String      @id @default(cuid())
+  email       String      // 邮箱或用户标识
+  action      SecurityAction // 操作类型
+  success     Boolean     // 是否成功
+  ipAddress   String?     // IP地址
+  userAgent   String?     // 用户代理
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([email, action, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("security_logs")
+}
+
+enum SecurityAction {
+  CODE_VERIFY       // 验证码验证
+  PASSWORD_RESET    // 密码重置
+  LOGIN_ATTEMPT     // 登录尝试
+  USERNAME_CHECK    // 用户名检查
+}
+
+// 14. 注册验证码表（管理员生成）
+model RegistrationCode {
+  id          String    @id @default(cuid())
+  code        String    @unique // 6位数字验证码
+  
+  // 类型
+  codeType    RegistrationCodeType @default(LIMITED)
+  
+  // 使用限制
+  maxUses     Int       @default(1) // 最大使用次数（-1表示无限）
+  currentUses Int       @default(0) // 当前已使用次数
+  
+  // 时效性
+  expiresAt   DateTime? // 过期时间（null表示永久有效）
+  
+  // 状态
+  isActive    Boolean   @default(true) // 是否启用
+  
+  // 备注信息
+  note        String?   // 备注（如：春节招募批次）
+  
+  // 创建者
+  createdBy   String    // 管理员ID
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // 使用该验证码注册的技师
+  therapists  Therapist[]
+  
+  @@index([code])
+  @@index([isActive])
+  @@index([expiresAt])
+  @@map("registration_codes")
+}
+
+enum RegistrationCodeType {
+  ONETIME     // 一次性（使用1次后失效）
+  LIMITED     // 限次数（可设置使用次数）
+  UNLIMITED   // 无限次数（仅受时效限制）
 }

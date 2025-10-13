@@ -1,13 +1,15 @@
-import Image from 'next/image';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
-import CustomerServiceButton from '@/components/CustomerServiceButton';
-import ResizableNavigation from '@/components/ResizableNavigation';
-import * as PricingCard from '@/components/ui/pricing-card';
-import prisma from '@/lib/prisma';
+import Image from "next/image";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import CustomerServiceButton from "@/components/CustomerServiceButton";
+import ResizableNavigation from "@/components/ResizableNavigation";
+import PageContainer from "@/components/PageContainer";
+import * as PricingCard from "@/components/ui/pricing-card";
+import prisma from "@/lib/prisma";
 
 export const metadata = {
-  title: '君悦SPA - 高端技师预约服务平台',
-  description: '专业SPA技师服务，提供基础舒缓、进阶焕活、奢华尊享三大套餐，所有技师均经过专业培训。',
+  title: "君悦SPA - 高端技师预约服务平台",
+  description:
+    "专业SPA技师服务，提供基础舒缓、进阶焕活、奢华尊享三大套餐，所有技师均经过专业培训。",
 };
 
 async function getAnnouncement() {
@@ -16,10 +18,10 @@ async function getAnnouncement() {
       isPublished: true,
     },
     orderBy: {
-      publishedAt: 'desc',
+      publishedAt: "desc",
     },
   });
-  
+
   return announcement;
 }
 
@@ -29,55 +31,36 @@ export default async function HomePage() {
   // 服务套餐数据
   const packages = [
     {
-      icon: '💆',
-      name: '项目一',
-      price: '¥498',
-      duration: '60分钟',
-      features: [
-        '体推',
-        '全身推油',
-        '肾部保养',
-        '全身按摩',
-        '臀部保养',
-        '私密护理',
-      ],
+      icon: "💆",
+      name: "项目一",
+      price: "¥498",
+      duration: "60分钟",
+      features: ["体推", "全身推油", "肾部保养", "全身按摩", "臀部保养", "私密护理"],
     },
     {
-      icon: '💆‍♀️',
-      name: '项目二',
-      badge: '热门',
-      price: '¥598',
-      duration: '80分钟',
-      features: [
-        '包含项目一全部内容',
-        '额外增加头疗',
-        '激情助浴',
-        '耳边调情',
-        '手指弹滑',
-      ],
+      icon: "💆‍♀️",
+      name: "项目二",
+      badge: "热门",
+      price: "¥598",
+      duration: "80分钟",
+      features: ["包含项目一全部内容", "额外增加头疗", "激情助浴", "耳边调情", "手指弹滑"],
     },
     {
-      icon: '💆‍♂️',
-      name: '项目三',
-      price: '¥698',
-      duration: '90分钟',
-      features: [
-        '包含项目一+二全部内容',
-        '额外增加花式滑推',
-        '水晶之恋',
-        '疏通护理',
-        '深度放松',
-      ],
+      icon: "💆‍♂️",
+      name: "项目三",
+      price: "¥698",
+      duration: "90分钟",
+      features: ["包含项目一+二全部内容", "额外增加花式滑推", "水晶之恋", "疏通护理", "深度放松"],
     },
   ];
 
   return (
-    <div className="min-h-screen bg-deep-black">
+    <PageContainer className="bg-deep-black">
       {/* 导航栏 */}
       <ResizableNavigation />
 
       {/* 主容器 */}
-      <div className="pt-28 px-4 md:px-8 lg:px-16">
+      <div className="px-4 md:px-8 lg:px-16">
         <div className="max-w-6xl mx-auto">
           {/* Logo和标题区域 */}
           <section className="py-12 text-center">
@@ -114,9 +97,7 @@ export default async function HomePage() {
 
           {/* 项目介绍 */}
           <section className="mb-16 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              专业SPA技师服务
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">专业SPA技师服务</h2>
             <p className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed">
               我们提供专业的SPA技师服务，让您享受放松身心的美好时光。
               所有技师均经过专业培训，为您提供优质的服务体验。
@@ -134,19 +115,11 @@ export default async function HomePage() {
                         <span className="text-4xl">{pkg.icon}</span>
                         <span>{pkg.name}</span>
                       </PricingCard.PlanName>
-                      {pkg.badge && (
-                        <PricingCard.Badge>
-                          {pkg.badge}
-                        </PricingCard.Badge>
-                      )}
+                      {pkg.badge && <PricingCard.Badge>{pkg.badge}</PricingCard.Badge>}
                     </PricingCard.Plan>
                     <PricingCard.Price>
-                      <PricingCard.MainPrice>
-                        {pkg.price}
-                      </PricingCard.MainPrice>
-                      <PricingCard.Period>
-                        /{pkg.duration}
-                      </PricingCard.Period>
+                      <PricingCard.MainPrice>{pkg.price}</PricingCard.MainPrice>
+                      <PricingCard.Period>/{pkg.duration}</PricingCard.Period>
                     </PricingCard.Price>
                   </PricingCard.Header>
 
@@ -205,20 +178,18 @@ export default async function HomePage() {
             <p className="text-lg text-gray-300 mb-8">
               专业客服团队随时为您服务，为您推荐最合适的技师
             </p>
-            <CustomerServiceButton variant="inline" size="lg" />
+            <p className="text-gray-400 text-sm">点击右下角悬浮按钮联系客服</p>
           </section>
         </div>
       </div>
 
       {/* 页脚 */}
       <footer className="border-t border-gray-800 py-8 text-center">
-        <p className="text-gray-500 text-sm">
-          君悦彩虹SPA © 2024 版权所有
-        </p>
+        <p className="text-gray-500 text-sm">君悦彩虹SPA © 2024 版权所有</p>
       </footer>
 
       {/* 悬浮客服按钮 */}
       <CustomerServiceButton variant="floating" />
-    </div>
+    </PageContainer>
   );
 }

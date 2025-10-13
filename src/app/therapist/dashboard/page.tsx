@@ -1,13 +1,33 @@
-'use client';
+"use client";
 
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Loader2, User, Edit, LogOut, CheckCircle, XCircle, Clock, Image as ImageIcon, Bell, Power } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import Link from 'next/link';
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  Loader2,
+  User,
+  Edit,
+  LogOut,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Image as ImageIcon,
+  Bell,
+  Power,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import Link from "next/link";
+import { ProfileValidator } from "@/lib/profile-validator";
+
+interface Location {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
 
 interface TherapistData {
   id: string;
@@ -15,7 +35,10 @@ interface TherapistData {
   age: number;
   height: number;
   weight: number;
+  cardValue: string | null;
   city: string;
+  phone: string | null;
+  location: Location | null;
   areas: string[];
   status: string;
   isOnline: boolean;
@@ -24,9 +47,6 @@ interface TherapistData {
   photos: Array<{ id: string; url: string }>;
   profile: {
     introduction: string;
-    wechat: string | null;
-    qq: string | null;
-    phone: string | null;
   } | null;
 }
 
@@ -39,9 +59,9 @@ export default function TherapistDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/therapist/login');
-    } else if (status === 'authenticated' && session?.user?.role === 'therapist') {
+    if (status === "unauthenticated") {
+      router.push("/therapist?modal=login");
+    } else if (status === "authenticated" && session?.user?.role === "therapist") {
       fetchTherapistData();
       fetchUnreadCount();
     }
@@ -49,17 +69,17 @@ export default function TherapistDashboard() {
 
   const fetchTherapistData = async () => {
     try {
-      const res = await fetch('/api/therapist/profile');
+      const res = await fetch("/api/therapist/profile");
       const data = await res.json();
-      
+
       if (data.success) {
         setTherapist(data.data);
       } else {
-        toast.error('获取资料失败');
+        toast.error("获取资料失败");
       }
     } catch (error) {
-      console.error('获取资料失败:', error);
-      toast.error('网络错误');
+      console.error("获取资料失败:", error);
+      toast.error("网络错误");
     } finally {
       setLoading(false);
     }
@@ -67,36 +87,36 @@ export default function TherapistDashboard() {
 
   const fetchUnreadCount = async () => {
     try {
-      const res = await fetch('/api/therapist/notifications/unread-count');
+      const res = await fetch("/api/therapist/notifications/unread-count");
       const data = await res.json();
       if (data.success) {
         setUnreadCount(data.count);
       }
     } catch (error) {
-      console.error('获取未读数失败:', error);
+      console.error("获取未读数失败:", error);
     }
   };
 
   const handleToggleOnline = async () => {
     if (!therapist) return;
-    
+
     setSubmitting(true);
     try {
-      const res = await fetch('/api/therapist/toggle-online', {
-        method: 'POST',
+      const res = await fetch("/api/therapist/toggle-online", {
+        method: "POST",
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success(therapist.isOnline ? '已设为离线' : '已设为在线');
+        toast.success(therapist.isOnline ? "已设为离线" : "已设为在线");
         fetchTherapistData();
       } else {
         toast.error(data.error);
       }
     } catch (error) {
-      console.error('切换状态失败:', error);
-      toast.error('网络错误');
+      console.error("切换状态失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
@@ -104,22 +124,22 @@ export default function TherapistDashboard() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
-    router.push('/therapist/login');
+    router.push("/therapist");
   };
 
   const handleResubmit = async () => {
-    if (!confirm('确认重新提交审核吗？')) {
+    if (!confirm("确认重新提交审核吗？")) {
       return;
     }
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/therapist/resubmit', {
-        method: 'POST',
+      const res = await fetch("/api/therapist/resubmit", {
+        method: "POST",
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
         toast.success(data.message);
         fetchTherapistData(); // 刷新数据
@@ -127,14 +147,14 @@ export default function TherapistDashboard() {
         toast.error(data.error);
       }
     } catch (error) {
-      console.error('提交失败:', error);
-      toast.error('网络错误');
+      console.error("提交失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -142,19 +162,19 @@ export default function TherapistDashboard() {
     );
   }
 
-  if (!session || session.user.role !== 'therapist' || !therapist) {
+  if (!session || session.user.role !== "therapist" || !therapist) {
     return null;
   }
 
   const getStatusBadge = () => {
     switch (therapist.status) {
-      case 'APPROVED':
+      case "APPROVED":
         return <Badge className="bg-green-600">已通过</Badge>;
-      case 'PENDING':
+      case "PENDING":
         return <Badge className="bg-yellow-600">待审核</Badge>;
-      case 'REJECTED':
+      case "REJECTED":
         return <Badge className="bg-red-600">已拒绝</Badge>;
-      case 'BANNED':
+      case "BANNED":
         return <Badge className="bg-gray-600">已封禁</Badge>;
       default:
         return null;
@@ -162,50 +182,56 @@ export default function TherapistDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8 pt-24">
       <div className="max-w-7xl mx-auto">
         {/* 顶部标题栏 */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-primary-gold mb-2">
-          技师工作台
-        </h1>
-            <p className="text-gray-400">
-              欢迎回来，{therapist.nickname}！
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            退出登录
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-primary-gold mb-2">技师工作台</h1>
+          <p className="text-gray-400">欢迎回来，{therapist.nickname}！</p>
         </div>
 
+        {/* 基本信息未完善提示 */}
+        {!ProfileValidator.isBasicInfoComplete(therapist) && (
+          <div className="mb-6 p-6 bg-red-600/10 border border-red-600/30 rounded-2xl">
+            <div className="flex items-center gap-3 mb-3">
+              <AlertCircle className="w-6 h-6 text-red-500" />
+              <h3 className="text-xl font-bold text-red-500">⚠️ 基本信息未完善</h3>
+            </div>
+            <p className="text-gray-300 mb-3">
+              您的基本信息（年龄、身高、体重、城市）尚未填写，无法提交审核。请先完善资料。
+            </p>
+            <Link href="/therapist/profile/edit">
+              <Button className="bg-primary-gold hover:bg-yellow-600">
+                <Edit className="w-4 h-4 mr-2" />
+                立即完善资料
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* 审核状态提示 */}
-        {therapist.status !== 'APPROVED' && (
+        {therapist.status !== "APPROVED" && ProfileValidator.isBasicInfoComplete(therapist) && (
           <div className="mb-6 p-6 bg-yellow-600/10 border border-yellow-600/30 rounded-2xl">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <Clock className="w-6 h-6 text-yellow-500" />
                 <h3 className="text-xl font-bold text-yellow-500">审核状态</h3>
               </div>
-              {therapist.status === 'REJECTED' && (
+              {therapist.status === "REJECTED" && (
                 <Button
                   onClick={handleResubmit}
                   disabled={submitting}
                   className="bg-primary-gold hover:bg-yellow-600"
                 >
-                  {submitting ? '提交中...' : '重新提交审核'}
+                  {submitting ? "提交中..." : "重新提交审核"}
                 </Button>
               )}
             </div>
             <p className="text-gray-300">
-              {therapist.status === 'PENDING' && '您的资料正在审核中，预计48小时内完成审核。'}
-              {therapist.status === 'REJECTED' && '您的资料审核未通过，请修改资料后点击"重新提交审核"按钮。'}
-              {therapist.status === 'BANNED' && '您的账号已被封禁，如有疑问请联系客服。'}
+              {therapist.status === "PENDING" && "您的资料正在审核中，预计48小时内完成审核。"}
+              {therapist.status === "REJECTED" &&
+                '您的资料审核未通过，请修改资料后点击"重新提交审核"按钮。'}
+              {therapist.status === "BANNED" && "您的账号已被封禁，如有疑问请联系客服。"}
             </p>
           </div>
         )}
@@ -231,22 +257,52 @@ export default function TherapistDashboard() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3 bg-white/5 rounded-lg text-center">
                     <p className="text-gray-400 text-xs mb-1">年龄</p>
-                    <p className="text-white font-bold">{therapist.age}岁</p>
+                    <p
+                      className={`font-bold ${ProfileValidator.isFieldFilled("age", therapist.age) ? "text-white" : "text-gray-500"}`}
+                    >
+                      {ProfileValidator.getDisplayValue("age", therapist.age)}
+                    </p>
                   </div>
                   <div className="p-3 bg-white/5 rounded-lg text-center">
                     <p className="text-gray-400 text-xs mb-1">身高</p>
-                    <p className="text-white font-bold">{therapist.height}cm</p>
+                    <p
+                      className={`font-bold ${ProfileValidator.isFieldFilled("height", therapist.height) ? "text-white" : "text-gray-500"}`}
+                    >
+                      {ProfileValidator.getDisplayValue("height", therapist.height)}
+                    </p>
                   </div>
                   <div className="p-3 bg-white/5 rounded-lg text-center">
                     <p className="text-gray-400 text-xs mb-1">体重</p>
-                    <p className="text-white font-bold">{therapist.weight}kg</p>
+                    <p
+                      className={`font-bold ${ProfileValidator.isFieldFilled("weight", therapist.weight) ? "text-white" : "text-gray-500"}`}
+                    >
+                      {ProfileValidator.getDisplayValue("weight", therapist.weight)}
+                    </p>
                   </div>
                 </div>
 
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-gray-400 text-sm mb-1">所在城市</p>
-                  <p className="text-white font-medium">{therapist.city}</p>
+                  <p
+                    className={`font-medium ${ProfileValidator.isFieldFilled("city", therapist.city) ? "text-white" : "text-gray-500"}`}
+                  >
+                    {ProfileValidator.getDisplayValue("city", therapist.city)}
+                  </p>
                 </div>
+
+                {therapist.cardValue && (
+                  <div className="p-3 bg-white/5 rounded-lg">
+                    <p className="text-gray-400 text-sm mb-1">牌值</p>
+                    <p className="text-white font-medium">{therapist.cardValue}</p>
+                  </div>
+                )}
+
+                {therapist.phone && (
+                  <div className="p-3 bg-white/5 rounded-lg">
+                    <p className="text-gray-400 text-sm mb-1">手机号</p>
+                    <p className="text-white font-medium">{therapist.phone}</p>
+                  </div>
+                )}
 
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-gray-400 text-sm mb-1">照片数量</p>
@@ -271,46 +327,72 @@ export default function TherapistDashboard() {
             {/* 资料完整度 */}
             <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
               <h2 className="text-2xl font-bold text-white mb-4">资料完整度</h2>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <span className="text-white">基本信息</span>
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <span className="text-white">个人介绍</span>
-                  {therapist.profile?.introduction ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-500" />
-                  )}
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <span className="text-white">联系方式</span>
-                  {therapist.profile?.wechat || therapist.profile?.qq || therapist.profile?.phone ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-500" />
-                  )}
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <span className="text-white">照片（至少3张）</span>
-                  {therapist.photos.length >= 3 ? (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <XCircle className="w-5 h-5 text-red-500" />
-                  )}
-                </div>
-              </div>
+
+              {(() => {
+                const completeness = ProfileValidator.checkProfileCompleteness(therapist);
+                return (
+                  <>
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-400 text-sm">完成度</span>
+                        <span className="text-primary-gold font-bold">
+                          {completeness.completionRate}%
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary-gold to-yellow-600 transition-all duration-500"
+                          style={{ width: `${completeness.completionRate}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <span className="text-white">基本信息</span>
+                        {completeness.basicInfo ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <span className="text-white">个人介绍</span>
+                        {completeness.introduction ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <span className="text-white">联系方式</span>
+                        {completeness.contact ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <span className="text-white">照片（至少3张）</span>
+                        {completeness.photos ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500" />
+                        )}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* 快速操作 */}
             <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
               <h2 className="text-2xl font-bold text-white mb-4">快速操作</h2>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/therapist/profile/edit">
                   <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
@@ -318,7 +400,7 @@ export default function TherapistDashboard() {
                     <span>编辑资料</span>
                   </Button>
                 </Link>
-                
+
                 <Link href="/therapist/notifications">
                   <Button variant="outline" className="w-full h-24 flex flex-col gap-2 relative">
                     <Bell className="w-6 h-6 text-blue-500" />
@@ -331,19 +413,21 @@ export default function TherapistDashboard() {
                   </Button>
                 </Link>
 
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full h-24 flex flex-col gap-2"
                   onClick={handleToggleOnline}
-                  disabled={submitting || therapist.status !== 'APPROVED'}
+                  disabled={submitting || therapist.status !== "APPROVED"}
                 >
-                  <Power className={`w-6 h-6 ${therapist.isOnline ? 'text-green-500' : 'text-gray-500'}`} />
-                  <span>{therapist.isOnline ? '在线' : '离线'}</span>
-                  {therapist.status === 'APPROVED' && (
+                  <Power
+                    className={`w-6 h-6 ${therapist.isOnline ? "text-green-500" : "text-gray-500"}`}
+                  />
+                  <span>{therapist.isOnline ? "在线" : "离线"}</span>
+                  {therapist.status === "APPROVED" && (
                     <span className="text-xs text-gray-400">点击切换</span>
                   )}
                 </Button>
-                
+
                 <Button variant="outline" className="w-full h-24 flex flex-col gap-2" disabled>
                   <Clock className="w-6 h-6 text-gray-500" />
                   <span className="text-gray-500">时间管理</span>
@@ -368,4 +452,3 @@ export default function TherapistDashboard() {
     </div>
   );
 }
-

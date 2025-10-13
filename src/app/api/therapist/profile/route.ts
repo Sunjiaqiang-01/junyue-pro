@@ -1,17 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 
 // GET - 获取技师资料
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    
-    if (!session || session.user.role !== 'therapist') {
-      return NextResponse.json(
-        { error: '未授权' },
-        { status: 401 }
-      );
+
+    if (!session || session.user.role !== "therapist") {
+      return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
     const therapist = await prisma.therapist.findUnique({
@@ -19,17 +16,14 @@ export async function GET(req: NextRequest) {
       include: {
         profile: true,
         photos: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
         },
         videos: true,
       },
     });
 
     if (!therapist) {
-      return NextResponse.json(
-        { error: '技师不存在' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "技师不存在" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -37,11 +31,8 @@ export async function GET(req: NextRequest) {
       data: therapist,
     });
   } catch (error) {
-    console.error('获取技师资料失败:', error);
-    return NextResponse.json(
-      { error: '获取资料失败' },
-      { status: 500 }
-    );
+    console.error("获取技师资料失败:", error);
+    return NextResponse.json({ error: "获取资料失败" }, { status: 500 });
   }
 }
 
@@ -49,12 +40,9 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const session = await auth();
-    
-    if (!session || session.user.role !== 'therapist') {
-      return NextResponse.json(
-        { error: '未授权' },
-        { status: 401 }
-      );
+
+    if (!session || session.user.role !== "therapist") {
+      return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
     const body = await req.json();
@@ -63,11 +51,11 @@ export async function PUT(req: NextRequest) {
       age,
       height,
       weight,
+      cardValue,
       city,
-      introduction,
-      wechat,
-      qq,
       phone,
+      location,
+      introduction,
       serviceAddress,
     } = body;
 
@@ -79,7 +67,10 @@ export async function PUT(req: NextRequest) {
         age: age ? parseInt(age) : undefined,
         height: height ? parseInt(height) : undefined,
         weight: weight ? parseInt(weight) : undefined,
+        cardValue,
         city,
+        phone,
+        location,
       },
     });
 
@@ -88,33 +79,23 @@ export async function PUT(req: NextRequest) {
       where: { therapistId: session.user.id },
       update: {
         introduction,
-        wechat,
-        qq,
-        phone,
         serviceAddress,
       },
       create: {
         therapistId: session.user.id,
-        introduction: introduction || '',
+        introduction: introduction || "",
         specialties: [],
         serviceType: [],
-        wechat,
-        qq,
-        phone,
         serviceAddress,
       },
     });
 
     return NextResponse.json({
       success: true,
-      message: '资料更新成功',
+      message: "资料更新成功",
     });
   } catch (error) {
-    console.error('更新技师资料失败:', error);
-    return NextResponse.json(
-      { error: '更新失败' },
-      { status: 500 }
-    );
+    console.error("更新技师资料失败:", error);
+    return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
-

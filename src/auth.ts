@@ -1,28 +1,28 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import prisma from '@/lib/prisma';
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import prisma from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
-      id: 'therapist',
-      name: 'therapist',
+      id: "therapist",
+      name: "therapist",
       credentials: {
-        phone: { label: '手机号', type: 'text' },
-        password: { label: '密码', type: 'password' },
+        username: { label: "用户名", type: "text" },
+        password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.phone || !credentials?.password) {
-          throw new Error('请输入手机号和密码');
+        if (!credentials?.username || !credentials?.password) {
+          throw new Error("请输入用户名和密码");
         }
 
         const therapist = await prisma.therapist.findUnique({
-          where: { phone: credentials.phone as string },
+          where: { username: credentials.username as string },
         });
 
         if (!therapist || !therapist.password) {
-          throw new Error('手机号或密码错误');
+          throw new Error("用户名或密码错误");
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -31,31 +31,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
 
         if (!isPasswordValid) {
-          throw new Error('手机号或密码错误');
+          throw new Error("用户名或密码错误");
         }
 
-        if (therapist.status === 'BANNED') {
-          throw new Error('账号已被封禁');
+        if (therapist.status === "BANNED") {
+          throw new Error("账号已被封禁");
         }
 
         return {
           id: therapist.id,
+          username: therapist.username,
+          email: therapist.email,
           phone: therapist.phone,
           nickname: therapist.nickname,
-          role: 'therapist',
+          role: "therapist",
         };
       },
     }),
     Credentials({
-      id: 'admin',
-      name: 'admin',
+      id: "admin",
+      name: "admin",
       credentials: {
-        username: { label: '用户名', type: 'text' },
-        password: { label: '密码', type: 'password' },
+        username: { label: "用户名", type: "text" },
+        password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          throw new Error('请输入用户名和密码');
+          throw new Error("请输入用户名和密码");
         }
 
         const admin = await prisma.admin.findUnique({
@@ -63,7 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!admin || !admin.password) {
-          throw new Error('用户名或密码错误');
+          throw new Error("用户名或密码错误");
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -72,24 +74,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
 
         if (!isPasswordValid) {
-          throw new Error('用户名或密码错误');
+          throw new Error("用户名或密码错误");
         }
 
         return {
           id: admin.id,
           username: admin.username,
           name: admin.name,
-          role: 'admin',
+          role: "admin",
           adminRole: admin.role,
         };
       },
     }),
   ],
   pages: {
-    signIn: '/therapist/login', // 技师登录页面
+    signIn: "/therapist?modal=login", // 技师登录弹窗
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -97,10 +99,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        if (user.role === 'therapist') {
+        if (user.role === "therapist") {
+          token.username = user.username;
+          token.email = user.email;
           token.phone = user.phone;
           token.nickname = user.nickname;
-        } else if (user.role === 'admin') {
+        } else if (user.role === "admin") {
           token.username = user.username;
           token.name = user.name;
           token.adminRole = user.adminRole;
@@ -112,10 +116,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        if (token.role === 'therapist') {
+        if (token.role === "therapist") {
+          session.user.username = token.username as string;
+          session.user.email = token.email as string;
           session.user.phone = token.phone as string;
           session.user.nickname = token.nickname as string;
-        } else if (token.role === 'admin') {
+        } else if (token.role === "admin") {
           session.user.username = token.username as string;
           session.user.name = token.name as string;
           session.user.adminRole = token.adminRole as string;

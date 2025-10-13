@@ -11,9 +11,9 @@ const config: Config = {
     extend: {
       colors: {
         // 君悦SPA主题色
-        'primary-gold': "#D4AF37", // 金色
-        'primary-purple': "#8B5CF6", // 紫色 (violet-500)
-        'deep-black': "#0B0C0F", // 深黑色
+        "primary-gold": "#D4AF37", // 金色
+        "primary-purple": "#8B5CF6", // 紫色 (violet-500)
+        "deep-black": "#0B0C0F", // 深黑色
         primary: {
           DEFAULT: "#D4AF37", // 金色
           50: "#FBF7EC",
@@ -82,8 +82,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 };
 
 export default config;
-

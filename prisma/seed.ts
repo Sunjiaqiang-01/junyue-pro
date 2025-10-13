@@ -92,40 +92,66 @@ async function main() {
     "经验丰富的专业技师，手法娴熟，力度适中，深受回头客喜爱。",
     "温柔细心的服务态度，专注于为客户提供舒适的SPA体验。",
     "热情开朗的技师，服务周到，擅长全身放松按摩。",
-    "专业技能过硬，服务态度一流，致力于让每位客户满意而归。"
+    "专业技能过硬，服务态度一流，致力于让每位客户满意而归。",
   ];
-  
+
   // 获取所有城市
   const allCities = await prisma.city.findMany({
     include: { areas: true },
   });
-  
+
+  // 准备位置数据（真实地标）
+  const locations = [
+    // 广州
+    { name: "天河城", street: "天河路208号", latitude: 23.1367, longitude: 113.3234 },
+    { name: "珠江新城", street: "花城大道", latitude: 23.12, longitude: 113.325 },
+    // 深圳
+    { name: "华强北", street: "华强北路", latitude: 22.5442, longitude: 114.0875 },
+    { name: "海岸城", street: "文心五路33号", latitude: 22.5164, longitude: 113.932 },
+    // 北京
+    { name: "国贸中心", street: "建国门外大街1号", latitude: 39.9088, longitude: 116.459 },
+    { name: "三里屯", street: "工体北路", latitude: 39.9367, longitude: 116.4503 },
+    // 上海
+    { name: "陆家嘴", street: "世纪大道8号", latitude: 31.2397, longitude: 121.499 },
+    { name: "南京路步行街", street: "南京东路", latitude: 31.2354, longitude: 121.4797 },
+    { name: "淮海中路", street: "淮海中路", latitude: 31.2201, longitude: 121.4628 },
+    { name: "徐家汇", street: "虹桥路", latitude: 31.1943, longitude: 121.4368 },
+  ];
+
+  // 牌值数据
+  const cardValues = ["15cm", "16cm", "17cm", "18cm", "19cm", "20cm", "21cm", "22cm"];
+
   // 创建技师
   for (let i = 1; i <= 10; i++) {
     const cityIndex = (i - 1) % allCities.length;
     const selectedCity = allCities[cityIndex];
-    
+    const locationData = locations[i - 1];
+
     const therapist = await prisma.therapist.upsert({
-      where: { phone: `1390000000${i < 10 ? '0' + i : i}` },
+      where: { phone: `1390000000${i < 10 ? "0" + i : i}` },
       update: {},
       create: {
-        phone: `1390000000${i < 10 ? '0' + i : i}`,
+        phone: `1390000000${i < 10 ? "0" + i : i}`,
         password: await bcrypt.hash("123456", 10),
         nickname: names[i - 1],
         age: 22 + (i % 8),
         height: 160 + (i % 15),
         weight: 45 + (i % 10),
+        cardValue: cardValues[(i - 1) % cardValues.length], // 🆕 牌值
         city: selectedCity.name,
-        areas: selectedCity.areas.slice(0, Math.min(2, selectedCity.areas.length)).map(a => a.name),
+        areas: selectedCity.areas
+          .slice(0, Math.min(2, selectedCity.areas.length))
+          .map((a) => a.name),
+        location: locationData, // 🆕 位置信息（JSON）
         status: i <= 8 ? "APPROVED" : "PENDING",
-        inviteCode: `TECH${String(i).padStart(4, '0')}`,
+        inviteCode: `TECH${String(i).padStart(4, "0")}`,
         invitedBy: i === 1 ? null : "TECH0001",
         isOnline: i <= 5,
         isFeatured: i <= 3,
         isNew: i > 7,
       },
     });
-    
+
     // 创建技师资料
     await prisma.therapistProfile.upsert({
       where: { therapistId: therapist.id },
@@ -139,19 +165,19 @@ async function main() {
         qq: `${888888 + i}`,
       },
     });
-    
-    // 创建技师照片
+
+    // 创建技师照片（9:16比例 - 720x1280）
     const photosCount = i <= 3 ? 5 : 3;
     for (let j = 1; j <= photosCount; j++) {
       await prisma.therapistPhoto.create({
         data: {
           therapistId: therapist.id,
-          url: `https://picsum.photos/seed/therapist${i}-photo${j}/800/1200`,
+          url: `https://picsum.photos/seed/therapist${i}-photo${j}/720/1280`,
           order: j,
         },
       });
     }
-    
+
     testTherapists.push(therapist);
   }
   console.log(`✅ 创建了 ${testTherapists.length} 个测试技师`);
@@ -192,7 +218,9 @@ async function main() {
           scheduleCount++;
         } catch (e) {
           // 跳过重复的时间段
-          console.log(`⚠️  跳过重复时间段: ${therapist.nickname} ${scheduleDate.toISOString().split('T')[0]} ${slot.start}`);
+          console.log(
+            `⚠️  跳过重复时间段: ${therapist.nickname} ${scheduleDate.toISOString().split("T")[0]} ${slot.start}`
+          );
         }
       }
     }
@@ -204,7 +232,8 @@ async function main() {
   await prisma.announcement.create({
     data: {
       title: "欢迎使用君悦SPA平台",
-      content: "君悦SPA技师展示平台已正式上线！您可以浏览技师信息，联系客服预约您心仪的技师。我们的客服团队将竭诚为您服务，安排专业的SPA技师为您提供优质服务。",
+      content:
+        "君悦SPA技师展示平台已正式上线！您可以浏览技师信息，联系客服预约您心仪的技师。我们的客服团队将竭诚为您服务，安排专业的SPA技师为您提供优质服务。",
       type: "NOTICE",
       isPublished: true,
       publishedAt: new Date(),
@@ -212,10 +241,97 @@ async function main() {
   });
   console.log("✅ 创建公告");
 
+  // 7. 创建必看攻略
+  console.log("📖 创建必看攻略...");
+  await prisma.guideContent.upsert({
+    where: { id: "guide-001" },
+    update: {},
+    create: {
+      id: "guide-001",
+      title: "必看攻略",
+      content: `# 必看攻略 📖
+
+欢迎来到君悦SPA！为了给您提供更好的服务体验，请仔细阅读以下攻略。
+
+---
+
+## 📞 如何预约技师？
+
+预约流程非常简单，只需4步：
+
+1. **浏览技师列表**：在「技师列表」页面查看所有在线技师
+2. **选择心仪技师**：点击「查看详情」了解技师的详细信息
+3. **联系客服预约**：点击「联系客服预约」按钮
+4. **告知技师信息**：提供技师姓名或编号给客服
+
+> 💡 **提示**：推荐技师和新人技师会有特殊标记哦！
+
+---
+
+## 💰 收费说明
+
+### 价格标准
+- 具体价格因技师和服务项目而异
+- 请联系客服咨询详细价格
+- 支持多种支付方式
+
+### 优惠活动
+- 新客户首次消费享受优惠
+- 定期推出会员活动
+- 详情请咨询客服
+
+---
+
+## ⏰ 服务时间
+
+- **服务时间**：09:00 - 22:00（全年无休）
+- **客服在线**：09:00 - 22:00
+- **节假日**：正常营业
+
+---
+
+## ❓ 常见问题
+
+### Q1: 可以上门服务吗？
+**A:** 部分技师支持上门服务，具体请在技师详情中查看或联系客服确认。
+
+### Q2: 如何修改或取消预约？
+**A:** 请提前至少2小时联系客服修改预约。预约后24小时内可免费取消。
+
+### Q3: 服务包含哪些项目？
+**A:** 服务项目包括但不限于：全身按摩、精油护理、足底按摩、肩颈护理等。具体项目请查看技师详情或咨询客服。
+
+### Q4: 如何成为技师？
+**A:** 点击导航栏的「技师入驻」按钮，填写相关信息提交审核即可。
+
+### Q5: 隐私保障如何？
+**A:** 我们严格保护客户隐私，所有信息均加密存储，不会泄露给第三方。
+
+---
+
+## 📱 联系我们
+
+如有任何疑问，请随时联系客服：
+
+- 点击页面右下角的**客服按钮**
+- 客服工作时间：09:00 - 22:00
+- 节假日正常在线
+
+---
+
+**祝您体验愉快！** 🌟`,
+      order: 1,
+      isActive: true,
+    },
+  });
+  console.log("✅ 创建必看攻略");
+
   console.log("\n🎉 数据填充完成！");
   console.log("\n📊 数据统计：");
   console.log(`- 城市: ${cities.length} 个`);
-  console.log(`- 技师: ${testTherapists.length} 个（已审核: ${testTherapists.filter(t => t.status === 'APPROVED').length}）`);
+  console.log(
+    `- 技师: ${testTherapists.length} 个（已审核: ${testTherapists.filter((t) => t.status === "APPROVED").length}）`
+  );
   console.log(`- 时间表: ${scheduleCount} 个时间段`);
   console.log(`- 客服配置: 1 个`);
   console.log("\n🔑 测试账号：");

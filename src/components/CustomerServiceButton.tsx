@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { MessageCircle, X, Loader2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import { useState, useEffect } from "react";
+import { MessageCircle, X, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface CustomerServiceButtonProps {
-  variant?: 'floating' | 'inline';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "floating" | "inline";
+  size?: "sm" | "md" | "lg";
 }
 
 interface CustomerServiceData {
@@ -18,9 +18,9 @@ interface CustomerServiceData {
   workingHours: string;
 }
 
-export default function CustomerServiceButton({ 
-  variant = 'floating',
-  size = 'md' 
+export default function CustomerServiceButton({
+  variant = "floating",
+  size = "md",
 }: CustomerServiceButtonProps) {
   const [open, setOpen] = useState(false);
   const [customerService, setCustomerService] = useState<CustomerServiceData | null>(null);
@@ -34,43 +34,56 @@ export default function CustomerServiceButton({
     }
   }, [open]);
 
+  // 监听自定义事件，从导航栏触发客服弹窗（防重复打开）
+  useEffect(() => {
+    const handleOpenCustomerService = () => {
+      // 只有在关闭状态才打开，防止重复
+      if (!open) {
+        setOpen(true);
+      }
+    };
+
+    window.addEventListener("openCustomerService", handleOpenCustomerService);
+
+    return () => {
+      window.removeEventListener("openCustomerService", handleOpenCustomerService);
+    };
+  }, [open]); // 依赖 open 状态
+
   const fetchCustomerService = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/customer-services');
+      const res = await fetch("/api/customer-services");
       const data = await res.json();
-      
+
       if (data.success) {
         setCustomerService(data.data);
       } else {
-        setError(data.error || '获取客服信息失败');
+        setError(data.error || "获取客服信息失败");
       }
     } catch (err) {
-      setError('网络错误，请稍后重试');
+      setError("网络错误，请稍后重试");
     } finally {
       setLoading(false);
     }
   };
 
-  if (variant === 'floating') {
+  if (variant === "floating") {
     return (
       <>
         {/* 悬浮按钮 */}
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-8 right-8 z-50 group"
-        >
+        <button onClick={() => setOpen(true)} className="fixed bottom-8 right-8 z-50 group">
           <div className="relative">
             {/* 脉冲动画背景 */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-gold to-yellow-600 animate-ping opacity-75" />
-            
+
             {/* 按钮主体 */}
             <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-primary-gold to-yellow-600 shadow-2xl hover:shadow-primary-gold/50 transition-all duration-300 group-hover:scale-110">
               <MessageCircle className="w-8 h-8 text-white" />
             </div>
           </div>
-          
+
           {/* 提示文字 */}
           <div className="absolute right-20 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
             <div className="bg-black/90 text-white px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium">
@@ -87,7 +100,7 @@ export default function CustomerServiceButton({
                 联系客服预约
               </DialogTitle>
             </DialogHeader>
-            
+
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -131,7 +144,9 @@ export default function CustomerServiceButton({
                     {customerService.workingHours && (
                       <div className="flex items-center justify-between">
                         <span className="text-gray-400">工作时间</span>
-                        <span className="text-white font-medium">{customerService.workingHours}</span>
+                        <span className="text-white font-medium">
+                          {customerService.workingHours}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -153,9 +168,9 @@ export default function CustomerServiceButton({
 
   // 内联按钮
   const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
+    sm: "px-4 py-2 text-sm",
+    md: "px-6 py-3 text-base",
+    lg: "px-8 py-4 text-lg",
   };
 
   return (
@@ -172,11 +187,9 @@ export default function CustomerServiceButton({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md bg-gradient-to-br from-gray-900 to-black border-gray-800">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-primary-gold">
-              联系客服预约
-            </DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-primary-gold">联系客服预约</DialogTitle>
           </DialogHeader>
-          
+
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -236,4 +249,3 @@ export default function CustomerServiceButton({
     </>
   );
 }
-

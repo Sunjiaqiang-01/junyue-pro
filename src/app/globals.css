@@ -66,6 +66,57 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* 导航栏固定定位时的页面滚动偏移 - 确保锚点跳转不被导航栏遮挡 */
+  html {
+    scroll-padding-top: 72px;
+  }
+  
+  /* 自定义滚动条样式 - 金色半透明 */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.5);
+  }
+  
+  /* Firefox滚动条样式 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+  }
+  
+  /* 必看攻略页面自定义样式 - 提高文字对比度 */
+  .guide-content {
+    --tw-prose-body: #F3F4F6 !important;           /* gray-100 - 正文 */
+    --tw-prose-headings: #D4AF37 !important;       /* primary-gold - 标题 */
+    --tw-prose-lead: #E5E7EB !important;           /* gray-200 */
+    --tw-prose-links: #D4AF37 !important;          /* primary-gold - 链接 */
+    --tw-prose-bold: #FFFFFF !important;           /* white - 加粗 */
+    --tw-prose-counters: #F3F4F6 !important;       /* gray-100 - 有序列表编号 */
+    --tw-prose-bullets: #F3F4F6 !important;        /* gray-100 - 无序列表符号 */
+    --tw-prose-hr: #4B5563 !important;             /* gray-600 - 分隔线 */
+    --tw-prose-quotes: #E5E7EB !important;         /* gray-200 - 引用 */
+    --tw-prose-quote-borders: #D4AF37 !important;  /* primary-gold - 引用边框 */
+    --tw-prose-captions: #D1D5DB !important;       /* gray-300 */
+    --tw-prose-code: #D4AF37 !important;           /* primary-gold - 代码 */
+    --tw-prose-pre-code: #E5E7EB !important;       /* gray-200 */
+    --tw-prose-pre-bg: #1F2937 !important;         /* gray-800 */
+    --tw-prose-th-borders: #4B5563 !important;     /* gray-600 */
+    --tw-prose-td-borders: #374151 !important;     /* gray-700 */
+  }
 }
 
 /* Gaming Login Animations */

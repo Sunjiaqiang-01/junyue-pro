@@ -43,6 +43,7 @@ Authorization: Bearer <token>  // 仅技师端和管理端需要
 ### 响应格式
 
 #### 成功响应
+
 ```json
 {
   "success": true,
@@ -54,6 +55,7 @@ Authorization: Bearer <token>  // 仅技师端和管理端需要
 ```
 
 #### 失败响应
+
 ```json
 {
   "success": false,
@@ -65,6 +67,7 @@ Authorization: Bearer <token>  // 仅技师端和管理端需要
 ```
 
 #### 分页响应
+
 ```json
 {
   "success": true,
@@ -92,10 +95,12 @@ Content-Type: application/json     // POST/PUT请求必需
 ```
 
 ### Token获取
+
 - 技师登录后返回JWT Token，有效期30天
 - 管理员登录后返回JWT Token，有效期30天
 
 ### 权限级别
+
 - **Public**: 无需登录（用户端）
 - **Therapist**: 需要技师登录
 - **Admin**: 需要管理员登录
@@ -105,6 +110,7 @@ Content-Type: application/json     // POST/PUT请求必需
 ## 🌐 公开API (4个接口)
 
 ### 1.1 技师列表（带筛选和分页）
+
 ```typescript
 GET /api/therapists
 权限: Public
@@ -119,12 +125,13 @@ Query Parameters:
   maxHeight?: number      // 最高身高
   minAge?: number         // 最低年龄
   maxAge?: number         // 最高年龄
-  isOnline?: boolean      // 仅在线
   isNew?: boolean         // 仅新技师
   isFeatured?: boolean    // 仅推荐技师
   sortBy?: 'createdAt' | 'nickname' // 排序
   order?: 'asc' | 'desc'  // 排序方向
   keyword?: string        // 关键词搜索
+
+  // ❌ 已删除: isOnline (在线状态筛选已移除)
 }
 
 Response:
@@ -138,12 +145,19 @@ Response:
         "age": 25,
         "height": 168,
         "weight": 50,
+        "cardValue": "17cm",     // 🆕 牌值
         "city": "北京",
         "areas": ["朝阳区", "海淀区"],
+        "location": {             // 🆕 位置信息
+          "name": "国贸中心",
+          "street": "建国门外大街1号",
+          "latitude": 39.9088,
+          "longitude": 116.4590
+        },
         "avatar": "https://...",
-        "isOnline": true,
         "isNew": false,
         "isFeatured": true,
+        "introduction": "资深SPA技师...",
         "specialties": ["泰式按摩", "精油spa"]
       }
     ],
@@ -158,6 +172,7 @@ Response:
 ```
 
 ### 1.2 技师详情
+
 ```typescript
 GET /api/therapists/:id
 权限: Public
@@ -171,17 +186,22 @@ Response:
     "age": 25,
     "height": 168,
     "weight": 50,
+    "cardValue": "17cm",         // 🆕 牌值
     "city": "北京",
     "areas": ["朝阳区"],
+    "location": {                 // 🆕 位置信息
+      "name": "国贸中心",
+      "street": "建国门外大街1号",
+      "latitude": 39.9088,
+      "longitude": 116.4590
+    },
     "introduction": "我是小雅，从事spa行业5年...",
-    "specialties": ["泰式按摩", "精油spa"],
-    "serviceTypes": ["VISIT_CLIENT", "CLIENT_VISIT"],
-    "serviceAddress": "北京市朝阳区xxx",
-    "isOnline": true,
+    "isNew": false,
+    "isFeatured": true,
     "photos": [
       {
         "id": "clx...",
-        "url": "https://...",
+        "url": "https://...",      // 9:16比例照片
         "order": 0
       }
     ],
@@ -193,20 +213,23 @@ Response:
         "duration": 30
       }
     ],
-    "schedules": [
-      {
-        "date": "2025-10-15",
-        "startTime": "09:00",
-        "endTime": "23:00",
-        "isAvailable": true
-      }
-    ]
-    // ❌ 不返回联系方式（wechat, qq, phone）
+    "profile": {
+      "introduction": "详细介绍...",
+      "serviceAddress": "北京市朝阳区xxx"
+    }
+
+    // ❌ 已删除字段:
+    // - isOnline (在线状态)
+    // - specialties (服务特色)
+    // - serviceTypes (服务类型)
+    // - schedules (工作时间)
+    // - 联系方式（wechat, qq, phone）
   }
 }
 ```
 
 ### 1.3 城市列表
+
 ```typescript
 GET /api/cities
 权限: Public
@@ -232,6 +255,7 @@ Response:
 ```
 
 ### 1.4 客服信息
+
 ```typescript
 GET /api/customer-services
 权限: Public
@@ -259,6 +283,7 @@ Response:
 ### 2. 认证相关 (2个)
 
 #### 2.1 技师注册
+
 ```typescript
 POST /api/therapist/auth/register
 权限: Public
@@ -287,6 +312,7 @@ Response:
 ```
 
 #### 2.2 技师登录
+
 ```typescript
 POST /api/therapist/auth/login
 权限: Public
@@ -318,6 +344,7 @@ Response:
 ### 3. 资料管理 (6个)
 
 #### 3.1 获取个人资料
+
 ```typescript
 GET /api/therapist/profile
 权限: Therapist
@@ -352,6 +379,7 @@ Response:
 ```
 
 #### 3.2 更新基本信息
+
 ```typescript
 PUT /api/therapist/profile/basic
 权限: Therapist
@@ -380,6 +408,7 @@ Response:
 ```
 
 #### 3.3 上传照片
+
 ```typescript
 POST /api/therapist/profile/photos
 权限: Therapist
@@ -403,6 +432,7 @@ Response:
 ```
 
 #### 3.4 删除照片
+
 ```typescript
 DELETE /api/therapist/profile/photos/:id
 权限: Therapist
@@ -415,6 +445,7 @@ Response:
 ```
 
 #### 3.5 上传视频
+
 ```typescript
 POST /api/therapist/profile/videos
 权限: Therapist
@@ -437,6 +468,7 @@ Response:
 ```
 
 #### 3.6 提交审核
+
 ```typescript
 POST /api/therapist/profile/submit-audit
 权限: Therapist
@@ -453,6 +485,7 @@ Response:
 ### 4. 状态和时间管理 (3个)
 
 #### 4.1 切换在线状态
+
 ```typescript
 POST /api/therapist/status/toggle
 权限: Therapist
@@ -473,6 +506,7 @@ Response:
 ```
 
 #### 4.2 获取时间表
+
 ```typescript
 GET /api/therapist/schedules
 权限: Therapist
@@ -500,6 +534,7 @@ Response:
 ```
 
 #### 4.3 添加时间段
+
 ```typescript
 POST /api/therapist/schedules
 权限: Therapist
@@ -524,6 +559,7 @@ Response:
 ### 5. 通知 (1个)
 
 #### 5.1 通知列表
+
 ```typescript
 GET /api/therapist/notifications
 权限: Therapist
@@ -561,6 +597,7 @@ Response:
 ### 6. 认证相关 (1个)
 
 #### 6.1 管理员登录
+
 ```typescript
 POST /api/admin/auth/login
 权限: Public
@@ -591,6 +628,7 @@ Response:
 ### 7. 数据看板 (2个)
 
 #### 7.1 核心指标
+
 ```typescript
 GET /api/admin/dashboard/metrics
 权限: Admin
@@ -615,6 +653,7 @@ Response:
 ```
 
 #### 7.2 趋势数据
+
 ```typescript
 GET /api/admin/dashboard/trends
 权限: Admin
@@ -642,6 +681,7 @@ Response:
 ### 8. 技师管理 (4个)
 
 #### 8.1 技师列表
+
 ```typescript
 GET /api/admin/therapists
 权限: Admin
@@ -677,6 +717,7 @@ Response:
 ```
 
 #### 8.2 技师详情（包含联系方式）
+
 ```typescript
 GET /api/admin/therapists/:id
 权限: Admin
@@ -709,6 +750,7 @@ Response:
 ```
 
 #### 8.3 审核通过
+
 ```typescript
 POST /api/admin/therapists/:id/approve
 权限: Admin
@@ -721,6 +763,7 @@ Response:
 ```
 
 #### 8.4 审核拒绝
+
 ```typescript
 POST /api/admin/therapists/:id/reject
 权限: Admin
@@ -742,6 +785,7 @@ Response:
 ### 9. 系统管理 (2个)
 
 #### 9.1 客服配置列表
+
 ```typescript
 GET /api/admin/customer-services
 权限: Admin
@@ -764,6 +808,7 @@ Response:
 ```
 
 #### 9.2 更新客服配置
+
 ```typescript
 PUT /api/admin/customer-services/:id
 权限: Admin
@@ -789,6 +834,7 @@ Response:
 ## 🔄 通用API (1个)
 
 ### 10.1 文件上传
+
 ```typescript
 POST /api/upload
 权限: Therapist/Admin
@@ -823,6 +869,7 @@ Response:
 ## ⚠️ 错误码说明
 
 ### HTTP状态码
+
 - `200` - 成功
 - `400` - 请求参数错误
 - `401` - 未认证
@@ -833,6 +880,7 @@ Response:
 - `500` - 服务器错误
 
 ### 业务错误码
+
 ```typescript
 {
   // 认证相关 (1xxx)
@@ -840,13 +888,13 @@ Response:
   "AUTH_002": "密码错误",
   "AUTH_003": "Token无效",
   "AUTH_004": "Token已过期",
-  
+
   // 技师相关 (2xxx)
   "THERAPIST_001": "技师不存在",
   "THERAPIST_002": "技师未通过审核",
   "THERAPIST_003": "照片数量不足（至少3张）",
   "THERAPIST_004": "手机号已注册",
-  
+
   // 文件相关 (3xxx)
   "FILE_001": "文件类型不支持",
   "FILE_002": "文件大小超出限制",
@@ -858,9 +906,9 @@ Response:
 
 ## 📝 版本历史
 
-| 版本 | 日期 | 变更说明 |
-|-----|------|---------|
-| v1.0 | 2025-10-08 | 初始版本，完整预约平台设计 |
+| 版本 | 日期       | 变更说明                                         |
+| ---- | ---------- | ------------------------------------------------ |
+| v1.0 | 2025-10-08 | 初始版本，完整预约平台设计                       |
 | v2.0 | 2025-10-11 | 简化版本，删除用户/订单/支付/积分/评价/代理端API |
 
 ---
@@ -868,12 +916,14 @@ Response:
 ## 📊 接口统计
 
 **v2.0 接口总数**: 26个
+
 - **公开API**: 4个（用户端浏览）
 - **技师端API**: 12个（注册、资料管理、状态管理）
 - **管理端API**: 9个（审核、管理、配置）
 - **通用API**: 1个（文件上传）
 
 **与v1.0对比**:
+
 - 接口数量：146个 → 26个（减少82%）
 - 删除模块：用户注册、订单系统、支付系统、积分系统、评价系统、代理端
 - 核心变化：用户端无需登录，技师联系方式仅管理端可见

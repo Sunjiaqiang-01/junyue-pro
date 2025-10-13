@@ -1,15 +1,12 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "motion/react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 
 import React, { useRef, useState } from "react";
 
+// 导航栏高度常量（用于全局统一）
+export const NAVBAR_HEIGHT = 72; // 72px = h-18 in Tailwind
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -73,11 +70,8 @@ export const Navbar = ({ children, className }: NavbarProps) => {
     >
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
-          ? React.cloneElement(
-              child as React.ReactElement<{ visible?: boolean }>,
-              { visible },
-            )
-          : child,
+          ? React.cloneElement(child as React.ReactElement<{ visible?: boolean }>, { visible })
+          : child
       )}
     </motion.div>
   );
@@ -101,11 +95,13 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
       }}
       style={{
         minWidth: "800px",
+        height: `${NAVBAR_HEIGHT}px`,
       }}
       className={cn(
         "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
-        visible && "bg-gradient-to-b from-black via-gray-900/95 to-black/95 dark:bg-gradient-to-b dark:from-black dark:via-gray-900/95 dark:to-black/95",
-        className,
+        visible &&
+          "bg-gradient-to-b from-black via-gray-900/95 to-black/95 dark:bg-gradient-to-b dark:from-black dark:via-gray-900/95 dark:to-black/95",
+        className
       )}
     >
       {children}
@@ -120,8 +116,8 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-gray-300 transition duration-200 hover:text-primary-gold lg:flex lg:space-x-2 dark:text-gray-300 dark:hover:text-primary-gold",
-        className,
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-lg font-semibold text-gray-300 transition duration-200 hover:text-primary-gold lg:flex lg:space-x-2 dark:text-gray-300 dark:hover:text-primary-gold",
+        className
       )}
     >
       {items.map((item, idx) => (
@@ -166,8 +162,9 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
       }}
       className={cn(
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
-        visible && "bg-gradient-to-b from-black to-gray-900 dark:bg-gradient-to-b dark:from-black dark:to-gray-900",
-        className,
+        visible &&
+          "bg-gradient-to-b from-black to-gray-900 dark:bg-gradient-to-b dark:from-black dark:to-gray-900",
+        className
       )}
     >
       {children}
@@ -175,28 +172,15 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
   );
 };
 
-export const MobileNavHeader = ({
-  children,
-  className,
-}: MobileNavHeaderProps) => {
+export const MobileNavHeader = ({ children, className }: MobileNavHeaderProps) => {
   return (
-    <div
-      className={cn(
-        "flex w-full flex-row items-center justify-between",
-        className,
-      )}
-    >
+    <div className={cn("flex w-full flex-row items-center justify-between", className)}>
       {children}
     </div>
   );
 };
 
-export const MobileNavMenu = ({
-  children,
-  className,
-  isOpen,
-  onClose,
-}: MobileNavMenuProps) => {
+export const MobileNavMenu = ({ children, className, isOpen, onClose }: MobileNavMenuProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -206,7 +190,7 @@ export const MobileNavMenu = ({
           exit={{ opacity: 0 }}
           className={cn(
             "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-gradient-to-b from-black to-gray-900 px-4 py-8 shadow-[0_0_50px_rgba(212,_175,_55,_0.3)] border border-primary-gold/50 dark:bg-gradient-to-b dark:from-black dark:to-gray-900",
-            className,
+            className
           )}
         >
           {children}
@@ -216,17 +200,25 @@ export const MobileNavMenu = ({
   );
 };
 
-export const MobileNavToggle = ({
-  isOpen,
-  onClick,
-}: {
-  isOpen: boolean;
-  onClick: () => void;
-}) => {
+export const MobileNavToggle = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
   return isOpen ? (
-    <IconX className="text-black dark:text-white" onClick={onClick} />
+    // 展开时：关闭按钮（红色边框+文字）
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-red-500 bg-black/95 backdrop-blur-sm hover:bg-red-500/10 transition-all duration-200"
+    >
+      <IconX className="text-red-500 w-5 h-5" />
+      <span className="text-sm font-bold text-white">关闭</span>
+    </button>
   ) : (
-    <IconMenu2 className="text-black dark:text-white" onClick={onClick} />
+    // 未展开时：菜单按钮（金色边框+文字）
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-primary-gold bg-black/95 backdrop-blur-sm hover:bg-primary-gold/10 transition-all duration-200 shadow-lg shadow-primary-gold/20 hover:shadow-primary-gold/30"
+    >
+      <IconMenu2 className="text-primary-gold w-5 h-5" />
+      <span className="text-sm font-bold text-white">菜单</span>
+    </button>
   );
 };
 
@@ -236,12 +228,7 @@ export const NavbarLogo = () => {
       href="#"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <img
-        src="https://assets.aceternity.com/logo-dark.png"
-        alt="logo"
-        width={30}
-        height={30}
-      />
+      <img src="https://assets.aceternity.com/logo-dark.png" alt="logo" width={30} height={30} />
       <span className="font-medium text-black dark:text-white">Startup</span>
     </a>
   );
@@ -260,17 +247,15 @@ export const NavbarButton = ({
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "dark" | "gradient";
-} & (
-  | React.ComponentPropsWithoutRef<"a">
-  | React.ComponentPropsWithoutRef<"button">
-)) => {
+} & (React.ComponentPropsWithoutRef<"a"> | React.ComponentPropsWithoutRef<"button">)) => {
   const baseStyles =
     "px-4 py-2 rounded-md bg-white button bg-white text-black text-sm font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
 
   const variantStyles = {
     primary:
       "bg-gradient-to-r from-primary-gold to-yellow-600 text-white shadow-[0_8px_24px_rgba(212,_175,_55,_0.4)] hover:shadow-[0_12px_32px_rgba(212,_175,_55,_0.5)]",
-    secondary: "bg-transparent shadow-none text-primary-gold border border-primary-gold hover:bg-primary-gold/10 dark:text-primary-gold dark:border-primary-gold",
+    secondary:
+      "bg-transparent shadow-none text-primary-gold border border-primary-gold hover:bg-primary-gold/10 dark:text-primary-gold dark:border-primary-gold",
     dark: "bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
     gradient:
       "bg-gradient-to-r from-primary-gold to-yellow-600 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]",
@@ -286,4 +271,3 @@ export const NavbarButton = ({
     </Tag>
   );
 };
-

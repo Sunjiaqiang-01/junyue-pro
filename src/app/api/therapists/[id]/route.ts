@@ -1,16 +1,13 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const therapist = await prisma.therapist.findUnique({
       where: {
         id,
-        status: 'APPROVED', // 只显示审核通过的技师
+        status: "APPROVED", // 只显示审核通过的技师
       },
       select: {
         id: true,
@@ -18,14 +15,16 @@ export async function GET(
         age: true,
         height: true,
         weight: true,
+        cardValue: true, // 🆕 牌值
         city: true,
         areas: true,
+        location: true, // 🆕 位置信息
         isOnline: true,
         isNew: true,
         isFeatured: true,
         createdAt: true,
         photos: {
-          orderBy: { order: 'asc' },
+          orderBy: { order: "asc" },
           select: {
             id: true,
             url: true,
@@ -57,7 +56,7 @@ export async function GET(
             isAvailable: true,
           },
           orderBy: {
-            date: 'asc',
+            date: "asc",
           },
           take: 30,
           select: {
@@ -73,7 +72,7 @@ export async function GET(
 
     if (!therapist) {
       return NextResponse.json(
-        { success: false, error: '技师不存在或未通过审核' },
+        { success: false, error: "技师不存在或未通过审核" },
         { status: 404 }
       );
     }
@@ -83,11 +82,7 @@ export async function GET(
       data: therapist,
     });
   } catch (error) {
-    console.error('获取技师详情失败:', error);
-    return NextResponse.json(
-      { success: false, error: '获取技师详情失败' },
-      { status: 500 }
-    );
+    console.error("获取技师详情失败:", error);
+    return NextResponse.json({ success: false, error: "获取技师详情失败" }, { status: 500 });
   }
 }
-

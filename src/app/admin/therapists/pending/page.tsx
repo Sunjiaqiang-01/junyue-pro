@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Loader2, Check, X, Eye, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, Check, X, Eye, ArrowLeft, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import Image from "next/image";
+import Link from "next/link";
+import { ProfileValidator } from "@/lib/profile-validator";
+
+interface Location {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
 
 interface TherapistPending {
   id: string;
@@ -18,17 +26,16 @@ interface TherapistPending {
   age: number;
   height: number;
   weight: number;
+  cardValue: string | null;
   city: string;
+  phone: string | null;
+  location: Location | null;
   areas: string[];
-  phone: string;
   createdAt: string;
   photos: Array<{ id: string; url: string }>;
   videos: Array<{ id: string; url: string }>;
   profile: {
     introduction: string;
-    wechat: string | null;
-    qq: string | null;
-    phone: string | null;
   } | null;
 }
 
@@ -39,30 +46,30 @@ export default function TherapistsPendingPage() {
   const [therapists, setTherapists] = useState<TherapistPending[]>([]);
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistPending | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
+  const [rejectReason, setRejectReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated' && session?.user?.role === 'admin') {
+    if (status === "unauthenticated") {
+      router.push("/admin/login");
+    } else if (status === "authenticated" && session?.user?.role === "admin") {
       fetchPendingTherapists();
     }
   }, [status, session, router]);
 
   const fetchPendingTherapists = async () => {
     try {
-      const res = await fetch('/api/admin/therapists/pending');
+      const res = await fetch("/api/admin/therapists/pending");
       const data = await res.json();
-      
+
       if (data.success) {
         setTherapists(data.data);
       } else {
-        toast.error('获取待审核列表失败');
+        toast.error("获取待审核列表失败");
       }
     } catch (error) {
-      console.error('获取待审核列表失败:', error);
-      toast.error('网络错误');
+      console.error("获取待审核列表失败:", error);
+      toast.error("网络错误");
     } finally {
       setLoading(false);
     }
@@ -72,21 +79,21 @@ export default function TherapistsPendingPage() {
     setSubmitting(true);
     try {
       const res = await fetch(`/api/admin/therapists/${therapistId}/approve`, {
-        method: 'POST',
+        method: "POST",
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success('审核通过');
+        toast.success("审核通过");
         fetchPendingTherapists();
         setSelectedTherapist(null);
       } else {
-        toast.error(data.error || '操作失败');
+        toast.error(data.error || "操作失败");
       }
     } catch (error) {
-      console.error('审核通过失败:', error);
-      toast.error('网络错误');
+      console.error("审核通过失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
@@ -94,38 +101,38 @@ export default function TherapistsPendingPage() {
 
   const handleReject = async () => {
     if (!selectedTherapist || !rejectReason.trim()) {
-      toast.error('请输入拒绝原因');
+      toast.error("请输入拒绝原因");
       return;
     }
 
     setSubmitting(true);
     try {
       const res = await fetch(`/api/admin/therapists/${selectedTherapist.id}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: rejectReason }),
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success('已拒绝');
+        toast.success("已拒绝");
         setShowRejectDialog(false);
-        setRejectReason('');
+        setRejectReason("");
         fetchPendingTherapists();
         setSelectedTherapist(null);
       } else {
-        toast.error(data.error || '操作失败');
+        toast.error(data.error || "操作失败");
       }
     } catch (error) {
-      console.error('拒绝审核失败:', error);
-      toast.error('网络错误');
+      console.error("拒绝审核失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -133,7 +140,7 @@ export default function TherapistsPendingPage() {
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session || session.user.role !== "admin") {
     return null;
   }
 
@@ -150,12 +157,8 @@ export default function TherapistsPendingPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-4xl font-bold text-primary-gold mb-2">
-                技师审核
-              </h1>
-              <p className="text-gray-400">
-                共 {therapists.length} 位技师待审核
-              </p>
+              <h1 className="text-4xl font-bold text-primary-gold mb-2">技师审核</h1>
+              <p className="text-gray-400">共 {therapists.length} 位技师待审核</p>
             </div>
           </div>
         </div>
@@ -186,14 +189,48 @@ export default function TherapistsPendingPage() {
 
                 {/* 基本信息 */}
                 <h3 className="text-xl font-bold text-white mb-2">{therapist.nickname}</h3>
-                <div className="grid grid-cols-3 gap-2 mb-3 text-sm text-gray-300">
-                  <div>年龄: {therapist.age}岁</div>
-                  <div>身高: {therapist.height}cm</div>
-                  <div>体重: {therapist.weight}kg</div>
+                <div className="grid grid-cols-3 gap-2 mb-3 text-sm">
+                  <div
+                    className={
+                      ProfileValidator.isFieldFilled("age", therapist.age)
+                        ? "text-gray-300"
+                        : "text-red-400"
+                    }
+                  >
+                    年龄: {ProfileValidator.getDisplayValue("age", therapist.age)}
+                  </div>
+                  <div
+                    className={
+                      ProfileValidator.isFieldFilled("height", therapist.height)
+                        ? "text-gray-300"
+                        : "text-red-400"
+                    }
+                  >
+                    身高: {ProfileValidator.getDisplayValue("height", therapist.height)}
+                  </div>
+                  <div
+                    className={
+                      ProfileValidator.isFieldFilled("weight", therapist.weight)
+                        ? "text-gray-300"
+                        : "text-red-400"
+                    }
+                  >
+                    体重: {ProfileValidator.getDisplayValue("weight", therapist.weight)}
+                  </div>
                 </div>
-                <p className="text-gray-400 text-sm mb-2">城市: {therapist.city}</p>
+                <p
+                  className={`text-sm mb-2 ${ProfileValidator.isFieldFilled("city", therapist.city) ? "text-gray-400" : "text-red-400"}`}
+                >
+                  城市: {ProfileValidator.getDisplayValue("city", therapist.city)}
+                </p>
+                {!ProfileValidator.isBasicInfoComplete(therapist) && (
+                  <div className="flex items-center gap-2 mb-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>基本信息未完善</span>
+                  </div>
+                )}
                 <p className="text-gray-400 text-sm mb-4">
-                  注册时间: {new Date(therapist.createdAt).toLocaleDateString('zh-CN')}
+                  注册时间: {new Date(therapist.createdAt).toLocaleDateString("zh-CN")}
                 </p>
 
                 {/* 操作按钮 */}
@@ -210,8 +247,13 @@ export default function TherapistsPendingPage() {
                   <Button
                     size="sm"
                     onClick={() => handleApprove(therapist.id)}
-                    disabled={submitting}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    disabled={submitting || !ProfileValidator.isBasicInfoComplete(therapist)}
+                    className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={
+                      !ProfileValidator.isBasicInfoComplete(therapist)
+                        ? "基本信息未完善，无法通过审核"
+                        : ""
+                    }
                   >
                     <Check className="w-4 h-4 mr-1" />
                     通过
@@ -246,34 +288,82 @@ export default function TherapistsPendingPage() {
               </DialogHeader>
 
               <div className="space-y-6">
+                {/* 资料完整度警告 */}
+                {!ProfileValidator.isBasicInfoComplete(selectedTherapist) && (
+                  <div className="p-4 bg-red-600/10 border border-red-600/30 rounded-lg">
+                    <div className="flex items-center gap-2 text-red-400 mb-2">
+                      <AlertCircle className="w-5 h-5" />
+                      <h3 className="font-bold">⚠️ 基本信息未完善</h3>
+                    </div>
+                    <p className="text-gray-300 text-sm">
+                      该技师的基本信息尚未填写完整，无法通过审核。请联系技师完善资料后再审核。
+                    </p>
+                  </div>
+                )}
+
                 {/* 基本信息 */}
                 <div>
                   <h3 className="text-lg font-bold text-white mb-3">基本信息</h3>
-                  <div className="grid grid-cols-2 gap-4 text-gray-300">
-                    <div>年龄: {selectedTherapist.age}岁</div>
-                    <div>身高: {selectedTherapist.height}cm</div>
-                    <div>体重: {selectedTherapist.weight}kg</div>
-                    <div>城市: {selectedTherapist.city}</div>
-                    <div className="col-span-2">
-                      手机号: <span className="text-primary-gold">{selectedTherapist.phone}</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div
+                      className={
+                        ProfileValidator.isFieldFilled("age", selectedTherapist.age)
+                          ? "text-gray-300"
+                          : "text-red-400"
+                      }
+                    >
+                      年龄: {ProfileValidator.getDisplayValue("age", selectedTherapist.age)}
                     </div>
+                    <div
+                      className={
+                        ProfileValidator.isFieldFilled("height", selectedTherapist.height)
+                          ? "text-gray-300"
+                          : "text-red-400"
+                      }
+                    >
+                      身高: {ProfileValidator.getDisplayValue("height", selectedTherapist.height)}
+                    </div>
+                    <div
+                      className={
+                        ProfileValidator.isFieldFilled("weight", selectedTherapist.weight)
+                          ? "text-gray-300"
+                          : "text-red-400"
+                      }
+                    >
+                      体重: {ProfileValidator.getDisplayValue("weight", selectedTherapist.weight)}
+                    </div>
+                    <div
+                      className={
+                        ProfileValidator.isFieldFilled("city", selectedTherapist.city)
+                          ? "text-gray-300"
+                          : "text-red-400"
+                      }
+                    >
+                      城市: {ProfileValidator.getDisplayValue("city", selectedTherapist.city)}
+                    </div>
+                    {selectedTherapist.cardValue && (
+                      <div className="text-gray-300">
+                        牌值:{" "}
+                        <span className="text-primary-gold">{selectedTherapist.cardValue}</span>
+                      </div>
+                    )}
+                    {selectedTherapist.phone && (
+                      <div className="text-gray-300">
+                        手机号: <span className="text-primary-gold">{selectedTherapist.phone}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* 联系方式 */}
-                {selectedTherapist.profile && (
+                {/* 服务位置 */}
+                {selectedTherapist.location && (
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-3">联系方式</h3>
-                    <div className="grid grid-cols-2 gap-4 text-gray-300">
-                      {selectedTherapist.profile.wechat && (
-                        <div>微信: {selectedTherapist.profile.wechat}</div>
-                      )}
-                      {selectedTherapist.profile.qq && (
-                        <div>QQ: {selectedTherapist.profile.qq}</div>
-                      )}
-                      {selectedTherapist.profile.phone && (
-                        <div>联系电话: {selectedTherapist.profile.phone}</div>
-                      )}
+                    <h3 className="text-lg font-bold text-white mb-3">服务位置</h3>
+                    <div className="p-4 bg-white/5 rounded-lg">
+                      <p className="text-white font-semibold mb-1">
+                        {selectedTherapist.location.name}
+                      </p>
+                      <p className="text-gray-400 text-sm">{selectedTherapist.location.address}</p>
                     </div>
                   </div>
                 )}
@@ -296,13 +386,11 @@ export default function TherapistsPendingPage() {
                     </h3>
                     <div className="grid grid-cols-3 gap-4">
                       {selectedTherapist.photos.map((photo) => (
-                        <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden">
-                          <Image
-                            src={photo.url}
-                            alt="技师照片"
-                            fill
-                            className="object-cover"
-                          />
+                        <div
+                          key={photo.id}
+                          className="relative aspect-square rounded-lg overflow-hidden"
+                        >
+                          <Image src={photo.url} alt="技师照片" fill className="object-cover" />
                         </div>
                       ))}
                     </div>
@@ -313,8 +401,15 @@ export default function TherapistsPendingPage() {
                 <div className="flex gap-4">
                   <Button
                     onClick={() => handleApprove(selectedTherapist.id)}
-                    disabled={submitting}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    disabled={
+                      submitting || !ProfileValidator.isBasicInfoComplete(selectedTherapist)
+                    }
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={
+                      !ProfileValidator.isBasicInfoComplete(selectedTherapist)
+                        ? "基本信息未完善，无法通过审核"
+                        : ""
+                    }
                   >
                     <Check className="w-4 h-4 mr-2" />
                     审核通过
@@ -338,15 +433,11 @@ export default function TherapistsPendingPage() {
         <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
           <DialogContent className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-500">
-                拒绝审核
-              </DialogTitle>
+              <DialogTitle className="text-2xl font-bold text-red-500">拒绝审核</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
-              <p className="text-gray-300">
-                请填写拒绝原因，技师将收到通知
-              </p>
+              <p className="text-gray-300">请填写拒绝原因，技师将收到通知</p>
               <Textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
@@ -359,7 +450,7 @@ export default function TherapistsPendingPage() {
                   variant="outline"
                   onClick={() => {
                     setShowRejectDialog(false);
-                    setRejectReason('');
+                    setRejectReason("");
                   }}
                   className="flex-1"
                 >
@@ -371,7 +462,7 @@ export default function TherapistsPendingPage() {
                   disabled={submitting || !rejectReason.trim()}
                   className="flex-1"
                 >
-                  {submitting ? '提交中...' : '确认拒绝'}
+                  {submitting ? "提交中..." : "确认拒绝"}
                 </Button>
               </div>
             </div>
@@ -381,4 +472,3 @@ export default function TherapistsPendingPage() {
     </div>
   );
 }
-
