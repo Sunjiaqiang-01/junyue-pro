@@ -14,6 +14,7 @@ const therapistLinks = [
   { href: "/therapist/dashboard", label: "工作台" },
   { href: "/therapist/profile/edit", label: "资料管理" },
   { href: "/therapist/notifications", label: "通知" },
+  { href: "/therapist/settings", label: "设置" },
 ];
 
 export default function TherapistNavigation() {

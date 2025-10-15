@@ -10,8 +10,8 @@ export async function GET(req: Request) {
     // 验证管理员权限
     const session = await auth();
 
-    if (!session || session.user?.role !== "admin") {
-      return NextResponse.json({ error: "无权限" }, { status: 403 });
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);

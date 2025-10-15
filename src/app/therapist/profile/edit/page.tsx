@@ -3,16 +3,24 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, Camera, Video as VideoIcon } from "lucide-react";
+import { Loader2, Upload, X, Camera, Video as VideoIcon, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import Image from "next/image";
 import { ProfileValidator } from "@/lib/profile-validator";
 import ProvinceCitySelector from "@/components/ProvinceCitySelector";
 import TencentMapWechatStyle from "@/components/TencentMapWechatStyle";
+import { compressFiles } from "@/lib/client-compress";
+import {
+  processVideo,
+  dataUrlToBlob,
+  formatDuration,
+  formatFileSize,
+} from "@/lib/client-video-processor";
 
 interface Location {
   name: string;
@@ -33,7 +41,19 @@ interface TherapistData {
   phone: string | null;
   location: Location | null;
   status: string;
-  photos: Array<{ id: string; url: string; order: number }>;
+  photos: Array<{
+    id: string;
+    url: string;
+    order: number;
+    isPrimary: boolean;
+    isVideo: boolean;
+    thumbnailUrl?: string;
+    mediumUrl?: string;
+    largeUrl?: string;
+    videoUrl?: string;
+    coverUrl?: string;
+    duration?: number;
+  }>;
   videos: Array<{ id: string; url: string; coverUrl: string | null }>;
   profile: {
     introduction: string;
@@ -41,6 +61,10 @@ interface TherapistData {
     serviceType: string[];
     serviceAddress: string | null;
   } | null;
+}
+
+interface UploadProgress {
+  [fileName: string]: number;
 }
 
 export default function TherapistProfileEditPage() {
@@ -66,6 +90,17 @@ export default function TherapistProfileEditPage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState(0);
+  const [currentUploadType, setCurrentUploadType] = useState<"image" | "video" | null>(null);
+
+  // 视频预览相关
+  const [videoPreview, setVideoPreview] = useState<{
+    file: File;
+    thumbnail: string;
+    info: { duration: number; width: number; height: number; size: number; type: string };
+  } | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -106,45 +141,343 @@ export default function TherapistProfileEditPage() {
     }
   };
 
+  // 使用XMLHttpRequest上传单个文件并追踪进度
+  const uploadFileWithProgress = (
+    file: File,
+    apiEndpoint: string = "/api/upload/images",
+    additionalData?: { [key: string]: string | Blob }
+  ): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // 根据API端点设置类型
+      if (apiEndpoint.includes("/videos")) {
+        formData.append("type", "therapist-videos");
+      } else {
+        formData.append("type", "therapist-photos");
+      }
+
+      // 添加额外数据（如缩略图、时长等）
+      if (additionalData) {
+        Object.entries(additionalData).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+      }
+
+      // 监听上传进度
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress((prev) => ({
+            ...prev,
+            [file.name]: percent,
+          }));
+        }
+      });
+
+      // 监听完成
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+              // 返回完整的响应数据
+              resolve(response);
+            } else {
+              reject(new Error(response.error || "上传失败"));
+            }
+          } catch (error) {
+            reject(new Error("解析响应失败"));
+          }
+        } else {
+          reject(new Error(`HTTP ${xhr.status}`));
+        }
+      });
+
+      // 监听错误
+      xhr.addEventListener("error", () => {
+        reject(new Error("网络错误"));
+      });
+
+      xhr.open("POST", apiEndpoint);
+      xhr.send(formData);
+    });
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    let fileArray = Array.from(files);
+
+    // 重置进度状态
+    setUploadProgress({});
     setUploadingPhoto(true);
+
+    // 客户端预压缩
+    console.log("📦 开始客户端预压缩...");
+    const compressedFiles = await compressFiles(fileArray);
+    console.log(`✅ 预压缩完成: ${files.length} → ${compressedFiles.length} 个文件`);
+
+    setTotalFiles(compressedFiles.length);
+    setUploadedFiles(0);
+
+    const results = {
+      success: [] as string[],
+      failed: [] as { name: string; error: string }[],
+    };
+
     try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("type", "therapist-photo");
+      // 逐个上传文件(显示详细进度)
+      for (const file of compressedFiles) {
+        try {
+          // 1. 上传文件到服务器 (会自动处理图片/视频)
+          const uploadData = await uploadFileWithProgress(file);
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (data.success) {
-          // 上传照片到数据库
-          await fetch("/api/therapist/profile/photos", {
+          // 2. 保存到数据库 (包含所有尺寸信息)
+          const dbRes = await fetch("/api/therapist/profile/photos", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: data.data.url }),
+            body: JSON.stringify({
+              url: uploadData.url,
+              videoUrl: uploadData.videoUrl,
+              coverUrl: uploadData.coverUrl,
+              duration: uploadData.duration,
+              fileType: uploadData.fileType,
+            }),
           });
 
-          setPhotoPreview((prev) => [...prev, data.data.url]);
-          toast.success("照片上传成功");
-        } else {
-          toast.error("照片上传失败");
+          const dbData = await dbRes.json();
+
+          if (!dbData.success) {
+            throw new Error("保存到数据库失败");
+          }
+
+          results.success.push(uploadData.url);
+          setUploadedFiles((prev) => prev + 1);
+        } catch (error) {
+          console.error(`上传 ${file.name} 失败:`, error);
+          results.failed.push({
+            name: file.name,
+            error: error instanceof Error ? error.message : "未知错误",
+          });
+          setUploadedFiles((prev) => prev + 1);
         }
       }
 
-      // 刷新数据
-      fetchTherapistData();
+      // 3. 显示结果
+      if (results.success.length > 0) {
+        toast.success(`成功上传 ${results.success.length} 个文件`);
+        await fetchTherapistData();
+      }
+
+      if (results.failed.length > 0) {
+        toast.error(
+          `${results.failed.length} 个文件上传失败: ${results.failed.map((f) => f.name).join(", ")}`
+        );
+      }
     } catch (error) {
-      console.error("上传照片失败:", error);
-      toast.error("网络错误");
+      console.error("批量上传错误:", error);
+      toast.error("上传过程出现错误");
     } finally {
       setUploadingPhoto(false);
+      setUploadProgress({});
+      setTotalFiles(0);
+      setUploadedFiles(0);
+      setCurrentUploadType(null);
+      // 清空input，允许重新选择相同文件
+      e.target.value = "";
+    }
+  };
+
+  // 专门的图片上传处理
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setCurrentUploadType("image");
+
+    let fileArray = Array.from(files);
+
+    // 验证文件类型
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const invalidFiles = fileArray.filter((file) => !allowedTypes.includes(file.type));
+    if (invalidFiles.length > 0) {
+      const invalidNames = invalidFiles.map((f) => f.name).join(", ");
+      toast.error(`不支持的文件格式: ${invalidNames}。请选择JPG、PNG或WebP格式的图片。`);
+      e.target.value = "";
+      return;
+    }
+
+    // 验证文件大小
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const oversizedFiles = fileArray.filter((file) => file.size > maxSize);
+    if (oversizedFiles.length > 0) {
+      const oversizedNames = oversizedFiles.map((f) => f.name).join(", ");
+      toast.error(`文件过大: ${oversizedNames}。图片大小不能超过10MB。`);
+      e.target.value = "";
+      return;
+    }
+
+    // 重置进度状态
+    setUploadProgress({});
+    setUploadingPhoto(true);
+
+    // 客户端预压缩
+    console.log("📦 开始客户端预压缩...");
+    const compressedFiles = await compressFiles(fileArray);
+    console.log(`✅ 预压缩完成: ${files.length} → ${compressedFiles.length} 个文件`);
+
+    setTotalFiles(compressedFiles.length);
+    setUploadedFiles(0);
+
+    const results = {
+      success: [] as string[],
+      failed: [] as { name: string; error: string }[],
+    };
+
+    // 逐个上传文件
+    for (const file of compressedFiles) {
+      try {
+        // 1. 上传到服务器
+        const uploadData = await uploadFileWithProgress(file, "/api/upload/images");
+
+        // 2. 保存到数据库
+        const dbRes = await fetch("/api/therapist/profile/photos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: uploadData.url,
+            fileType: "image",
+          }),
+        });
+
+        const dbData = await dbRes.json();
+        if (dbData.success) {
+          results.success.push(file.name);
+          setUploadedFiles((prev) => prev + 1);
+        } else {
+          results.failed.push({ name: file.name, error: dbData.error || "数据库保存失败" });
+        }
+      } catch (error) {
+        console.error(`上传 ${file.name} 失败:`, error);
+        results.failed.push({
+          name: file.name,
+          error: error instanceof Error ? error.message : "上传失败",
+        });
+      }
+    }
+
+    // 显示结果
+    if (results.success.length > 0) {
+      toast.success(`成功上传 ${results.success.length} 张图片`);
+      fetchTherapistData(); // 刷新数据
+    }
+
+    if (results.failed.length > 0) {
+      toast.error(
+        `${results.failed.length} 张图片上传失败: ${results.failed.map((f) => f.name).join(", ")}`
+      );
+    }
+
+    // 清理状态
+    setUploadingPhoto(false);
+    setUploadProgress({});
+    setTotalFiles(0);
+    setUploadedFiles(0);
+    setCurrentUploadType(null);
+    e.target.value = "";
+  };
+
+  // 专门的视频上传处理
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0]; // 视频只支持单个上传
+    setCurrentUploadType("video");
+
+    // 验证文件类型
+    const allowedTypes = ["video/mp4", "video/quicktime", "video/x-msvideo"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(`不支持的视频格式: ${file.name}。请选择MP4、MOV或AVI格式的视频文件。`);
+      e.target.value = "";
+      return;
+    }
+
+    // 验证文件大小 (100MB)
+    const maxSize = 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(
+        `视频文件过大: ${file.name} (${formatFileSize(file.size)})。视频大小不能超过100MB。`
+      );
+      e.target.value = "";
+      return;
+    }
+
+    setUploadingPhoto(true);
+    setUploadProgress({ [file.name]: 0 });
+
+    try {
+      // 🎬 前端处理视频：生成缩略图和获取信息
+      toast.info("正在处理视频，请稍候...");
+      console.log("🎬 开始前端视频处理...");
+
+      const { thumbnail, info } = await processVideo(file);
+      console.log("✅ 视频处理完成:", {
+        duration: info.duration,
+        size: `${info.width}x${info.height}`,
+        fileSize: formatFileSize(info.size),
+      });
+
+      // 设置预览
+      setVideoPreview({
+        file,
+        thumbnail,
+        info,
+      });
+
+      // 将缩略图转换为Blob
+      const thumbnailBlob = dataUrlToBlob(thumbnail);
+
+      // 上传视频和缩略图
+      const uploadData = await uploadFileWithProgress(file, "/api/upload/videos", {
+        thumbnail: thumbnailBlob,
+        duration: info.duration.toString(),
+      });
+
+      // 保存到数据库
+      const dbRes = await fetch("/api/therapist/profile/photos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: uploadData.url,
+          videoUrl: uploadData.videoUrl,
+          coverUrl: uploadData.coverUrl,
+          duration: uploadData.duration,
+          fileType: "video",
+        }),
+      });
+
+      const dbData = await dbRes.json();
+      if (dbData.success) {
+        toast.success(`视频上传成功！时长: ${formatDuration(info.duration)}`);
+        fetchTherapistData(); // 刷新数据
+        setVideoPreview(null); // 清除预览
+      } else {
+        toast.error(dbData.error || "视频保存失败");
+      }
+    } catch (error) {
+      console.error("视频上传失败:", error);
+      toast.error(error instanceof Error ? error.message : "视频上传失败");
+      setVideoPreview(null);
+    } finally {
+      setUploadingPhoto(false);
+      setUploadProgress({});
+      setCurrentUploadType(null);
+      e.target.value = "";
     }
   };
 
@@ -166,8 +499,40 @@ export default function TherapistProfileEditPage() {
     }
   };
 
+  const handleSetPrimaryPhoto = async (photoId: string) => {
+    try {
+      const res = await fetch(`/api/therapist/profile/photos/${photoId}/primary`, {
+        method: "PATCH",
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("主图设置成功");
+        fetchTherapistData();
+      } else {
+        toast.error(data.error || "设置失败");
+      }
+    } catch (error) {
+      console.error("设置主图失败:", error);
+      toast.error("网络错误");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 验证照片数量（仅提示，不阻止保存）
+    if (!therapist || therapist.photos.length < 3) {
+      const confirmed = window.confirm(
+        `当前已上传${therapist?.photos.length || 0}张照片，建议至少上传3张。\n\n` +
+          `照片不足3张将无法提交审核。\n\n` +
+          `是否继续保存？`
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
 
     // 验证基本信息
     const ageNum = parseInt(age);
@@ -384,7 +749,18 @@ export default function TherapistProfileEditPage() {
           {/* 照片管理 */}
           <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
             <h2 className="text-2xl font-bold text-white mb-6">照片管理</h2>
-            <p className="text-gray-400 text-sm mb-4">至少上传3张照片，展示您的形象和服务环境</p>
+            <p className="text-gray-400 text-sm mb-4">
+              至少上传3张照片，展示您的形象和服务环境
+              {therapist && (
+                <span
+                  className={
+                    therapist.photos.length >= 3 ? "text-green-400 ml-2" : "text-yellow-400 ml-2"
+                  }
+                >
+                  （已上传 {therapist.photos.length}/3 张）
+                </span>
+              )}
+            </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {therapist?.photos.map((photo) => (
@@ -392,44 +768,226 @@ export default function TherapistProfileEditPage() {
                   key={photo.id}
                   className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-700 group"
                 >
-                  <Image src={photo.url} alt="技师照片" fill className="object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => handleDeletePhoto(photo.id)}
-                    className="absolute top-2 right-2 p-1 bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-4 h-4 text-white" />
-                  </button>
+                  {/* 区分图片和视频展示 */}
+                  {photo.isVideo ? (
+                    <video
+                      src={photo.videoUrl || photo.url}
+                      poster={photo.coverUrl || undefined}
+                      className="w-full h-full object-cover"
+                      preload="metadata"
+                    />
+                  ) : (
+                    <Image
+                      src={photo.url}
+                      alt="技师照片"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                  )}
+
+                  {/* 视频标识 */}
+                  {photo.isVideo && (
+                    <div className="absolute top-2 left-2 bg-black/70 px-2 py-1 rounded-md flex items-center gap-1">
+                      <VideoIcon className="w-3 h-3 text-white" />
+                      {photo.duration && (
+                        <span className="text-white text-xs">{formatDuration(photo.duration)}</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 主图标识 */}
+                  {photo.isPrimary && (
+                    <div
+                      className={`absolute top-2 bg-gradient-to-r from-yellow-500 to-yellow-600 px-2 py-1 rounded-md flex items-center gap-1 shadow-lg ${photo.isVideo ? "left-2 top-10" : "left-2"}`}
+                    >
+                      <Star className="w-3 h-3 text-white fill-white" />
+                      <span className="text-white text-xs font-bold">主图</span>
+                    </div>
+                  )}
+
+                  {/* 始终可见的操作图标 - 移动端友好 */}
+                  <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    {/* 主图切换按钮 */}
+                    <button
+                      type="button"
+                      onClick={() => handleSetPrimaryPhoto(photo.id)}
+                      className={`w-8 h-8 md:w-7 md:h-7 rounded-full backdrop-blur-sm border transition-all duration-200 flex items-center justify-center ${
+                        photo.isPrimary
+                          ? "bg-yellow-500/90 border-yellow-400 text-white shadow-lg"
+                          : "bg-black/50 border-gray-400 text-white hover:bg-yellow-500/80 hover:border-yellow-400"
+                      }`}
+                      title={photo.isPrimary ? "已是主图" : "设为主图"}
+                    >
+                      <Star
+                        className={`w-4 h-4 md:w-3 md:h-3 ${photo.isPrimary ? "fill-white" : ""}`}
+                      />
+                    </button>
+
+                    {/* 删除按钮 */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePhoto(photo.id)}
+                      className="w-8 h-8 md:w-7 md:h-7 rounded-full bg-red-500/90 border border-red-400 text-white hover:bg-red-600/90 transition-all duration-200 flex items-center justify-center shadow-lg"
+                      title="删除照片"
+                    >
+                      <X className="w-4 h-4 md:w-3 md:h-3" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handlePhotoUpload}
-                disabled={uploadingPhoto}
-                className="hidden"
-                id="photo-upload"
-              />
-              <label
-                htmlFor="photo-upload"
-                className={`flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-primary-gold transition-colors ${uploadingPhoto ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                {uploadingPhoto ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin text-primary-gold" />
-                    <span className="text-white">上传中...</span>
-                  </>
-                ) : (
-                  <>
-                    <Camera className="w-5 h-5 text-primary-gold" />
-                    <span className="text-white">点击上传照片</span>
-                  </>
-                )}
-              </label>
+            <div className="space-y-4">
+              {/* 分离的上传按钮 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 图片上传 */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    disabled={uploadingPhoto}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className={`flex items-center justify-center gap-2 w-full py-4 px-4 border-2 border-dashed border-blue-500/50 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-500/10 transition-all ${uploadingPhoto ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    {uploadingPhoto && currentUploadType === "image" ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
+                        <span className="text-white">
+                          处理图片 {uploadedFiles}/{totalFiles}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="w-6 h-6 text-blue-400" />
+                        <div className="text-center">
+                          <div className="text-white font-medium">上传图片</div>
+                          <div className="text-xs text-gray-400">支持JPG、PNG、WebP</div>
+                        </div>
+                      </>
+                    )}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2 text-center">最大10MB，自动优化压缩</p>
+                </div>
+
+                {/* 视频上传 */}
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="video/mp4,video/quicktime,video/x-msvideo"
+                    onChange={handleVideoUpload}
+                    disabled={uploadingPhoto}
+                    className="hidden"
+                    id="video-upload"
+                  />
+                  <label
+                    htmlFor="video-upload"
+                    className={`flex items-center justify-center gap-2 w-full py-4 px-4 border-2 border-dashed border-purple-500/50 rounded-lg cursor-pointer hover:border-purple-400 hover:bg-purple-500/10 transition-all ${uploadingPhoto ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    {uploadingPhoto && currentUploadType === "video" ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                        <span className="text-white">处理视频中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <VideoIcon className="w-6 h-6 text-purple-400" />
+                        <div className="text-center">
+                          <div className="text-white font-medium">上传视频</div>
+                          <div className="text-xs text-gray-400">支持MP4、MOV、AVI</div>
+                        </div>
+                      </>
+                    )}
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2 text-center">最大100MB，自动生成封面</p>
+                </div>
+              </div>
+
+              {/* 视频预览 */}
+              {videoPreview && (
+                <div className="bg-white/10 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white font-medium">视频预览</h4>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setVideoPreview(null)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* 缩略图预览 */}
+                    <div className="relative">
+                      <img
+                        src={videoPreview.thumbnail}
+                        alt="视频缩略图"
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/70 rounded-full p-2">
+                          <VideoIcon className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 视频信息 */}
+                    <div className="space-y-2 text-sm">
+                      <div className="text-white">
+                        <span className="text-gray-400">文件名:</span> {videoPreview.file.name}
+                      </div>
+                      <div className="text-white">
+                        <span className="text-gray-400">时长:</span>{" "}
+                        {formatDuration(videoPreview.info.duration)}
+                      </div>
+                      <div className="text-white">
+                        <span className="text-gray-400">分辨率:</span> {videoPreview.info.width}x
+                        {videoPreview.info.height}
+                      </div>
+                      <div className="text-white">
+                        <span className="text-gray-400">大小:</span>{" "}
+                        {formatFileSize(videoPreview.info.size)}
+                      </div>
+                      <div className="text-white">
+                        <span className="text-gray-400">格式:</span> {videoPreview.info.type}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 上传进度条 */}
+              {uploadingPhoto && Object.keys(uploadProgress).length > 0 && (
+                <div className="bg-white/10 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between text-sm text-white mb-2">
+                    <span>总体进度</span>
+                    <span>{Math.round((uploadedFiles / totalFiles) * 100)}%</span>
+                  </div>
+                  <Progress value={(uploadedFiles / totalFiles) * 100} className="h-2" />
+
+                  {/* 每个文件的进度 */}
+                  <div className="space-y-2 mt-4 max-h-40 overflow-y-auto">
+                    {Object.entries(uploadProgress).map(([fileName, progress]) => (
+                      <div key={fileName} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs text-gray-300">
+                          <span className="truncate max-w-[200px]">{fileName}</span>
+                          <span>{progress}%</span>
+                        </div>
+                        <Progress value={progress} className="h-1" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

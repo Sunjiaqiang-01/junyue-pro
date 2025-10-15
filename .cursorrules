@@ -51,8 +51,26 @@
 ### 3. 标准流程文档
 **完整流程参见：**《21st-dev组件使用标准流程.md》
 
-### 4. Tailwind版本锁定规范 ⚠️ 重要
-**项目必须使用Tailwind CSS v3.x：**
+### 4. 组件样式修改规范 ⚠️ 核心规则
+**修改21st.dev组件样式的强制流程：**
+1. **先修改组件源码**（`src/components/ui/*.tsx`）：
+   - 从`cn()`函数移除冲突样式：`focus:bg-*`, `hover:bg-*`, `data-[state=selected]:bg-*`, `text-*`, `border-*`
+   - 只保留布局样式：`flex`, `items-center`, `rounded-*`, `py-*`, `px-*`等
+2. **再应用自定义className**：移除冲突样式后，自定义样式才能生效
+
+**原因**：Tailwind CSS类优先级由CSS文件顺序决定，非className顺序。内置样式会覆盖后传入的className。
+
+**示例**：
+```typescript
+// ❌ 错误：直接传className，不生效
+<SelectItem className="text-white bg-gray-800">
+
+// ✅ 正确：先修改SelectItem源码，移除focus:bg-accent focus:text-accent-foreground
+const SelectItem = ...
+  className={cn("...布局样式...", className)}  // 移除颜色相关样式
+```
+
+### 5. Tailwind版本锁定规范
 - ✅ 当前版本：`tailwindcss@3.4.17`
 - ❌ 禁止升级到v4（与21st.dev组件不兼容）
 - ⚠️ 修改Tailwind配置后必须重启开发服务器

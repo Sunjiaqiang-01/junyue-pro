@@ -1,0 +1,308 @@
+/**
+ * 媒体处理工具库
+ * 处理图片多尺寸生成和视频缩略图/压缩
+ */
+
+import sharp from "sharp";
+import ffmpeg from "fluent-ffmpeg";
+import { join } from "path";
+import { writeFile, unlink } from "fs/promises";
+import { nanoid } from "nanoid";
+import type { FfprobeData } from "fluent-ffmpeg";
+
+// 动态导入ffmpeg路径(避免Windows路径问题)
+let ffmpegConfigured = false;
+
+async function ensureFfmpegPath() {
+  if (ffmpegConfigured) return;
+  
+  try {
+    // 动态导入避免构建时路径问题
+    const ffmpegInstaller = await import("@ffmpeg-installer/ffmpeg");
+    const ffmpegPath = ffmpegInstaller.default.path || ffmpegInstaller.path;
+    
+    if (ffmpegPath) {
+      ffmpeg.setFfmpegPath(ffmpegPath);
+      ffmpegConfigured = true;
+      console.log(`✅ FFmpeg路径设置成功: ${ffmpegPath}`);
+    }
+  } catch (error) {
+    console.warn('⚠️ FFmpeg未安装,视频功能将不可用:', error);
+  }
+}
+
+// 图片尺寸配置
+export const IMAGE_SIZES = {
+  thumbnail: { width: 200, height: 200, quality: 80 },
+  medium: { width: 800, height: 800, quality: 85 },
+  large: { width: 1200, height: 1200, quality: 90 },
+} as const;
+
+// 视频压缩配置
+export const VIDEO_CONFIG = {
+  maxWidth: 1280,
+  maxHeight: 720,
+  videoBitrate: '2000k',
+  audioBitrate: '128k',
+  crf: 23, // 质量控制 (18-28)
+} as const;
+
+/**
+ * 生成图片的多个尺寸版本
+ */
+export async function processImage(
+  buffer: Buffer,
+  uploadDir: string,
+  baseFileName: string
+): Promise<{
+  thumbnailUrl: string;
+  mediumUrl: string;
+  largeUrl: string;
+}> {
+  const results = {
+    thumbnailUrl: "",
+    mediumUrl: "",
+    largeUrl: "",
+  };
+
+  try {
+    // 并行生成三个尺寸
+    await Promise.all([
+      // 缩略图
+      (async () => {
+        const fileName = `thumb_${baseFileName}.webp`;
+        const filePath = join(uploadDir, fileName);
+        await sharp(buffer)
+          .resize(IMAGE_SIZES.thumbnail.width, IMAGE_SIZES.thumbnail.height, {
+            fit: "cover",
+            position: "center",
+          })
+          .webp({ quality: IMAGE_SIZES.thumbnail.quality })
+          .toFile(filePath);
+        results.thumbnailUrl = fileName;
+      })(),
+
+      // 中等尺寸
+      (async () => {
+        const fileName = `medium_${baseFileName}.webp`;
+        const filePath = join(uploadDir, fileName);
+        await sharp(buffer)
+          .resize(IMAGE_SIZES.medium.width, IMAGE_SIZES.medium.height, {
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .webp({ quality: IMAGE_SIZES.medium.quality })
+          .toFile(filePath);
+        results.mediumUrl = fileName;
+      })(),
+
+      // 原图(大尺寸)
+      (async () => {
+        const fileName = `large_${baseFileName}.webp`;
+        const filePath = join(uploadDir, fileName);
+        await sharp(buffer)
+          .resize(IMAGE_SIZES.large.width, IMAGE_SIZES.large.height, {
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .webp({ quality: IMAGE_SIZES.large.quality })
+          .toFile(filePath);
+        results.largeUrl = fileName;
+      })(),
+    ]);
+
+    return results;
+  } catch (error) {
+    console.error("图片处理失败:", error);
+    throw new Error("图片处理失败");
+  }
+}
+
+/**
+ * 生成视频缩略图
+ */
+export async function generateVideoThumbnail(
+  videoPath: string,
+  outputDir: string,
+  baseFileName: string
+): Promise<string> {
+  await ensureFfmpegPath();
+  
+  return new Promise((resolve, reject) => {
+    const tempPngPath = join(outputDir, `temp_${baseFileName}.png`);
+    const coverFileName = `cover_${baseFileName}.webp`;
+    const coverPath = join(outputDir, coverFileName);
+
+    ffmpeg(videoPath)
+      .screenshots({
+        timestamps: ['00:00:01.000'], // 提取第1秒
+        filename: `temp_${baseFileName}.png`,
+        folder: outputDir,
+        size: '800x?', // 宽度800,高度自适应
+      })
+      .on('end', async () => {
+        try {
+          // 转换为WebP格式
+          await sharp(tempPngPath)
+            .resize(800, 800, {
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+            .webp({ quality: 85 })
+            .toFile(coverPath);
+
+          // 删除临时PNG文件
+          await unlink(tempPngPath).catch(() => {});
+
+          resolve(coverFileName);
+        } catch (error) {
+          reject(error);
+        }
+      })
+      .on('error', (error: Error) => {
+        reject(new Error(`生成缩略图失败: ${error.message}`));
+      });
+  });
+}
+
+/**
+ * 获取视频时长
+ */
+export async function getVideoDuration(videoPath: string): Promise<number> {
+  await ensureFfmpegPath();
+  
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(videoPath, (err: Error | null, metadata: FfprobeData) => {
+      if (err) {
+        reject(err);
+      } else {
+        const duration = Math.round(metadata.format.duration || 0);
+        resolve(duration);
+      }
+    });
+  });
+}
+
+/**
+ * 压缩视频
+ */
+export async function compressVideo(
+  inputPath: string,
+  outputPath: string,
+  onProgress?: (percent: number) => void
+): Promise<void> {
+  await ensureFfmpegPath();
+  
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .videoCodec('libx264')
+      .videoBitrate(VIDEO_CONFIG.videoBitrate)
+      .size(`${VIDEO_CONFIG.maxWidth}x?`)
+      .audioCodec('aac')
+      .audioBitrate(VIDEO_CONFIG.audioBitrate)
+      .outputOptions([
+        `-preset fast`,
+        `-crf ${VIDEO_CONFIG.crf}`,
+        '-movflags +faststart', // Web优化
+      ])
+      .output(outputPath)
+      .on('progress', (progress: { percent?: number }) => {
+        if (onProgress && progress.percent) {
+          onProgress(Math.round(progress.percent));
+        }
+      })
+      .on('end', () => {
+        resolve();
+      })
+      .on('error', (error: Error) => {
+        reject(new Error(`视频压缩失败: ${error.message}`));
+      })
+      .run();
+  });
+}
+
+/**
+ * 处理视频 (生成缩略图 + 压缩)
+ */
+export async function processVideo(
+  buffer: Buffer,
+  uploadDir: string,
+  baseFileName: string,
+  originalExtension: string
+): Promise<{
+  videoUrl: string;
+  coverUrl: string;
+  duration: number;
+}> {
+  const timestamp = Date.now();
+  const randomId = nanoid(10);
+  
+  // 临时保存原视频
+  const tempVideoPath = join(uploadDir, `temp_${timestamp}_${randomId}.${originalExtension}`);
+  await writeFile(tempVideoPath, buffer);
+
+  try {
+    // 1. 获取视频时长
+    const duration = await getVideoDuration(tempVideoPath);
+
+    // 2. 生成缩略图
+    const coverFileName = await generateVideoThumbnail(
+      tempVideoPath,
+      uploadDir,
+      `${timestamp}_${randomId}`
+    );
+
+    // 3. 压缩视频
+    const compressedFileName = `${timestamp}_${randomId}.mp4`;
+    const compressedVideoPath = join(uploadDir, compressedFileName);
+    
+    await compressVideo(tempVideoPath, compressedVideoPath, (percent) => {
+      console.log(`视频压缩进度: ${percent}%`);
+    });
+
+    // 4. 删除临时文件
+    await unlink(tempVideoPath).catch(() => {});
+
+    return {
+      videoUrl: compressedFileName,
+      coverUrl: coverFileName,
+      duration,
+    };
+  } catch (error) {
+    // 清理临时文件
+    await unlink(tempVideoPath).catch(() => {});
+    throw error;
+  }
+}
+
+/**
+ * 检查视频是否需要压缩
+ */
+export async function shouldCompressVideo(
+  videoPath: string,
+  maxSizeMB: number = 20
+): Promise<boolean> {
+  await ensureFfmpegPath();
+  
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(videoPath, (err: Error | null, metadata: FfprobeData) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      const fileSizeMB = (metadata.format.size || 0) / 1024 / 1024;
+      const width = metadata.streams[0]?.width || 0;
+      const bitrate = (metadata.format.bit_rate || 0) / 1000; // kbps
+
+      // 如果文件大于maxSizeMB或分辨率大于1280或码率大于3000k,则需要压缩
+      const needsCompression =
+        fileSizeMB > maxSizeMB ||
+        width > VIDEO_CONFIG.maxWidth ||
+        bitrate > 3000;
+
+      resolve(needsCompression);
+    });
+  });
+}
+

@@ -1,0 +1,196 @@
+import { NextRequest, NextResponse } from "next/server";
+import { join } from "path";
+import { nanoid } from "nanoid";
+import { auth } from "@/auth";
+import { processImage } from "@/lib/image-processor";
+// 视频处理器使用动态导入，避免 FFmpeg 加载问题
+import { ensureTherapistFolder, getTherapistFolderPaths } from "@/lib/folder-manager";
+import prisma from "@/lib/prisma";
+
+// 文件大小限制
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB (压缩前)
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/x-msvideo", "video/avi"];
+
+export async function POST(request: NextRequest) {
+  try {
+    // 验证用户身份
+    const session = await auth();
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, error: "请先登录" },
+        { status: 401 }
+      );
+    }
+
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+    const type = formData.get("type") as string; // avatars | therapist-photos | therapist-videos | evidence
+
+    // 验证上传权限
+    if (type === "therapist-photos" || type === "therapist-videos") {
+      if (session.user.role !== "therapist") {
+        return NextResponse.json(
+          { success: false, error: "无权限上传技师照片" },
+          { status: 403 }
+        );
+      }
+    } else if (type === "evidence") {
+      if (session.user.role !== "admin") {
+        return NextResponse.json(
+          { success: false, error: "无权限上传凭证" },
+          { status: 403 }
+        );
+      }
+    }
+
+    if (!file) {
+      return NextResponse.json(
+        { error: "未选择文件" },
+        { status: 400 }
+      );
+    }
+
+    // 验证文件类型
+    const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
+
+    if (!isImage && !isVideo) {
+      return NextResponse.json(
+        { error: "不支持的文件类型" },
+        { status: 400 }
+      );
+    }
+
+    // 验证文件大小
+    const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_VIDEO_SIZE;
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: `文件大小不能超过 ${maxSize / 1024 / 1024}MB` },
+        { status: 400 }
+      );
+    }
+
+    // 生成唯一文件名基础
+    const timestamp = Date.now();
+    const randomId = nanoid(10);
+    const baseFileName = `${timestamp}-${randomId}`;
+    const fileExtension = file.name.split(".").pop() || "";
+    
+    let uploadDir: string;
+    let folderName: string = "";
+    
+    // 为技师照片和视频创建专属文件夹
+    if (type === "therapist-photos" || type === "therapist-videos") {
+      // 获取技师信息
+      const therapist = await prisma.therapist.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, nickname: true },
+      });
+      
+      if (!therapist) {
+        return NextResponse.json(
+          { success: false, error: "技师信息不存在" },
+          { status: 404 }
+        );
+      }
+      
+      // 确保技师专属文件夹存在
+      const baseUploadDir = join(process.cwd(), "public", "uploads", type);
+      folderName = await ensureTherapistFolder(baseUploadDir, therapist.id, therapist.nickname);
+      uploadDir = join(baseUploadDir, folderName);
+    } else {
+      // 其他类型文件使用原有逻辑
+      uploadDir = join(
+        process.cwd(),
+        "public",
+        "uploads",
+        type || (isImage ? "avatars" : "therapist-videos")
+      );
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    if (isImage) {
+      // 处理图片: 生成多个尺寸
+      console.log(`📸 开始处理图片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      
+      const { thumbnailUrl, mediumUrl, largeUrl } = await processImage(
+        buffer,
+        uploadDir,
+        baseFileName
+      );
+
+      // 构建正确的URL路径
+      const basePath = folderName 
+        ? `/uploads/${type}/${folderName}` 
+        : `/uploads/${type || "avatars"}`;
+      
+      console.log(`✅ 图片处理完成: 缩略图=${thumbnailUrl}, 中等=${mediumUrl}, 原图=${largeUrl}`);
+
+      return NextResponse.json({
+        success: true,
+        url: `${basePath}/${largeUrl}`, // 主URL指向大图
+        thumbnailUrl: `${basePath}/${thumbnailUrl}`,
+        mediumUrl: `${basePath}/${mediumUrl}`,
+        largeUrl: `${basePath}/${largeUrl}`,
+        fileName: largeUrl,
+        fileSize: file.size,
+        fileType: "image",
+      });
+    } else {
+      // 处理视频: 动态导入视频处理器
+      console.log(`🎬 开始处理视频: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      
+      try {
+        // 动态导入视频处理模块，只在需要时加载
+        const { processVideo } = await import("@/lib/video-processor");
+        
+        const { videoUrl, coverUrl, duration } = await processVideo(
+          buffer,
+          uploadDir,
+          baseFileName,
+          fileExtension
+        );
+
+        // 构建正确的URL路径
+        const basePath = folderName 
+          ? `/uploads/${type}/${folderName}` 
+          : `/uploads/${type || "therapist-videos"}`;
+        
+        console.log(`✅ 视频处理完成: 视频=${videoUrl}, 封面=${coverUrl}, 时长=${duration}s`);
+
+        return NextResponse.json({
+          success: true,
+          url: `${basePath}/${videoUrl}`,
+          videoUrl: `${basePath}/${videoUrl}`,
+          coverUrl: `${basePath}/${coverUrl}`,
+          duration,
+          fileName: videoUrl,
+          fileSize: file.size,
+          fileType: "video",
+        });
+      } catch (videoError) {
+        console.error("视频处理失败:", videoError);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: "视频处理功能暂时不可用，请稍后再试或联系管理员" 
+          },
+          { status: 500 }
+        );
+      }
+    }
+  } catch (error) {
+    console.error("文件上传错误:", error);
+    return NextResponse.json(
+      { error: "文件上传失败" },
+      { status: 500 }
+    );
+  }
+}
+

@@ -154,7 +154,10 @@ export async function GET(request: Request) {
           isFeatured: true,
           createdAt: true,
           photos: {
-            orderBy: { order: "asc" },
+            orderBy: [
+              { isPrimary: "desc" }, // 主图排第一
+              { order: "asc" },
+            ],
             take: 1,
             select: { url: true },
           },

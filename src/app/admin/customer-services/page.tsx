@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Loader2, Save, Upload, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, Save, Upload, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import Image from "next/image";
+import Link from "next/link";
 
 interface CustomerServiceData {
   id: string;
@@ -26,35 +26,35 @@ export default function CustomerServicesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
   const [service, setService] = useState<CustomerServiceData | null>(null);
-  
-  const [wechatQrCode, setWechatQrCode] = useState('');
-  const [wechatId, setWechatId] = useState('');
-  const [phone, setPhone] = useState('');
-  const [workingHours, setWorkingHours] = useState('');
+
+  const [wechatQrCode, setWechatQrCode] = useState("");
+  const [wechatId, setWechatId] = useState("");
+  const [phone, setPhone] = useState("");
+  const [workingHours, setWorkingHours] = useState("");
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated' && session?.user?.role === 'admin') {
+    if (status === "unauthenticated") {
+      router.push("/admin/login");
+    } else if (status === "authenticated" && session?.user?.role === "admin") {
       fetchCustomerService();
     }
   }, [status, session, router]);
 
   const fetchCustomerService = async () => {
     try {
-      const res = await fetch('/api/admin/customer-services');
+      const res = await fetch("/api/admin/customer-services");
       const data = await res.json();
-      
+
       if (data.success && data.data) {
         setService(data.data);
         setWechatQrCode(data.data.wechatQrCode);
-        setWechatId(data.data.wechatId || '');
-        setPhone(data.data.phone || '');
+        setWechatId(data.data.wechatId || "");
+        setPhone(data.data.phone || "");
         setWorkingHours(data.data.workingHours);
       }
     } catch (error) {
-      console.error('获取客服配置失败:', error);
-      toast.error('网络错误');
+      console.error("获取客服配置失败:", error);
+      toast.error("网络错误");
     } finally {
       setLoading(false);
     }
@@ -67,24 +67,24 @@ export default function CustomerServicesPage() {
     setUploadingQr(true);
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'customer-service-qr');
+      formData.append("file", file);
+      formData.append("type", "customer-service-qr");
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
+      const res = await fetch("/api/upload/images", {
+        method: "POST",
         body: formData,
       });
 
       const data = await res.json();
       if (data.success) {
         setWechatQrCode(data.data.url);
-        toast.success('二维码上传成功');
+        toast.success("二维码上传成功");
       } else {
-        toast.error('上传失败');
+        toast.error("上传失败");
       }
     } catch (error) {
-      console.error('上传二维码失败:', error);
-      toast.error('网络错误');
+      console.error("上传二维码失败:", error);
+      toast.error("网络错误");
     } finally {
       setUploadingQr(false);
     }
@@ -95,9 +95,9 @@ export default function CustomerServicesPage() {
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/admin/customer-services', {
-        method: service ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/customer-services", {
+        method: service ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wechatQrCode,
           wechatId,
@@ -107,22 +107,22 @@ export default function CustomerServicesPage() {
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success('保存成功');
+        toast.success("保存成功");
         fetchCustomerService();
       } else {
-        toast.error(data.error || '保存失败');
+        toast.error(data.error || "保存失败");
       }
     } catch (error) {
-      console.error('保存客服配置失败:', error);
-      toast.error('网络错误');
+      console.error("保存客服配置失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -130,7 +130,7 @@ export default function CustomerServicesPage() {
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session || session.user.role !== "admin") {
     return null;
   }
 
@@ -146,12 +146,8 @@ export default function CustomerServicesPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-4xl font-bold text-primary-gold mb-2">
-              客服配置管理
-            </h1>
-            <p className="text-gray-400">
-              管理客服信息和微信二维码
-            </p>
+            <h1 className="text-4xl font-bold text-primary-gold mb-2">客服配置管理</h1>
+            <p className="text-gray-400">管理客服信息和微信二维码</p>
           </div>
         </div>
 
@@ -159,16 +155,11 @@ export default function CustomerServicesPage() {
           {/* 微信二维码 */}
           <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
             <h2 className="text-2xl font-bold text-white mb-6">微信二维码</h2>
-            
+
             <div className="space-y-4">
               {wechatQrCode && (
                 <div className="relative w-64 h-64 mx-auto rounded-lg overflow-hidden border-2 border-primary-gold/30">
-                  <Image
-                    src={wechatQrCode}
-                    alt="客服微信二维码"
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={wechatQrCode} alt="客服微信二维码" fill className="object-cover" />
                 </div>
               )}
 
@@ -183,7 +174,7 @@ export default function CustomerServicesPage() {
                 />
                 <label
                   htmlFor="qr-upload"
-                  className={`flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-primary-gold transition-colors ${uploadingQr ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer hover:border-primary-gold transition-colors ${uploadingQr ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   {uploadingQr ? (
                     <>
@@ -194,7 +185,7 @@ export default function CustomerServicesPage() {
                     <>
                       <Upload className="w-5 h-5 text-primary-gold" />
                       <span className="text-white">
-                        {wechatQrCode ? '更换二维码' : '上传二维码'}
+                        {wechatQrCode ? "更换二维码" : "上传二维码"}
                       </span>
                     </>
                   )}
@@ -206,10 +197,12 @@ export default function CustomerServicesPage() {
           {/* 客服信息 */}
           <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
             <h2 className="text-2xl font-bold text-white mb-6">客服信息</h2>
-            
+
             <div className="space-y-4">
               <div>
-                <Label htmlFor="wechatId" className="text-white">微信号</Label>
+                <Label htmlFor="wechatId" className="text-white">
+                  微信号
+                </Label>
                 <Input
                   id="wechatId"
                   type="text"
@@ -221,7 +214,9 @@ export default function CustomerServicesPage() {
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-white">客服电话</Label>
+                <Label htmlFor="phone" className="text-white">
+                  客服电话
+                </Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -233,7 +228,9 @@ export default function CustomerServicesPage() {
               </div>
 
               <div>
-                <Label htmlFor="workingHours" className="text-white">工作时间</Label>
+                <Label htmlFor="workingHours" className="text-white">
+                  工作时间
+                </Label>
                 <Input
                   id="workingHours"
                   type="text"
@@ -270,4 +267,3 @@ export default function CustomerServicesPage() {
     </div>
   );
 }
-

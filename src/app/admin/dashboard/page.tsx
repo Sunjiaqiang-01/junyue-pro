@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Loader2, Users, UserCheck, Clock, TrendingUp, LogOut, Megaphone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import Link from 'next/link';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, Users, UserCheck, Clock, Megaphone, BookOpen, Key, Activity } from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
+import AdminStatsCards from "@/components/admin/AdminStatsCards";
 
 interface DashboardStats {
   totalTherapists: number;
@@ -23,108 +23,77 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated' && session?.user?.role === 'admin') {
+    if (status === "unauthenticated") {
+      router.push("/admin/login");
+    } else if (status === "authenticated" && session?.user?.role === "admin") {
       fetchStats();
     }
   }, [status, session, router]);
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/dashboard/stats');
+      const res = await fetch("/api/admin/dashboard/stats");
       const data = await res.json();
-      
+
       if (data.success) {
         setStats(data.data);
       } else {
-        toast.error('获取统计数据失败');
+        toast.error("获取统计数据失败");
       }
     } catch (error) {
-      console.error('获取统计数据失败:', error);
-      toast.error('网络错误');
+      console.error("获取统计数据失败:", error);
+      toast.error("网络错误");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await signOut({ redirect: false });
-    router.push('/admin/login');
-  };
-
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
       </div>
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session || session.user.role !== "admin") {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* 顶部标题栏 */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-primary-gold mb-2">
-              管理中心
-            </h1>
-            <p className="text-gray-400">
-              欢迎，{session.user.name || '管理员'}！
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            退出登录
-          </Button>
+        {/* 欢迎区域 */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-primary-gold mb-2">
+            欢迎回来，{session.user.name || "管理员"}！
+          </h1>
+          <p className="text-gray-400">
+            今天是{" "}
+            {new Date().toLocaleDateString("zh-CN", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "long",
+            })}
+          </p>
         </div>
 
         {/* 统计卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/30 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Users className="w-8 h-8 text-blue-400" />
-              <span className="text-3xl font-bold text-white">{stats?.totalTherapists || 0}</span>
-            </div>
-            <p className="text-gray-300 font-medium">技师总数</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500/30 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <UserCheck className="w-8 h-8 text-green-400" />
-              <span className="text-3xl font-bold text-white">{stats?.approvedTherapists || 0}</span>
-            </div>
-            <p className="text-gray-300 font-medium">已审核通过</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-600/20 to-yellow-800/20 border border-yellow-500/30 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <Clock className="w-8 h-8 text-yellow-400" />
-              <span className="text-3xl font-bold text-white">{stats?.pendingTherapists || 0}</span>
-            </div>
-            <p className="text-gray-300 font-medium">待审核</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 border border-purple-500/30 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <TrendingUp className="w-8 h-8 text-purple-400" />
-              <span className="text-3xl font-bold text-white">{stats?.todayNew || 0}</span>
-            </div>
-            <p className="text-gray-300 font-medium">今日新增</p>
-          </div>
+        <div className="mb-8">
+          <AdminStatsCards stats={stats} />
         </div>
 
         {/* 快速操作 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Link href="/admin/system">
+            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
+              <Activity className="w-12 h-12 text-primary-gold mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">系统监控</h3>
+              <p className="text-gray-400">查看服务器状态和数据统计</p>
+            </div>
+          </Link>
+
           <Link href="/admin/therapists/pending">
             <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
               <Clock className="w-12 h-12 text-yellow-500 mb-4" />
@@ -163,9 +132,24 @@ export default function AdminDashboard() {
               <p className="text-gray-400">发布和管理平台公告</p>
             </div>
           </Link>
+
+          <Link href="/admin/guide">
+            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
+              <BookOpen className="w-12 h-12 text-cyan-500 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">指南管理</h3>
+              <p className="text-gray-400">管理平台使用指南</p>
+            </div>
+          </Link>
+
+          <Link href="/admin/registration-codes">
+            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
+              <Key className="w-12 h-12 text-pink-500 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">注册码管理</h3>
+              <p className="text-gray-400">生成和管理技师注册码</p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>
   );
 }
-

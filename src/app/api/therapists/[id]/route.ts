@@ -24,11 +24,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         isFeatured: true,
         createdAt: true,
         photos: {
-          orderBy: { order: "asc" },
+          orderBy: [
+            { isPrimary: "desc" }, // 主图排第一
+            { order: "asc" },
+          ],
           select: {
             id: true,
             url: true,
             order: true,
+            isPrimary: true,
           },
         },
         videos: {

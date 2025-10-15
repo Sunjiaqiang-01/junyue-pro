@@ -52,6 +52,7 @@ model Therapist {
   videos              TherapistVideo[]
   schedules           TherapistSchedule[]
   notifications       Notification[]
+  deactivationRequests TherapistDeactivationRequest[]
   
   @@index([username])
   @@index([email])
@@ -104,12 +105,27 @@ model TherapistPhoto {
   therapistId String
   therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
   
+  // 原URL (保持兼容,指向large)
   url         String
-  order       Int       @default(0)
   
-  createdAt   DateTime  @default(now())
+  // 多尺寸URLs (图片专用)
+  thumbnailUrl String?  // 缩略图 200x200
+  mediumUrl    String?  // 中等尺寸 800x800
+  largeUrl     String?  // 原图 1200x1200
+  
+  // 视频字段
+  isVideo      Boolean  @default(false)  // 是否为视频
+  videoUrl     String?  // 视频URL
+  coverUrl     String?  // 视频封面
+  duration     Int?     // 视频时长(秒)
+  
+  order        Int      @default(0)
+  isPrimary    Boolean  @default(false)  // 是否为主图
+  
+  createdAt    DateTime @default(now())
   
   @@index([therapistId])
+  @@index([therapistId, isPrimary])
   @@index([order])
   @@map("therapist_photos")
 }
@@ -274,12 +290,17 @@ model Announcement {
   isPublished Boolean   @default(false)
   publishedAt DateTime?
   
+  isActive    Boolean   @default(true)  // 是否激活显示
+  sortOrder   Int       @default(0)     // 排序顺序
+  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
   @@index([type])
   @@index([isPublished])
   @@index([publishedAt])
+  @@index([isActive])
+  @@index([sortOrder])
   @@map("announcements")
 }
 
@@ -393,4 +414,37 @@ enum RegistrationCodeType {
   ONETIME     // 一次性（使用1次后失效）
   LIMITED     // 限次数（可设置使用次数）
   UNLIMITED   // 无限次数（仅受时效限制）
+}
+
+// 15. 技师注销申请表
+model TherapistDeactivationRequest {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  status      DeactivationStatus @default(PENDING)
+  
+  // 审核相关
+  reviewerId  String?   // 审核管理员ID
+  reviewNote  String?   // 审核意见
+  reviewedAt  DateTime? // 审核时间
+  
+  // 时间节点
+  requestedAt DateTime  @default(now()) // 申请时间
+  executedAt  DateTime? // 实际注销时间
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([therapistId])
+  @@index([status])
+  @@index([requestedAt])
+  @@map("therapist_deactivation_requests")
+}
+
+enum DeactivationStatus {
+  PENDING   // 待审核
+  APPROVED  // 已通过
+  REJECTED  // 已拒绝
+  CANCELLED // 已撤销
 }

@@ -1,5 +1,4 @@
 # 君悦SPA - Docker开发环境配置
-version: '3.8'
 
 services:
   # PostgreSQL数据库
