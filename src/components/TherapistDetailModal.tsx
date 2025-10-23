@@ -105,24 +105,24 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-900 to-black border-primary-gold/30 custom-scrollbar">
+      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-pure-black border-white/5 custom-scrollbar">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
           </div>
         ) : therapist ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-primary-gold flex items-center gap-3">
+              <DialogTitle className="text-2xl font-semibold text-pure-white flex items-center gap-3">
                 {therapist.nickname}
                 <div className="flex items-center gap-2">
                   {therapist.isFeatured && (
-                    <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 border-0">
+                    <Badge className="bg-transparent border-primary-cyan/30 text-primary-cyan">
                       推荐
                     </Badge>
                   )}
                   {therapist.isNew && (
-                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 border-0">
+                    <Badge className="bg-transparent border-primary-cyan/30 text-primary-cyan">
                       新人
                     </Badge>
                   )}
@@ -177,7 +177,9 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
                   {therapist.cardValue && (
                     <div className="text-center">
                       <p className="text-gray-400 text-sm mb-1">牌值</p>
-                      <p className="text-primary-gold text-lg font-bold">{therapist.cardValue}</p>
+                      <p className="text-primary-cyan text-lg font-semibold">
+                        {therapist.cardValue}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -218,7 +220,7 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
                 )}
 
                 {/* 预约提示 */}
-                <div className="p-4 rounded-xl bg-primary-gold/10 border border-primary-gold/30">
+                <div className="p-4 rounded-xl bg-transparent border border-white/5">
                   <p className="text-sm text-gray-300 leading-relaxed">
                     💡 如需预约{therapist.nickname}
                     的服务，请点击下方按钮联系客服，告知技师姓名或编号，客服将为您安排预约。
@@ -229,14 +231,14 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
                 <div className="flex gap-3">
                   <Button
                     onClick={handleContactService}
-                    className="flex-1 bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-white font-bold shadow-lg shadow-primary-gold/30 hover:shadow-primary-gold/50"
+                    className="flex-1 bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium shadow-lg shadow-primary-cyan/30"
                   >
                     联系客服预约
                   </Button>
                   <Button
                     onClick={onClose}
-                    variant="outline"
-                    className="border-gray-700 text-gray-300 hover:bg-white/5"
+                    variant="ghost"
+                    className="border border-white/10 text-secondary/60 hover:bg-white/5 hover:text-white bg-transparent"
                   >
                     关闭
                   </Button>

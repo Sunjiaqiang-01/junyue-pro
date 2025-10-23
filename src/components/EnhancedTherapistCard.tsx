@@ -138,8 +138,7 @@ export function EnhancedTherapistCard({
       whileHover="hover"
       variants={containerVariants}
       className={cn(
-        "relative w-full aspect-[9/16] rounded-3xl border border-primary-gold/20 text-card-foreground overflow-hidden shadow-xl shadow-black/20 cursor-pointer group backdrop-blur-sm",
-        "dark:shadow-black/40",
+        "relative w-full aspect-[9/16] rounded-2xl border border-white/5 text-card-foreground overflow-hidden cursor-pointer group backdrop-blur-sm hover:border-white/10 transition-all",
         className
       )}
     >
@@ -270,10 +269,9 @@ export function EnhancedTherapistCard({
           }}
           whileTap={{ scale: 0.98 }}
           className={cn(
-            "w-full cursor-pointer py-1.5 md:py-2.5 px-3 md:px-4 rounded-xl md:rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200",
-            "border border-primary-gold/20 shadow-sm",
-            "bg-gradient-to-r from-primary-gold to-yellow-600 text-white hover:from-yellow-600 hover:to-primary-gold",
-            "shadow-lg shadow-primary-gold/30 hover:shadow-primary-gold/50",
+            "w-full cursor-pointer py-1.5 md:py-2.5 px-3 md:px-4 rounded-lg md:rounded-xl font-medium text-xs md:text-sm transition-all duration-200",
+            "border border-primary-cyan/30",
+            "bg-transparent text-primary-cyan hover:bg-primary-cyan/10",
             "transform-gpu"
           )}
         >

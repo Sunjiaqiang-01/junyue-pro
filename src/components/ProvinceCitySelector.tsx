@@ -42,20 +42,20 @@ export default function ProvinceCitySelector({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-between bg-white/5 border-gray-800 text-white hover:bg-white/10 hover:text-white",
+            "w-full justify-between bg-white/5 border-white/5 text-white hover:bg-white/10 hover:text-white hover:border-primary-cyan/30",
             className
           )}
         >
           <span className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary-gold" />
+            <MapPin className="h-4 w-4 text-primary-cyan" />
             {selectedCity || placeholder}
           </span>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-sm border-gray-700">
+      <DialogContent className="max-w-4xl bg-pure-black/95 backdrop-blur-sm border-white/5">
         <DialogHeader>
-          <DialogTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary-gold to-yellow-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-xl md:text-2xl font-semibold text-pure-white">
             选择城市
           </DialogTitle>
         </DialogHeader>
@@ -63,7 +63,7 @@ export default function ProvinceCitySelector({
         {/* 移动端优化：更紧凑的布局 + 更大的显示区域 */}
         <div className="grid grid-cols-[100px_1fr] md:grid-cols-[200px_1fr] gap-3 md:gap-4 h-[80vh] md:h-[500px] max-h-[600px]">
           {/* 左侧：省份列表 */}
-          <div className="border-r border-gray-700 pr-2 md:pr-4 overflow-y-auto custom-scrollbar">
+          <div className="border-r border-white/10 pr-2 md:pr-4 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
               {provinces.map((province) => (
                 <button
@@ -73,8 +73,8 @@ export default function ProvinceCitySelector({
                     "w-full text-left px-2 md:px-4 py-3 md:py-3 rounded-lg transition-all duration-200 text-sm md:text-base",
                     "hover:bg-white/5",
                     selectedProvince === province
-                      ? "bg-gradient-to-r from-primary-gold/20 to-yellow-600/20 text-primary-gold border-l-4 border-primary-gold font-semibold"
-                      : "text-gray-300 hover:text-white"
+                      ? "bg-primary-cyan/10 text-primary-cyan border-l-4 border-primary-cyan font-semibold"
+                      : "text-secondary/60 hover:text-white"
                   )}
                 >
                   {province}
@@ -94,8 +94,8 @@ export default function ProvinceCitySelector({
                     "px-2 md:px-4 py-3 md:py-3 rounded-lg text-center transition-all duration-200 text-sm md:text-base",
                     "hover:bg-white/10 hover:scale-105",
                     selectedCity === city.value
-                      ? "bg-gradient-to-r from-primary-gold to-yellow-600 text-white font-semibold shadow-lg shadow-primary-gold/30"
-                      : "bg-white/5 text-gray-300 hover:text-white border border-gray-700"
+                      ? "bg-primary-cyan text-pure-black font-semibold shadow-lg shadow-primary-cyan/30"
+                      : "bg-white/5 text-secondary/60 hover:text-white border border-white/5"
                   )}
                 >
                   {city.label}
@@ -105,7 +105,7 @@ export default function ProvinceCitySelector({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-3 md:pt-4 border-t border-gray-700">
+        <div className="flex justify-end gap-2 pt-3 md:pt-4 border-t border-white/10">
           <Button
             variant="outline"
             onClick={() => {
@@ -113,13 +113,13 @@ export default function ProvinceCitySelector({
               onChange?.("");
               setOpen(false);
             }}
-            className="bg-white/5 border-gray-700 text-gray-300 hover:bg-white/10 hover:text-white text-sm md:text-base px-3 md:px-4 py-2 md:py-2"
+            className="bg-white/5 border-white/5 text-secondary/60 hover:bg-white/10 hover:text-white text-sm md:text-base px-3 md:px-4 py-2 md:py-2"
           >
             清除选择
           </Button>
           <Button
             onClick={() => setOpen(false)}
-            className="bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-white font-bold shadow-lg shadow-primary-gold/30 text-sm md:text-base px-4 md:px-6 py-2 md:py-2"
+            className="bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-medium shadow-lg shadow-primary-cyan/30 text-sm md:text-base px-4 md:px-6 py-2 md:py-2"
           >
             确定
           </Button>

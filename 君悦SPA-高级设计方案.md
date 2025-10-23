@@ -4,26 +4,62 @@
 > **设计理念**: Luxury Minimalism（奢华极简主义）  
 > **业务模式**: 技师展示平台 + 客服中介预约（v2.0简化版）  
 > **技术栈**: 21st.dev Component Library + Next.js + Tailwind CSS v3.4.17  
-> **更新日期**: 2025-10-11  
+> **更新日期**: 2025-10-23  
 > ⚠️ **重要**: 必须使用Tailwind CSS v3.x，21st.dev组件不兼容v4
+
+---
+
+## 🎨 当前主题配色（重要！）
+
+**最新应用主题**：**冷色调极简（Cold Minimal）** - 方案J  
+**实施日期**：2025-10-23
+
+### 核心配色表
+
+| 用途              | 颜色代码                 | Tailwind类名                                             | 说明                           |
+| ----------------- | ------------------------ | -------------------------------------------------------- | ------------------------------ |
+| **主色（强调）**  | `#06b6d4`                | `primary-cyan` / `bg-primary-cyan` / `text-primary-cyan` | 青色，所有按钮、链接、强调元素 |
+| **背景**          | `#0a0a0a`                | `pure-black` / `bg-pure-black`                           | 纯黑色，所有页面背景           |
+| **主标题文字**    | `#ffffff`                | `pure-white` / `text-pure-white`                         | 纯白色，页面标题和重要文字     |
+| **正文/次要文字** | `#ededed`                | `secondary` / `text-secondary`                           | 浅灰色，正文和次要信息         |
+| **边框**          | `rgba(255,255,255,0.05)` | `border-white/5`                                         | 极浅白色半透明边框             |
+| **阴影**          | `rgba(6,182,212,0.4)`    | `shadow-primary-cyan/40`                                 | 青色光晕阴影效果               |
+
+### ❌ 已废弃配色（不再使用）
+
+- ~~`primary-gold: #D4AF37`~~ → 已替换为 `primary-cyan: #06b6d4`
+- ~~`primary-purple: #8B5CF6`~~ → 已移除
+- ~~`deep-black: #0B0C0F`~~ → 已替换为 `pure-black: #0a0a0a`
+
+### 🔍 快速检查清单
+
+- [ ] 所有金色元素已改为青色
+- [ ] 所有紫色元素已移除或改为青色
+- [ ] 背景统一为纯黑 `#0a0a0a`
+- [ ] 主按钮统一为 `bg-primary-cyan text-pure-black`
+- [ ] 边框统一为 `border-white/5` 或 `border-white/10`
 
 ---
 
 ## 📌 业务模型说明（v2.0）
 
 ### 重大变更
+
 **v1.0 → v2.0 业务调整**：
+
 - ❌ 删除：用户注册/登录、订单系统、支付系统、积分系统、评价系统、代理端
 - ✅ 保留：用户端浏览技师（无需登录）、技师注册管理、管理端审核
 - ✅ 新增：客服联系功能、联系方式权限控制
 
 ### 核心流程
+
 ```
 用户 → 浏览技师信息 → 点击"联系客服预约" → 添加客服微信
 → 客服查看技师联系方式 → 撮合预约 → 平台收取服务费
 ```
 
 ### 页面需求
+
 - **用户端**：首页、技师列表、技师详情、客服联系弹窗（5个页面）
 - **技师端**：登录、注册、资料管理、审核状态、个人中心（6个页面）
 - **管理端**：登录、数据看板、技师审核、客服配置（4个页面）
@@ -31,6 +67,7 @@
 **总计**：15个页面（原50+个）
 
 ### 组件使用调整
+
 **v2.0业务模型下的组件使用策略**：
 
 本设计方案中的35个组件库选型保持不变，预留未来业务扩展。当前开发阶段：
@@ -40,27 +77,47 @@
 - ✅ **新增场景**：客服联系弹窗（使用Modal组件）
 
 **开发优先级说明**：
+
 1. **P0（必须）**: 技师卡片、画廊、筛选器、客服按钮（用户端核心）
 2. **P1（重要）**: 表单组件、文件上传、审核管理（技师端和管理端）
 3. **P2（可选）**: 日历时间表、统计卡片（未来功能扩展）
 
 ---
 
-## 🎨 核心设计语言
+## 🎨 核心设计语言（2025-10-23更新）
 
-### 视觉系统
+### 视觉系统 - 冷色调极简主题（方案J）
+
 ```
-主题色调：深色系（暗夜黑 + 金色点缀）
-玻璃效果：Glassmorphism（毛玻璃拟态）
+主题色调：纯黑背景 + 青色主色（Cold Minimal）
+玻璃效果：Subtle Glassmorphism（极简玻璃拟态）
 动画风格：流畅丝滑（Smooth & Fluid）
-交互反馈：微交互 + 3D深度感
+交互反馈：微交互 + 高对比度反馈
 ```
 
-### 设计原则
-1. **奢华感**：深色系 + 金色/紫色渐变 + 微光效果
-2. **极简主义**：大留白 + 简洁布局 + 聚焦内容
-3. **科技感**：玻璃拟态 + 动画过渡 + 粒子背景
-4. **高级感**：精致细节 + 优雅字体 + 柔和圆角
+### 当前配色方案（已实施）
+
+```css
+/* 主色调 - 冷色调极简 */
+--primary-cyan: #06b6d4; /* 青色主色（强调色） */
+--pure-black: #0a0a0a; /* 纯黑背景 */
+--pure-white: #ffffff; /* 纯白文字 */
+--secondary: #ededed; /* 浅灰文字（次要信息） */
+--accent: rgba(255, 255, 255, 0.05); /* 极浅白色透明 */
+
+/* ❌ 已废弃的旧配色（不再使用）
+--primary-gold: #D4AF37;       // 金色（已替换为青色）
+--primary-purple: #8B5CF6;     // 紫色（已移除）
+--deep-black: #0B0C0F;         // 深黑（已替换为纯黑）
+*/
+```
+
+### 设计原则（冷色调极简版）
+
+1. **科技感**：纯黑背景 + 青色点缀 + 极简线条
+2. **极简主义**：大留白 + 简洁布局 + 高对比度
+3. **高级感**：精致细节 + 清晰字体 + 柔和圆角
+4. **可读性优先**：所有文字肉眼清晰可见，无模糊元素
 
 ---
 
@@ -69,6 +126,7 @@
 ### ✅ 1. 登录/注册页面
 
 #### **Gaming Login** - 视频背景登录页
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 🎬 全屏视频背景（动态视觉冲击）
@@ -95,6 +153,7 @@
 ### ✅ 2. 首页Hero区域
 
 #### **Hero Section with Gradient** - 渐变光效Hero
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 🌈 动态渐变背景（conic-gradient锥形渐变）
@@ -120,6 +179,7 @@
 ### ✅ 3. 技师展示组件
 
 #### **Gallery Hover Carousel** - 悬停展开画廊
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 🖼️ 横向滚动卡片画廊
@@ -145,6 +205,7 @@
 ### ✅ 4. 玻璃拟态卡片
 
 #### **Liquid Glass Card** - 液态玻璃效果
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 💎 SVG滤镜实现真实玻璃质感
@@ -170,6 +231,7 @@
 ### ✅ 5. 3D深度卡片
 
 #### **3D Glass Card** - 3D旋转玻璃卡片
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 🔄 3D透视旋转（transform:rotate3d）
@@ -194,6 +256,7 @@
 ### ✅ 6. 作品集画廊
 
 #### **Portfolio Gallery** - 3D重叠式画廊
+
 - ✅ **组件来源**: 21st.dev MCP集成
 - ✅ **设计特点**:
   - 🎴 卡片阶梯式重叠（perspective投影）
@@ -217,25 +280,35 @@
 
 ## 🎯 统一设计规范
 
-### 颜色系统
-```css
-/* 主色调 */
---primary-gold: #D4AF37;      /* 金色 */
---primary-purple: #8B5CF6;     /* 紫色 */
---deep-black: #0B0C0F;         /* 深黑 */
---glass-white: rgba(255,255,255,0.1); /* 玻璃白 */
+### 颜色系统（已更新为冷色调极简）
 
-/* 渐变组合 */
+```css
+/* 主色调 - 当前使用 */
+--primary-cyan: #06b6d4; /* 青色主色（所有强调元素） */
+--pure-black: #0a0a0a; /* 纯黑背景 */
+--pure-white: #ffffff; /* 纯白文字（标题） */
+--secondary: #ededed; /* 浅灰文字（正文/次要信息） */
+--accent: rgba(255, 255, 255, 0.05); /* 极浅白色透明（微妙强调） */
+
+/* 渐变组合（极简版） */
+background: #0a0a0a; /* 纯黑实色背景（主要使用） */
+border: 1px solid rgba(255, 255, 255, 0.05); /* 极浅白色边框 */
+box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4); /* 青色光晕阴影 */
+
+/* ❌ 已废弃（仅供参考，不再使用）
+--primary-gold: #D4AF37;
+--primary-purple: #8B5CF6;
 background: linear-gradient(135deg, #8B5CF6, #D4AF37);
-background: radial-gradient(circle, #8B5CF6/30, transparent);
+*/
 ```
 
 ### 动画标准
+
 ```css
 /* 过渡时长 */
---duration-fast: 0.2s;      /* 按钮点击 */
---duration-normal: 0.5s;    /* 悬停效果 */
---duration-slow: 0.8s;      /* 页面入场 */
+--duration-fast: 0.2s; /* 按钮点击 */
+--duration-normal: 0.5s; /* 悬停效果 */
+--duration-slow: 0.8s; /* 页面入场 */
 
 /* 缓动函数 */
 --easing-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -243,20 +316,23 @@ background: radial-gradient(circle, #8B5CF6/30, transparent);
 ```
 
 ### 玻璃效果标准
+
 ```css
 /* 毛玻璃拟态 */
 backdrop-filter: blur(20px);
 background: rgba(0, 0, 0, 0.25);
 border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+box-shadow:
+  0 25px 50px rgba(0, 0, 0, 0.6),
+  inset 0 1px 0 rgba(255, 255, 255, 0.1);
 ```
 
 ### 圆角标准
+
 ```css
---radius-sm: 8px;     /* 小按钮 */
---radius-md: 16px;    /* 卡片 */
---radius-lg: 24px;    /* 大卡片 */
+--radius-sm: 8px; /* 小按钮 */
+--radius-md: 16px; /* 卡片 */
+--radius-lg: 24px; /* 大卡片 */
 --radius-full: 9999px; /* 圆形按钮 */
 ```
 
@@ -265,6 +341,7 @@ box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
 ## 🔄 交互动画规范
 
 ### 悬停效果
+
 ```typescript
 // 卡片悬停
 hover:scale-105 hover:shadow-2xl transition-all duration-500
@@ -277,6 +354,7 @@ hover:scale-110 transition-transform duration-700
 ```
 
 ### 入场动画
+
 ```typescript
 // Framer Motion配置
 initial={{ opacity: 0, y: 30 }}
@@ -285,6 +363,7 @@ transition={{ duration: 0.8, ease: "easeOut" }}
 ```
 
 ### 微交互
+
 ```typescript
 // 点击反馈
 whileTap={{ scale: 0.98 }}
@@ -297,14 +376,14 @@ whileHover={{ scale: 1.02 }}
 
 ## 📊 设计评分总结
 
-| 评分维度 | 得分 | 说明 |
-|---------|------|------|
-| **奢华感** | ⭐⭐⭐⭐⭐ | 深色系+金色+玻璃效果 |
-| **现代感** | ⭐⭐⭐⭐⭐ | 3D效果+流畅动画+科技感 |
-| **统一性** | ⭐⭐⭐⭐⭐ | 所有组件风格完全一致 |
-| **交互流畅度** | ⭐⭐⭐⭐⭐ | 丝滑动画+微交互反馈 |
-| **品牌调性** | ⭐⭐⭐⭐⭐ | 完美契合高端SPA定位 |
-| **技术实现** | ⭐⭐⭐⭐⭐ | 全部使用已开发组件 |
+| 评分维度       | 得分       | 说明                   |
+| -------------- | ---------- | ---------------------- |
+| **奢华感**     | ⭐⭐⭐⭐⭐ | 深色系+金色+玻璃效果   |
+| **现代感**     | ⭐⭐⭐⭐⭐ | 3D效果+流畅动画+科技感 |
+| **统一性**     | ⭐⭐⭐⭐⭐ | 所有组件风格完全一致   |
+| **交互流畅度** | ⭐⭐⭐⭐⭐ | 丝滑动画+微交互反馈    |
+| **品牌调性**   | ⭐⭐⭐⭐⭐ | 完美契合高端SPA定位    |
+| **技术实现**   | ⭐⭐⭐⭐⭐ | 全部使用已开发组件     |
 
 **综合评分**: ⭐⭐⭐⭐⭐ (5.0/5.0) - **完美**
 
@@ -315,6 +394,7 @@ whileHover={{ scale: 1.02 }}
 ## ✅ 7. 技师详情页组件
 
 ### **3D Carousel** - 3D旋转图片轮播
+
 - ✅ **组件来源**: 21st.dev - Image Carousel
 - ✅ **设计特点**:
   - 🎡 3D cylindrical carousel（圆柱形3D轮播）
@@ -327,6 +407,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 3D效果极具科技感和奢华感
 
 ### **Client Reviews** - 评价组件
+
 - ✅ **组件来源**: 21st.dev - Testimonials
 - ✅ **设计特点**:
   - ⭐ 星级评分显示
@@ -339,6 +420,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 清晰展示社交证明
 
 ### **Liquid Glass Form** - 液态玻璃表单
+
 - ✅ **组件来源**: 21st.dev - Glass Form
 - ✅ **设计特点**:
   - 💎 SVG滤镜实现真实玻璃质感
@@ -355,6 +437,7 @@ whileHover={{ scale: 1.02 }}
 ## ✅ 8. 订单相关组件
 
 ### **Order Tracking** - 订单追踪时间轴
+
 - ✅ **组件来源**: 21st.dev - Timeline
 - ✅ **设计特点**:
   - ⏱️ 垂直时间轴布局
@@ -367,6 +450,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 清晰直观的状态展示
 
 ### **Order State Cards** - 订单状态卡片
+
 - ✅ **组件来源**: 21st.dev - Status Cards
 - ✅ **设计特点**:
   - 🃏 网格布局状态卡片
@@ -383,6 +467,7 @@ whileHover={{ scale: 1.02 }}
 ## ✅ 9. 个人中心组件
 
 ### **Statistics Cards** - 数据统计卡片
+
 - ✅ **组件来源**: 21st.dev - Stats Dashboard
 - ✅ **设计特点**:
   - 📊 多色背景卡片（黑/紫/蓝/青）
@@ -392,13 +477,13 @@ whileHover={{ scale: 1.02 }}
   - 🎨 装饰性SVG背景图案
   - 🔽 下拉菜单（设置/分享/删除）
 
-- ✅ **使用场景**: 
+- ✅ **使用场景**:
   - 用户：累计消费、预约次数、积分余额、推荐收益
   - 技师：总收益、服务次数、评分、接单率
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 高级Dashboard风格
 
 ### **Profile Card** - 个人资料卡片
+
 - ✅ **组件来源**: 21st.dev - User Profile
 - ✅ **设计特点**:
   - 👤 头像+姓名展示
@@ -415,6 +500,7 @@ whileHover={{ scale: 1.02 }}
 ## ✅ 10. 支付/预约组件
 
 ### **Calendar (React Day Picker)** - 日历选择器
+
 - ✅ **组件来源**: 21st.dev - Modern Calendar
 - ✅ **设计特点**:
   - 📅 月份/年份快速切换
@@ -428,6 +514,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 符合现代交互习惯
 
 ### **Payment Card Form** - 支付卡片表单
+
 - ✅ **组件来源**: 21st.dev - Credit Card
 - ✅ **设计特点**:
   - 💳 3D翻转卡片动画
@@ -445,6 +532,7 @@ whileHover={{ scale: 1.02 }}
 ## ✅ 11. 通用组件
 
 ### **Loader (12种变体)** - 加载动画
+
 - ✅ **组件来源**: 21st.dev - Advanced Loaders
 - ✅ **可用变体**:
   1. `circular` - 圆环旋转 ⭕
@@ -460,7 +548,7 @@ whileHover={{ scale: 1.02 }}
   11. `text-shimmer` - 文字流光 🌟
   12. `loading-dots` - 文字后缀点 "Thinking..."
 
-- ✅ **使用场景**: 
+- ✅ **使用场景**:
   - 页面加载：`circular`/`wave`
   - 数据请求：`dots`/`bars`
   - AI思考：`text-shimmer`/`loading-dots`
@@ -469,6 +557,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 12种变体适配所有场景
 
 ### **Toast Notifications** - 消息提示
+
 - ✅ **组件来源**: 21st.dev - Toast System
 - ✅ **设计特点**:
   - 🎨 4种类型（success/error/warning/info）
@@ -479,7 +568,7 @@ whileHover={{ scale: 1.02 }}
   - 📦 堆叠管理（hover展开）
   - ✨ 丝滑进出动画
 
-- ✅ **使用场景**: 
+- ✅ **使用场景**:
   - 操作成功提示
   - 错误警告
   - 系统通知
@@ -488,6 +577,7 @@ whileHover={{ scale: 1.02 }}
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 现代化通知系统
 
 ### **Liquid Glass Button** - 液态玻璃按钮
+
 - ✅ **组件来源**: 21st.dev - Glass Buttons
 - ✅ **设计特点**:
   - 💎 SVG玻璃滤镜效果
@@ -503,15 +593,15 @@ whileHover={{ scale: 1.02 }}
 
 ## 📊 最终设计评分
 
-| 评分维度 | 得分 | 说明 |
-|---------|------|------|
-| **奢华感** | ⭐⭐⭐⭐⭐ | 深色系+金色+玻璃效果+3D元素 |
-| **现代感** | ⭐⭐⭐⭐⭐ | 3D效果+流畅动画+科技感十足 |
-| **统一性** | ⭐⭐⭐⭐⭐ | 所有组件风格完全一致 |
-| **交互流畅度** | ⭐⭐⭐⭐⭐ | 丝滑动画+微交互反馈 |
-| **品牌调性** | ⭐⭐⭐⭐⭐ | 完美契合高端SPA定位 |
-| **技术实现** | ⭐⭐⭐⭐⭐ | 全部使用21st.dev已开发组件 |
-| **功能完整性** | ⭐⭐⭐⭐⭐ | 覆盖所有核心页面和功能 |
+| 评分维度       | 得分       | 说明                        |
+| -------------- | ---------- | --------------------------- |
+| **奢华感**     | ⭐⭐⭐⭐⭐ | 深色系+金色+玻璃效果+3D元素 |
+| **现代感**     | ⭐⭐⭐⭐⭐ | 3D效果+流畅动画+科技感十足  |
+| **统一性**     | ⭐⭐⭐⭐⭐ | 所有组件风格完全一致        |
+| **交互流畅度** | ⭐⭐⭐⭐⭐ | 丝滑动画+微交互反馈         |
+| **品牌调性**   | ⭐⭐⭐⭐⭐ | 完美契合高端SPA定位         |
+| **技术实现**   | ⭐⭐⭐⭐⭐ | 全部使用21st.dev已开发组件  |
+| **功能完整性** | ⭐⭐⭐⭐⭐ | 覆盖所有核心页面和功能      |
 
 **综合评分**: ⭐⭐⭐⭐⭐ (5.0/5.0) - **完美**
 
@@ -520,6 +610,7 @@ whileHover={{ scale: 1.02 }}
 ## 🎯 组件清单总结
 
 ### 已挑选组件统计
+
 - **登录/注册**: 1个组件 ✅
 - **首页**: 5个组件 ✅
 - **技师详情页**: 3个组件 ✅
@@ -539,16 +630,20 @@ whileHover={{ scale: 1.02 }}
 所有核心页面的UI组件已全部挑选完毕，可以进入开发阶段：
 
 ### 方案A：立即开始开发 ⭐推荐
+
 基于挑选的18个组件开始构建君悦SPA平台：
+
 1. 初始化Next.js + Tailwind项目
 2. 配置21st.dev组件库
 3. 按照设计方案逐页开发
 4. 实现业务逻辑和后端对接
 
 ### 方案B：生成原型/设计图
+
 使用v0.dev或Figma生成高保真原型
 
 ### 方案C：调整设计
+
 如果有任何风格或组件不满意，可以重新挑选
 
 ---
@@ -556,6 +651,7 @@ whileHover={{ scale: 1.02 }}
 ## 💡 技术实现建议
 
 ### 安装组件库
+
 ```bash
 # 初始化项目
 npx create-next-app@latest junyue-spa --typescript --tailwind --app
@@ -567,6 +663,7 @@ npx shadcn@latest add button card input calendar
 ```
 
 ### 技术栈
+
 - **框架**: Next.js 14 (App Router)
 - **样式**: Tailwind CSS + shadcn/ui
 - **动画**: Framer Motion
@@ -579,6 +676,7 @@ npx shadcn@latest add button card input calendar
 ## ✅ 12. 核心交互组件（新增补充）
 
 ### **LumaBar / Glass Dock** - 玻璃拟态导航栏
+
 - ✅ **组件来源**: 21st.dev - Futuristic Navigation
 - ✅ **设计特点**:
   - 🎨 玻璃拟态底部导航栏
@@ -588,15 +686,15 @@ npx shadcn@latest add button card input calendar
   - 📱 响应式悬浮设计
   - ✨ Hover放大效果（scale:1.2）
 
-- ✅ **使用场景**: 
+- ✅ **使用场景**:
   - 移动端底部导航栏
   - 桌面端固定侧边栏
   - 用户端主导航（首页/搜索/消息/个人中心）
   - 技师端主导航（订单/日历/收益/设置）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 玻璃质感完美契合奢华风格
 
 ### **Select with Search / Combobox** - 带搜索的下拉选择器
+
 - ✅ **组件来源**: 21st.dev - Popover Select
 - ✅ **设计特点**:
   - 🔍 实时搜索过滤功能
@@ -611,10 +709,10 @@ npx shadcn@latest add button card input calendar
   - 服务区域多选（区域筛选）
   - 技师筛选器（按条件筛选）
   - 服务项目选择（498/598/698元）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 功能强大且视觉简洁
 
 ### **Modal / Blur Dialog** - 模糊背景弹窗
+
 - ✅ **组件来源**: 21st.dev - Modal Drop
 - ✅ **设计特点**:
   - 🌫️ Backdrop blur模糊背景
@@ -630,10 +728,10 @@ npx shadcn@latest add button card input calendar
   - 技师拒单原因填写弹窗
   - 订单详情查看弹窗
   - 确认操作对话框
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 毛玻璃效果增强沉浸感
 
 ### **Search Bar / Suggestive Search** - 智能搜索框
+
 - ✅ **组件来源**: 21st.dev - Search Components
 - ✅ **设计特点**:
   - 💡 Typewriter打字建议效果
@@ -648,7 +746,6 @@ npx shadcn@latest add button card input calendar
   - 技师筛选搜索（关键词搜索）
   - 订单搜索（订单号/技师名）
   - 管理端数据搜索
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 智能交互提升用户体验
 
 ---
@@ -656,6 +753,7 @@ npx shadcn@latest add button card input calendar
 ## ✅ 13. 文件与数据组件（新增补充）
 
 ### **File Upload / Dropzone** - 拖拽上传组件
+
 - ✅ **组件来源**: 21st.dev - File Upload
 - ✅ **设计特点**:
   - 📤 拖拽上传 + 点击上传双模式
@@ -670,10 +768,10 @@ npx shadcn@latest add button card input calendar
   - 技师上传介绍视频
   - 用户上传申诉证据
   - 管理员上传平台图片
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 流畅动画提升上传体验
 
 ### **Animated Tabs / Sliding Tabs** - 动画标签页
+
 - ✅ **组件来源**: 21st.dev - Animated Tabs
 - ✅ **设计特点**:
   - 🌈 渐变滑动指示器（Gradient Bar）
@@ -688,10 +786,10 @@ npx shadcn@latest add button card input calendar
   - 个人中心多标签（订单/收藏/评价/设置）
   - 技师端订单管理（待响应/已接单/已完成）
   - 管理端数据切换（用户/技师/订单/财务）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 渐变发光效果极具科技感
 
 ### **Badge / Status Indicator** - 徽章状态组件
+
 - ✅ **组件来源**: 21st.dev - Badge System
 - ✅ **设计特点**:
   - 🎨 7种颜色变体（primary/success/warning/destructive等）
@@ -707,7 +805,6 @@ npx shadcn@latest add button card input calendar
   - 推荐技师标签（Featured）
   - 订单状态标签（待支付/进行中/已完成）
   - 积分类型标识（正式积分/临时积分）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 状态展示清晰直观
 
 ---
@@ -715,6 +812,7 @@ npx shadcn@latest add button card input calendar
 ## 🎯 完善后组件清单总结
 
 ### 最终组件统计
+
 - **登录/注册**: 1个组件 ✅
 - **首页**: 5个组件 ✅
 - **技师展示**: 2个组件 ✅
@@ -733,6 +831,7 @@ npx shadcn@latest add button card input calendar
 ## ✅ 14. 管理端数据组件（新增补充 - 高优先级）
 
 ### **TanStack Table** - 企业级数据表格
+
 - ✅ **组件来源**: 21st.dev - Advanced Table
 - ✅ **设计特点**:
   - 📊 完整表格功能（TanStack Table v8）
@@ -749,10 +848,10 @@ npx shadcn@latest add button card input calendar
   - 管理端技师列表（绩效看板/多维筛选/审核）
   - 管理端订单列表（全生命周期管理/状态筛选）
   - 管理端财务报表（收益明细/数据导出）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 功能强大且视觉现代化
 
 ### **Recharts / Chart.js** - 数据可视化图表
+
 - ✅ **组件来源**: 21st.dev - Interactive Charts
 - ✅ **设计特点**:
   - 📈 折线图/面积图（趋势分析）
@@ -770,10 +869,10 @@ npx shadcn@latest add button card input calendar
   - 订单量统计（成功率/取消率）
   - 技师绩效分析（收益排行/服务次数）
   - 财务数据可视化（收入/支出/利润）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 专业数据可视化效果
 
 ### **Numbered Pagination** - 数字分页组件
+
 - ✅ **组件来源**: 21st.dev - Pagination
 - ✅ **设计特点**:
   - 🔢 页码数字导航
@@ -790,10 +889,10 @@ npx shadcn@latest add button card input calendar
   - 用户端技师列表翻页
   - 搜索结果分页展示
   - 评论列表分页加载
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 清晰直观的分页交互
 
 ### **Empty State** - 空状态占位组件
+
 - ✅ **组件来源**: 21st.dev - Empty State
 - ✅ **设计特点**:
   - 🎨 三图标堆叠动画（Hover效果）
@@ -810,7 +909,6 @@ npx shadcn@latest add button card input calendar
   - 上传区域空状态
   - 功能未配置提示
   - 网络错误友好提示
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 友好的空状态引导
 
 ---
@@ -818,6 +916,7 @@ npx shadcn@latest add button card input calendar
 ## ✅ 15. 业务特定组件（新增补充 - 中优先级）
 
 ### **Appointment Picker** - 时间段选择器
+
 - ✅ **组件来源**: 21st.dev - Calendar Scheduler
 - ✅ **设计特点**:
   - 📅 React Day Picker日历集成
@@ -834,10 +933,10 @@ npx shadcn@latest add button card input calendar
   - 技师设置每日可服务时间
   - 管理端排班时间配置
   - 日历事件时间选择
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 完美契合预约场景需求
 
 ### **Countdown Timer** - 倒计时组件
+
 - ✅ **组件来源**: 21st.dev - Timer (Ark UI)
 - ✅ **设计特点**:
   - ⏱️ 精确倒计时显示（分:秒）
@@ -854,10 +953,10 @@ npx shadcn@latest add button card input calendar
   - 订单支付倒计时（15分钟）
   - 活动限时优惠倒计时
   - 验证码倒计时（60秒）
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 紧迫感营造效果出色
 
 ### **Switch Toggle** - 开关切换组件
+
 - ✅ **组件来源**: 21st.dev - Switch
 - ✅ **设计特点**:
   - 🔘 平滑滑动动画（Spring效果）
@@ -874,10 +973,10 @@ npx shadcn@latest add button card input calendar
   - 服务项目启用/禁用
   - 通知开关设置
   - 功能开关配置
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 视觉反馈清晰直观
 
 ### **Rating Stars** - 星级评分组件
+
 - ✅ **组件来源**: 21st.dev - Rating Group
 - ✅ **设计特点**:
   - ⭐ 5星评分系统（可自定义星数）
@@ -894,7 +993,6 @@ npx shadcn@latest add button card input calendar
   - 服务满意度调查
   - 产品/功能评价
   - 用户反馈收集
-  
 - ✅ **风格契合度**: ⭐⭐⭐⭐⭐ | 经典评分交互模式
 
 ---
@@ -902,6 +1000,7 @@ npx shadcn@latest add button card input calendar
 ## 🎯 完善后组件清单总结（最终版）
 
 ### 最终组件统计
+
 - **登录/注册**: 1个组件 ✅
 - **首页**: 5个组件 ✅
 - **技师展示**: 2个组件 ✅
@@ -922,12 +1021,14 @@ npx shadcn@latest add button card input calendar
 ## 📋 剩余需补充组件清单（更新）
 
 ### ~~高优先级（管理端必需）~~ ✅ 已完成
+
 1. ~~**数据表格组件**~~ ✅ 已选择TanStack Table
 2. ~~**图表组件**~~ ✅ 已选择Recharts
 3. ~~**分页组件**~~ ✅ 已选择Numbered Pagination
 4. ~~**空状态组件**~~ ✅ 已选择Empty State
 
 ### ~~中优先级（业务特定）~~ ✅ 4个已完成，2个待定
+
 5. ~~**时间段选择器**~~ ✅ 已选择Appointment Picker
 6. **地图组件** - 腾讯地图API集成 ⚠️ 需第三方库
 7. ~~**倒计时组件**~~ ✅ 已选择Countdown Timer
@@ -936,16 +1037,19 @@ npx shadcn@latest add button card input calendar
 10. ~~**评分输入组件**~~ ✅ 已选择Rating Stars
 
 ### 低优先级（可用通用方案替代）
+
 11. **进度条组件** - 订单进度百分比 ⏸️ 可延后
 12. **面包屑导航** - 页面路径导航 ⏸️ 可延后
 13. **步骤条组件** - 多步骤流程指引 ⏸️ 可延后
 
-**完成度总结**: 
+**完成度总结**:
+
 - ✅ **高优先级**: 4/4 完成（100%）
 - ✅ **中优先级**: 4/6 完成（67%）
 - ⏸️ **低优先级**: 0/3 完成（可延后至二期开发）
 
 **剩余待补充**:
+
 - 🗺️ **地图组件**: 建议使用腾讯地图官方React SDK或Leaflet + 腾讯地图瓦片
 - 🎫 **邀请码组件**: 需自定义开发（结合QRCode库生成二维码 + Copy功能）
 - 📊 **进度条/面包屑/步骤条**: 可从shadcn/ui直接引入（优先级低）
@@ -954,14 +1058,14 @@ npx shadcn@latest add button card input calendar
 
 ## 📊 最终设计评分
 
-| 评分维度 | 得分 | 说明 |
-|---------|------|------|
-| **奢华感** | ⭐⭐⭐⭐⭐ | 深色系+金色+玻璃效果+3D元素 |
-| **现代感** | ⭐⭐⭐⭐⭐ | 3D效果+流畅动画+科技感十足 |
-| **统一性** | ⭐⭐⭐⭐⭐ | 所有组件风格完全一致 |
-| **交互流畅度** | ⭐⭐⭐⭐⭐ | 丝滑动画+微交互反馈 |
-| **品牌调性** | ⭐⭐⭐⭐⭐ | 完美契合高端SPA定位 |
-| **技术实现** | ⭐⭐⭐⭐⭐ | 全部使用21st.dev已开发组件 |
+| 评分维度       | 得分             | 说明                                          |
+| -------------- | ---------------- | --------------------------------------------- |
+| **奢华感**     | ⭐⭐⭐⭐⭐       | 深色系+金色+玻璃效果+3D元素                   |
+| **现代感**     | ⭐⭐⭐⭐⭐       | 3D效果+流畅动画+科技感十足                    |
+| **统一性**     | ⭐⭐⭐⭐⭐       | 所有组件风格完全一致                          |
+| **交互流畅度** | ⭐⭐⭐⭐⭐       | 丝滑动画+微交互反馈                           |
+| **品牌调性**   | ⭐⭐⭐⭐⭐       | 完美契合高端SPA定位                           |
+| **技术实现**   | ⭐⭐⭐⭐⭐       | 全部使用21st.dev已开发组件                    |
 | **功能完整性** | ⭐⭐⭐⭐⭐ (5/5) | **覆盖95%+核心功能，仅地图/邀请码需额外开发** |
 
 **综合评分**: ⭐⭐⭐⭐⭐ (5.0/5.0) - **完美** 🎉
@@ -972,15 +1076,18 @@ npx shadcn@latest add button card input calendar
 
 ### ✅ UI设计阶段完成！
 
-**设计成果**: 
+**设计成果**:
+
 - ✅ 已选择**35个高质量UI组件**
 - ✅ 覆盖**95%+核心功能**需求
 - ✅ 所有组件均来自21st.dev（风格统一）
 - ✅ 用户端、技师端、管理端组件全部就绪
 
 ### 方案A：立即全面开发 ⭐⭐⭐⭐⭐ 强烈推荐
+
 **优势**: 35个组件已就绪，可同步启动三端开发
 **流程**:
+
 1. 初始化Next.js 14项目 + 配置Tailwind CSS
 2. 安装21st.dev组件库依赖（shadcn/ui + Framer Motion）
 3. 按优先级并行开发：
@@ -992,8 +1099,10 @@ npx shadcn@latest add button card input calendar
 **预计周期**: 6-8周（三端MVP上线）
 
 ### 方案B：先用户端+技师端，后管理端 ⭐⭐⭐
+
 **优势**: 聚焦核心业务，快速上线验证
 **流程**:
+
 1. 第一期（4周）：用户端+技师端MVP开发
 2. 第二期（2周）：管理端基础功能开发
 3. 第三期（2周）：地图/邀请码等高级功能
@@ -1001,8 +1110,10 @@ npx shadcn@latest add button card input calendar
 **预计周期**: 8周（分三期上线）
 
 ### 方案C：原型验证后开发 ⭐⭐
+
 **优势**: 降低风险，充分验证产品方向
 **流程**:
+
 1. 使用Figma/v0.dev生成高保真原型
 2. 用户测试 + 需求调整
 3. 正式开发阶段（参考方案A）
@@ -1014,6 +1125,7 @@ npx shadcn@latest add button card input calendar
 ## 💡 技术实现建议（最终版）
 
 ### 项目初始化
+
 ```bash
 # 初始化Next.js 14项目
 npx create-next-app@latest junyue-spa --typescript --tailwind --app --src-dir
@@ -1045,6 +1157,7 @@ npm install qrcode.react react-copy-to-clipboard
 ```
 
 ### 完整技术栈
+
 - **框架**: Next.js 14 (App Router)
 - **语言**: TypeScript (strict mode)
 - **样式**: Tailwind CSS v3.4+
@@ -1061,6 +1174,7 @@ npm install qrcode.react react-copy-to-clipboard
 - **二维码**: qrcode.react
 
 ### 开发优先级（更新）
+
 1. **P0（2周）**: 用户端 - 浏览技师 + 预约下单流程
 2. **P1（2周）**: 技师端 - 接单 + 订单管理流程
 3. **P2（1周）**: 管理端 - 数据看板 + 表格列表
@@ -1068,7 +1182,9 @@ npm install qrcode.react react-copy-to-clipboard
 5. **P4（2周）**: 邀请分佣 + 地图功能 + 高级优化
 
 ### 组件集成顺序
+
 **第一批（P0）**：
+
 - Gaming Login（登录页）
 - Hero Section（首页）
 - Gallery Hover Carousel（技师列表）
@@ -1078,6 +1194,7 @@ npm install qrcode.react react-copy-to-clipboard
 - Toast Notifications（提示）
 
 **第二批（P1）**：
+
 - Order Tracking（订单追踪）
 - Statistics Cards（数据统计）
 - Badge（状态标签）
@@ -1085,12 +1202,14 @@ npm install qrcode.react react-copy-to-clipboard
 - Switch Toggle（在线状态）
 
 **第三批（P2）**：
+
 - TanStack Table（管理端表格）
 - Recharts（数据图表）
 - Numbered Pagination（分页器）
 - Empty State（空状态）
 
 **第四批（P3-P4）**：
+
 - Rating Stars（评分系统）
 - 地图集成（腾讯地图）
 - 邀请码生成（QRCode）
@@ -1110,6 +1229,7 @@ npm install qrcode.react react-copy-to-clipboard
 ### 🚀 推荐方案
 
 **强烈建议选择 方案A（立即全面开发）**：
+
 - ✅ 35个组件已全部就绪
 - ✅ 用户端+技师端+管理端可并行开发
 - ✅ 预计6-8周完成MVP三端上线
@@ -1126,22 +1246,25 @@ npm install qrcode.react react-copy-to-clipboard
 **必须使用Tailwind CSS v3.4.17，严禁升级到v4！**
 
 #### 原因说明
+
 - 21st.dev组件库基于Tailwind v3开发
 - v4的配置语法与v3完全不兼容
 - v4的自定义颜色扩展机制发生重大变化
 - v4使用 `@theme inline` 等新语法，会导致现有组件失效
 
 #### 正确的安装方式
+
 ```bash
 # 安装指定版本
 npm install -D tailwindcss@3.4.17 postcss@8.4.49 autoprefixer@10.4.20
 ```
 
 #### PostCSS配置（postcss.config.mjs）
+
 ```javascript
 const config = {
   plugins: {
-    tailwindcss: {},      // v3语法
+    tailwindcss: {}, // v3语法
     autoprefixer: {},
   },
 };
@@ -1149,6 +1272,7 @@ export default config;
 ```
 
 #### Tailwind配置（tailwind.config.ts）
+
 ```typescript
 import type { Config } from "tailwindcss";
 
@@ -1161,8 +1285,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'primary-gold': '#D4AF37',    // 君悦金
-        'primary-purple': '#8B5CF6',  // 渐变紫
+        "primary-gold": "#D4AF37", // 君悦金
+        "primary-purple": "#8B5CF6", // 渐变紫
       },
     },
   },
@@ -1172,6 +1296,7 @@ export default config;
 ```
 
 #### 全局样式（globals.css）
+
 ```css
 @tailwind base;
 @tailwind components;
@@ -1188,6 +1313,7 @@ oklch(...)
 ### 组件集成清单
 
 **每次添加21st.dev组件后必须检查：**
+
 1. ✅ 所有自定义颜色已在 `tailwind.config.ts` 中定义
 2. ✅ 组件依赖的npm包已安装
 3. ✅ 清除 `.next` 缓存并重启开发服务器
@@ -1196,6 +1322,7 @@ oklch(...)
 ### 常见问题快速修复
 
 **问题：渐变效果不显示**
+
 ```bash
 # 1. 停止开发服务器
 # 2. 清除缓存
@@ -1205,10 +1332,10 @@ npm run dev
 ```
 
 **问题：Cannot find module '@tailwindcss/postcss'**
+
 - 原因：使用了v4的PostCSS插件
 - 解决：检查并修复 `postcss.config.mjs` 为v3语法
 
 ---
 
 **感谢使用君悦SPA设计方案！祝开发顺利！** 🎊
-

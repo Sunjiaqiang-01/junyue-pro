@@ -43,13 +43,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-pure-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+        <div className="bg-transparent border border-white/5 rounded-lg p-8">
           {/* Logo和标题 */}
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary-gold mb-2">君悦SPA</h1>
-            <p className="text-gray-400">管理员登录</p>
+            <h1 className="text-3xl font-semibold text-pure-white mb-2">君悦SPA</h1>
+            <p className="text-secondary/50">管理员登录</p>
           </div>
 
           {/* 登录表单 */}
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold"
+              className="w-full bg-pure-white text-pure-black hover:bg-secondary/90"
             >
               {loading ? "登录中..." : "登录"}
             </Button>

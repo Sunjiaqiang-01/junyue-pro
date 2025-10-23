@@ -23,7 +23,7 @@ const statsConfig = [
   {
     title: "技师总数",
     key: "totalTherapists" as const,
-    bg: "bg-zinc-950",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 h-full w-2/3 pointer-events-none"
@@ -41,7 +41,7 @@ const statsConfig = [
   {
     title: "已审核通过",
     key: "approvedTherapists" as const,
-    bg: "bg-green-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -72,7 +72,7 @@ const statsConfig = [
   {
     title: "待审核",
     key: "pendingTherapists" as const,
-    bg: "bg-yellow-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -104,7 +104,7 @@ const statsConfig = [
   {
     title: "在线技师",
     key: "onlineTherapists" as const,
-    bg: "bg-blue-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -144,10 +144,7 @@ export default function AdminStatsCards({ stats }: AdminStatsCardsProps) {
         const delta = index === 0 ? 2.5 : index === 1 ? 5.2 : index === 2 ? -1.3 : 3.8;
 
         return (
-          <Card
-            key={config.key}
-            className={`relative overflow-hidden ${config.bg} text-white border-0`}
-          >
+          <Card key={config.key} className={`relative overflow-hidden ${config.bg} text-white`}>
             <CardHeader className="border-0 z-10 relative pb-2">
               <CardTitle className="text-white/90 text-sm font-medium">{config.title}</CardTitle>
             </CardHeader>

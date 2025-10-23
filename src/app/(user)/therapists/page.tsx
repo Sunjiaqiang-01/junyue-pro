@@ -151,7 +151,7 @@ export default function TherapistsPage() {
   const selectedCityData = cities.find((c) => c.name === selectedCity);
 
   return (
-    <PageContainer className="bg-gradient-to-b from-black to-gray-900">
+    <PageContainer className="bg-pure-black">
       {/* 导航栏 */}
       <ResizableNavigation />
 
@@ -159,10 +159,8 @@ export default function TherapistsPage() {
         <div className="max-w-7xl mx-auto">
           {/* 标题 */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-gold to-yellow-600 bg-clip-text text-transparent mb-2">
-              技师列表
-            </h1>
-            <p className="text-gray-400">
+            <h1 className="text-4xl font-semibold text-pure-white mb-2 tracking-tight">技师列表</h1>
+            <p className="text-secondary/60">
               {loading ? "加载中..." : `共 ${therapists.length} 位技师`}
             </p>
           </div>
@@ -177,7 +175,7 @@ export default function TherapistsPage() {
                 placeholder="搜索技师姓名/年龄/身高/体重/牌值/关键词"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-12 bg-white/5 border-gray-800 text-white placeholder:text-gray-500 focus:border-primary-gold"
+                className="pl-12 bg-transparent border-white/5 text-white placeholder:text-secondary/30 focus:border-primary-cyan"
               />
             </div>
 
@@ -198,7 +196,7 @@ export default function TherapistsPage() {
                 <select
                   value={selectedArea}
                   onChange={(e) => setSelectedArea(e.target.value)}
-                  className="px-4 py-2 rounded-lg bg-white/5 border border-gray-800 text-white focus:border-primary-gold focus:outline-none"
+                  className="px-4 py-2 rounded-lg bg-pure-black border border-white/5 text-white focus:border-primary-cyan focus:outline-none [&>option]:bg-pure-black [&>option]:text-white"
                 >
                   <option value="">全部区域</option>
                   {selectedCityData.areas.map((area) => (
@@ -212,7 +210,11 @@ export default function TherapistsPage() {
               <Button
                 variant={showFeaturedOnly ? "default" : "outline"}
                 onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
-                className={showFeaturedOnly ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                className={
+                  showFeaturedOnly
+                    ? "bg-primary-cyan/10 border-primary-cyan/30 text-primary-cyan"
+                    : ""
+                }
               >
                 推荐
               </Button>
@@ -220,7 +222,9 @@ export default function TherapistsPage() {
               <Button
                 variant={showNewOnly ? "default" : "outline"}
                 onClick={() => setShowNewOnly(!showNewOnly)}
-                className={showNewOnly ? "bg-green-600 hover:bg-green-700" : ""}
+                className={
+                  showNewOnly ? "bg-primary-cyan/10 border-primary-cyan/30 text-primary-cyan" : ""
+                }
               >
                 新人
               </Button>
@@ -230,12 +234,12 @@ export default function TherapistsPage() {
           {/* 技师列表 */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
             </div>
           ) : therapists.length === 0 ? (
-            <div className="text-center py-20 bg-black/20 rounded-2xl border border-gray-800">
-              <p className="text-gray-400 text-lg">暂无技师</p>
-              <p className="text-gray-500 text-sm mt-2">请尝试调整筛选条件</p>
+            <div className="text-center py-20 bg-transparent rounded-lg border border-white/5">
+              <p className="text-secondary/60 text-lg">暂无技师</p>
+              <p className="text-secondary/40 text-sm mt-2">请尝试调整筛选条件</p>
             </div>
           ) : (
             <>
@@ -255,7 +259,7 @@ export default function TherapistsPage() {
                   <Button
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold"
+                    className="bg-pure-white text-pure-black hover:bg-secondary/90"
                   >
                     {loadingMore ? (
                       <>

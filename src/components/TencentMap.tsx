@@ -22,7 +22,7 @@ export function TencentMap({ location, className }: TencentMapProps) {
   return (
     <div className={className}>
       {/* 地图图片 */}
-      <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden border-2 border-gray-800 mb-4">
+      <div className="relative w-full aspect-[3/2] rounded-2xl overflow-hidden border-2 border-white/10 mb-4">
         <img
           src={mapUrl}
           alt={`${location.name}的位置`}
@@ -36,8 +36,8 @@ export function TencentMap({ location, className }: TencentMapProps) {
       </div>
 
       {/* 位置信息文字 */}
-      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-gray-800">
-        <MapPin className="w-5 h-5 text-primary-gold flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5">
+        <MapPin className="w-5 h-5 text-primary-cyan flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-white font-semibold text-base mb-1">{location.name}</p>
           <p className="text-gray-400 text-sm">{location.street}</p>
