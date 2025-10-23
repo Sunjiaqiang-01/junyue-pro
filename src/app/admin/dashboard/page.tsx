@@ -1,154 +1,168 @@
-"use client";
-
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Loader2, Users, UserCheck, Clock, Megaphone, BookOpen, Key, Activity } from "lucide-react";
-import { toast } from "sonner";
-import Link from "next/link";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { Skeleton } from "@/components/ui/skeleton";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
+import { PageViewsTrendChart } from "./components/PageViewsTrendChart";
+import { TherapistViewsRankingChart } from "./components/TherapistViewsRankingChart";
+import { TherapistCityDistributionChart } from "./components/TherapistCityDistributionChart";
 
-interface DashboardStats {
-  totalTherapists: number;
-  approvedTherapists: number;
-  pendingTherapists: number;
-  onlineTherapists: number;
-  todayNew: number;
+async function getDashboardData() {
+  // 获取基本统计
+  const [
+    totalTherapists,
+    approvedTherapists,
+    pendingTherapists,
+    onlineTherapists,
+    todayNewTherapists,
+    topViewedTherapists,
+  ] = await Promise.all([
+    prisma.therapist.count(),
+    prisma.therapist.count({ where: { status: "APPROVED" } }),
+    prisma.therapist.count({ where: { status: "PENDING" } }),
+    prisma.therapist.count({ where: { isOnline: true } }),
+    prisma.therapist.count({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
+      },
+    }),
+    // 获取浏览量TOP 10技师
+    prisma.therapist.findMany({
+      select: {
+        nickname: true,
+        viewCount: true,
+      },
+      where: {
+        status: "APPROVED",
+      },
+      orderBy: {
+        viewCount: "desc",
+      },
+      take: 10,
+    }),
+  ]);
+
+  // 获取城市分布
+  const cityDistribution = await prisma.therapist.groupBy({
+    by: ["city"],
+    _count: {
+      city: true,
+    },
+    where: {
+      status: "APPROVED",
+    },
+    orderBy: {
+      _count: {
+        city: "desc",
+      },
+    },
+  });
+
+  // 模拟7天浏览量趋势（这里使用模拟数据，实际应该从数据库获取）
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+  });
+
+  // 模拟浏览量数据（实际应从visit tracking系统获取）
+  const pageViewsTrend = last7Days.map((date, index) => ({
+    date,
+    views: Math.floor(Math.random() * 500) + 200 + index * 50,
+  }));
+
+  const totalViews = pageViewsTrend.reduce((sum, item) => sum + item.views, 0);
+  const todayViews = pageViewsTrend[pageViewsTrend.length - 1].views;
+
+  // 格式化排行榜数据
+  const therapistRankings = topViewedTherapists.map((t, index) => ({
+    nickname: t.nickname,
+    viewCount: t.viewCount,
+    rank: index + 1,
+  }));
+
+  // 格式化城市分布数据
+  const cityDistData = cityDistribution.map((item) => ({
+    city: item.city,
+    count: item._count.city,
+    percentage: (item._count.city / totalTherapists) * 100,
+  }));
+
+  return {
+    stats: {
+      totalTherapists,
+      approvedTherapists,
+      pendingTherapists,
+      onlineTherapists,
+      todayNew: todayNewTherapists,
+    },
+    pageViewsTrend,
+    totalViews,
+    todayViews,
+    therapistRankings,
+    cityDistribution: cityDistData,
+  };
 }
 
-export default function AdminDashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+export default async function AdminDashboard() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/admin/login");
-    } else if (status === "authenticated" && session?.user?.role === "admin") {
-      fetchStats();
-    }
-  }, [status, session, router]);
-
-  const fetchStats = async () => {
-    try {
-      const res = await fetch("/api/admin/dashboard/stats");
-      const data = await res.json();
-
-      if (data.success) {
-        setStats(data.data);
-      } else {
-        toast.error("获取统计数据失败");
-      }
-    } catch (error) {
-      console.error("获取统计数据失败:", error);
-      toast.error("网络错误");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (status === "loading" || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
-      </div>
-    );
+  if (!session || session.user.role !== "ADMIN") {
+    redirect("/admin/login");
   }
 
-  if (!session || session.user.role !== "admin") {
-    return null;
-  }
+  const data = await getDashboardData();
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* 欢迎区域 */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary-gold mb-2">
-            欢迎回来，{session.user.name || "管理员"}！
-          </h1>
-          <p className="text-gray-400">
-            今天是{" "}
-            {new Date().toLocaleDateString("zh-CN", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              weekday: "long",
-            })}
-          </p>
+    <div className="container mx-auto py-6 space-y-6">
+      {/* 欢迎区域 */}
+      <div>
+        <h1 className="text-3xl font-bold mb-2">欢迎回来，{session.user.name || "管理员"}！</h1>
+        <p className="text-muted-foreground">
+          今天是{" "}
+          {new Date().toLocaleDateString("zh-CN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            weekday: "long",
+          })}
+        </p>
+      </div>
+
+      {/* 统计卡片 */}
+      <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+        <AdminStatsCards stats={data.stats} />
+      </Suspense>
+
+      {/* 数据可视化区域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 浏览量趋势图 */}
+        <div className="lg:col-span-2">
+          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+            <PageViewsTrendChart
+              data={data.pageViewsTrend}
+              totalViews={data.totalViews}
+              todayViews={data.todayViews}
+            />
+          </Suspense>
         </div>
 
-        {/* 统计卡片 */}
-        <div className="mb-8">
-          <AdminStatsCards stats={stats} />
-        </div>
+        {/* 技师浏览量排行榜 */}
+        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+          <TherapistViewsRankingChart data={data.therapistRankings} />
+        </Suspense>
 
-        {/* 快速操作 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/admin/system">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <Activity className="w-12 h-12 text-primary-gold mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">系统监控</h3>
-              <p className="text-gray-400">查看服务器状态和数据统计</p>
-            </div>
-          </Link>
-
-          <Link href="/admin/therapists/pending">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <Clock className="w-12 h-12 text-yellow-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">技师审核</h3>
-              <p className="text-gray-400">审核待审核的技师资料</p>
-              {stats && stats.pendingTherapists > 0 && (
-                <div className="mt-4">
-                  <span className="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm">
-                    {stats.pendingTherapists} 个待审核
-                  </span>
-                </div>
-              )}
-            </div>
-          </Link>
-
-          <Link href="/admin/therapists">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <Users className="w-12 h-12 text-blue-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">技师管理</h3>
-              <p className="text-gray-400">管理所有技师信息</p>
-            </div>
-          </Link>
-
-          <Link href="/admin/customer-services">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <UserCheck className="w-12 h-12 text-green-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">客服配置</h3>
-              <p className="text-gray-400">管理客服信息和二维码</p>
-            </div>
-          </Link>
-
-          <Link href="/admin/announcements">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <Megaphone className="w-12 h-12 text-purple-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">公告管理</h3>
-              <p className="text-gray-400">发布和管理平台公告</p>
-            </div>
-          </Link>
-
-          <Link href="/admin/guide">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <BookOpen className="w-12 h-12 text-cyan-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">指南管理</h3>
-              <p className="text-gray-400">管理平台使用指南</p>
-            </div>
-          </Link>
-
-          <Link href="/admin/registration-codes">
-            <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-primary-gold transition-colors cursor-pointer">
-              <Key className="w-12 h-12 text-pink-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">注册码管理</h3>
-              <p className="text-gray-400">生成和管理技师注册码</p>
-            </div>
-          </Link>
-        </div>
+        {/* 技师城市分布 */}
+        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+          <TherapistCityDistributionChart
+            data={data.cityDistribution}
+            totalTherapists={data.stats.totalTherapists}
+          />
+        </Suspense>
       </div>
     </div>
   );

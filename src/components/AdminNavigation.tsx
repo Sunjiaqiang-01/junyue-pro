@@ -12,12 +12,10 @@ import { User, LogOut, Clock } from "lucide-react";
 // 管理端已登录时的导航链接
 const adminLinks = [
   { href: "/admin/dashboard", label: "数据看板" },
-  { href: "/admin/system", label: "系统监控" },
-  { href: "/admin/therapists", label: "技师管理" },
-  { href: "/admin/therapists/pending", label: "技师审核", badge: true },
-  { href: "/admin/deactivation", label: "注销申请", badge: true, badgeType: "deactivation" },
-  { href: "/admin/customer-services", label: "客服配置" },
-  { href: "/admin/announcements", label: "公告管理" },
+  { href: "/admin/therapists-center", label: "技师中心", badge: true },
+  { href: "/admin/therapists", label: "技师列表" },
+  { href: "/admin/content", label: "内容管理" },
+  { href: "/admin/registration-codes", label: "注册码" },
 ];
 
 export default function AdminNavigation() {
@@ -58,7 +56,7 @@ export default function AdminNavigation() {
 
   const fetchDeactivationCount = async () => {
     try {
-      const res = await fetch("/api/admin/deactivation?status=PENDING");
+      const res = await fetch("/api/admin/deactivation-requests?status=PENDING");
       const data = await res.json();
       if (data.success && data.data) {
         setDeactivationCount(data.data.length);
@@ -128,8 +126,7 @@ export default function AdminNavigation() {
               <div className="absolute inset-0 m-auto hidden size-fit lg:block">
                 <ul className="flex gap-8 text-sm">
                   {adminLinks.map((link, index) => {
-                    const badgeCount =
-                      link.badgeType === "deactivation" ? deactivationCount : pendingCount;
+                    const totalPending = pendingCount + deactivationCount;
                     return (
                       <li key={index} className="relative">
                         <Link
@@ -137,9 +134,9 @@ export default function AdminNavigation() {
                           className="text-gray-300 hover:text-primary-gold block duration-150 font-medium"
                         >
                           <span>{link.label}</span>
-                          {link.badge && badgeCount > 0 && (
+                          {link.badge && totalPending > 0 && (
                             <span className="absolute -top-2 -right-3 bg-yellow-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                              {badgeCount}
+                              {totalPending}
                             </span>
                           )}
                         </Link>
@@ -162,8 +159,7 @@ export default function AdminNavigation() {
                 <div className="lg:hidden">
                   <ul className="space-y-6 text-base">
                     {adminLinks.map((link, index) => {
-                      const badgeCount =
-                        link.badgeType === "deactivation" ? deactivationCount : pendingCount;
+                      const totalPending = pendingCount + deactivationCount;
                       return (
                         <li key={index} className="relative">
                           <Link
@@ -172,9 +168,9 @@ export default function AdminNavigation() {
                             onClick={() => setOpen(false)}
                           >
                             <span>{link.label}</span>
-                            {link.badge && badgeCount > 0 && (
+                            {link.badge && totalPending > 0 && (
                               <span className="bg-yellow-500 text-black text-xs font-bold rounded-full px-2 py-0.5">
-                                {badgeCount}
+                                {totalPending}
                               </span>
                             )}
                           </Link>

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Loader2, Plus, Edit, Trash2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import Link from 'next/link';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, Plus, Edit, Trash2, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import Link from "next/link";
 
 interface Announcement {
   id: string;
@@ -30,36 +30,36 @@ export default function AnnouncementsManagePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    type: 'NOTICE',
+    title: "",
+    content: "",
+    type: "NOTICE",
     isActive: true,
     sortOrder: 0,
   });
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated' && session?.user?.role === 'admin') {
+    if (status === "unauthenticated") {
+      router.push("/admin/login");
+    } else if (status === "authenticated" && session?.user?.role === "admin") {
       fetchAnnouncements();
     }
   }, [status, session, router]);
 
   const fetchAnnouncements = async () => {
     try {
-      const res = await fetch('/api/admin/announcements');
+      const res = await fetch("/api/admin/announcements");
       const data = await res.json();
-      
+
       if (data.success) {
         setAnnouncements(data.data);
       } else {
-        toast.error('获取公告列表失败');
+        toast.error("获取公告列表失败");
       }
     } catch (error) {
-      console.error('获取公告列表失败:', error);
-      toast.error('网络错误');
+      console.error("获取公告列表失败:", error);
+      toast.error("网络错误");
     } finally {
       setLoading(false);
     }
@@ -78,9 +78,9 @@ export default function AnnouncementsManagePage() {
     } else {
       setEditingId(null);
       setFormData({
-        title: '',
-        content: '',
-        type: 'NOTICE',
+        title: "",
+        content: "",
+        type: "NOTICE",
         isActive: true,
         sortOrder: 0,
       });
@@ -92,9 +92,9 @@ export default function AnnouncementsManagePage() {
     setDialogOpen(false);
     setEditingId(null);
     setFormData({
-      title: '',
-      content: '',
-      type: 'NOTICE',
+      title: "",
+      content: "",
+      type: "NOTICE",
       isActive: true,
       sortOrder: 0,
     });
@@ -102,103 +102,101 @@ export default function AnnouncementsManagePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.content) {
-      toast.error('请填写完整信息');
+      toast.error("请填写完整信息");
       return;
     }
 
     setSubmitting(true);
     try {
-      const url = editingId 
-        ? `/api/admin/announcements/${editingId}`
-        : '/api/admin/announcements';
-      
-      const method = editingId ? 'PUT' : 'POST';
+      const url = editingId ? `/api/admin/announcements/${editingId}` : "/api/admin/announcements";
+
+      const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success(editingId ? '更新成功' : '创建成功');
+        toast.success(editingId ? "更新成功" : "创建成功");
         handleCloseDialog();
         fetchAnnouncements();
       } else {
-        toast.error(data.error || '操作失败');
+        toast.error(data.error || "操作失败");
       }
     } catch (error) {
-      console.error('操作失败:', error);
-      toast.error('网络错误');
+      console.error("操作失败:", error);
+      toast.error("网络错误");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('确认删除该公告吗？')) {
+    if (!confirm("确认删除该公告吗？")) {
       return;
     }
 
     try {
       const res = await fetch(`/api/admin/announcements/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success('删除成功');
+        toast.success("删除成功");
         fetchAnnouncements();
       } else {
-        toast.error(data.error || '删除失败');
+        toast.error(data.error || "删除失败");
       }
     } catch (error) {
-      console.error('删除失败:', error);
-      toast.error('网络错误');
+      console.error("删除失败:", error);
+      toast.error("网络错误");
     }
   };
 
   const handleToggleActive = async (id: string, isActive: boolean) => {
     try {
       const res = await fetch(`/api/admin/announcements/${id}/toggle`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !isActive }),
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
-        toast.success(isActive ? '已隐藏' : '已显示');
+        toast.success(isActive ? "已隐藏" : "已显示");
         fetchAnnouncements();
       } else {
-        toast.error(data.error || '操作失败');
+        toast.error(data.error || "操作失败");
       }
     } catch (error) {
-      console.error('操作失败:', error);
-      toast.error('网络错误');
+      console.error("操作失败:", error);
+      toast.error("网络错误");
     }
   };
 
   const getTypeBadge = (type: string) => {
     switch (type) {
-      case 'NOTICE':
+      case "NOTICE":
         return <Badge className="bg-blue-600">公告</Badge>;
-      case 'EVENT':
+      case "EVENT":
         return <Badge className="bg-purple-600">活动</Badge>;
-      case 'MAINTENANCE':
+      case "MAINTENANCE":
         return <Badge className="bg-orange-600">维护</Badge>;
       default:
         return null;
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
@@ -206,7 +204,7 @@ export default function AnnouncementsManagePage() {
     );
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session || session.user.role !== "admin") {
     return null;
   }
 
@@ -223,12 +221,8 @@ export default function AnnouncementsManagePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-4xl font-bold text-primary-gold mb-2">
-                公告管理
-              </h1>
-              <p className="text-gray-400">
-                共 {announcements.length} 条公告
-              </p>
+              <h1 className="text-4xl font-bold text-primary-gold mb-2">公告管理</h1>
+              <p className="text-gray-400">共 {announcements.length} 条公告</p>
             </div>
           </div>
           <Button
@@ -264,7 +258,9 @@ export default function AnnouncementsManagePage() {
                     {getTypeBadge(announcement.type)}
                     <h3 className="text-xl font-bold text-white">{announcement.title}</h3>
                     {!announcement.isActive && (
-                      <Badge variant="outline" className="text-gray-400">已隐藏</Badge>
+                      <Badge variant="outline" className="text-gray-400">
+                        已隐藏
+                      </Badge>
                     )}
                   </div>
                   <div className="flex gap-2">
@@ -295,14 +291,12 @@ export default function AnnouncementsManagePage() {
                     </Button>
                   </div>
                 </div>
-                
-                <p className="text-gray-300 whitespace-pre-wrap mb-3">
-                  {announcement.content}
-                </p>
-                
+
+                <p className="text-gray-300 whitespace-pre-wrap mb-3">{announcement.content}</p>
+
                 <div className="flex items-center gap-4 text-sm text-gray-400">
                   <span>排序: {announcement.sortOrder}</span>
-                  <span>创建时间: {new Date(announcement.createdAt).toLocaleString('zh-CN')}</span>
+                  <span>创建时间: {new Date(announcement.createdAt).toLocaleString("zh-CN")}</span>
                 </div>
               </div>
             ))}
@@ -314,7 +308,7 @@ export default function AnnouncementsManagePage() {
           <DialogContent className="max-w-2xl bg-gradient-to-br from-gray-900 to-black border-gray-800">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-primary-gold">
-                {editingId ? '编辑公告' : '新建公告'}
+                {editingId ? "编辑公告" : "新建公告"}
               </DialogTitle>
             </DialogHeader>
 
@@ -362,7 +356,9 @@ export default function AnnouncementsManagePage() {
                   <Input
                     type="number"
                     value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sortOrder: parseInt(e.target.value) })
+                    }
                     className="bg-white/5 border-gray-700 text-white"
                   />
                 </div>
@@ -370,8 +366,10 @@ export default function AnnouncementsManagePage() {
                 <div>
                   <label className="block text-white font-medium mb-2">状态</label>
                   <select
-                    value={formData.isActive ? 'true' : 'false'}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'true' })}
+                    value={formData.isActive ? "true" : "false"}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isActive: e.target.value === "true" })
+                    }
                     className="w-full p-2 bg-white/5 border border-gray-700 rounded-lg text-white"
                   >
                     <option value="true">显示</option>
@@ -395,7 +393,7 @@ export default function AnnouncementsManagePage() {
                   className="flex-1 bg-gradient-to-r from-primary-gold to-yellow-600"
                   disabled={submitting}
                 >
-                  {submitting ? '提交中...' : (editingId ? '更新' : '创建')}
+                  {submitting ? "提交中..." : editingId ? "更新" : "创建"}
                 </Button>
               </div>
             </form>
@@ -405,4 +403,3 @@ export default function AnnouncementsManagePage() {
     </div>
   );
 }
-

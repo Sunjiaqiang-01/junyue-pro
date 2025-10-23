@@ -38,6 +38,7 @@ model Therapist {
   
   isNew               Boolean           @default(true)
   isFeatured          Boolean           @default(false)
+  viewCount           Int               @default(0) // 🆕 浏览量统计
   
   // 注册验证码（管理员生成）
   registrationCodeId  String?
