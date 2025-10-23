@@ -54,6 +54,7 @@ model Therapist {
   schedules           TherapistSchedule[]
   notifications       Notification[]
   deactivationRequests TherapistDeactivationRequest[]
+  views               TherapistView[]
   
   @@index([username])
   @@index([email])
@@ -448,4 +449,38 @@ enum DeactivationStatus {
   APPROVED  // 已通过
   REJECTED  // 已拒绝
   CANCELLED // 已撤销
+}
+
+// ==================== 访问统计表 (2张) ====================
+
+// 16. 网站访问统计表
+model SiteVisit {
+  id        String   @id @default(cuid())
+  ip        String   // 访问者IP
+  userAgent String?  // 用户代理
+  page      String   // 访问页面
+  referrer  String?  // 来源页面
+  
+  createdAt DateTime @default(now())
+  
+  @@index([createdAt])
+  @@index([page])
+  @@map("site_visits")
+}
+
+// 17. 技师浏览统计表
+model TherapistView {
+  id          String    @id @default(cuid())
+  therapistId String
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  ip          String    // 访问者IP
+  userAgent   String?   // 用户代理
+  referrer    String?   // 来源页面
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([therapistId])
+  @@index([createdAt])
+  @@map("therapist_views")
 }

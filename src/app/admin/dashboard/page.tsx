@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
@@ -109,9 +108,9 @@ async function getDashboardData() {
 }
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || session.user.role !== "admin") {
     redirect("/admin/login");
   }
 

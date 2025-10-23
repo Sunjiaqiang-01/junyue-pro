@@ -13,7 +13,6 @@ import { User, LogOut, Clock } from "lucide-react";
 const adminLinks = [
   { href: "/admin/dashboard", label: "数据看板" },
   { href: "/admin/therapists-center", label: "技师中心", badge: true },
-  { href: "/admin/therapists", label: "技师列表" },
   { href: "/admin/content", label: "内容管理" },
   { href: "/admin/registration-codes", label: "注册码" },
 ];
@@ -56,7 +55,7 @@ export default function AdminNavigation() {
 
   const fetchDeactivationCount = async () => {
     try {
-      const res = await fetch("/api/admin/deactivation-requests?status=PENDING");
+      const res = await fetch("/api/admin/deactivation?status=PENDING");
       const data = await res.json();
       if (data.success && data.data) {
         setDeactivationCount(data.data.length);

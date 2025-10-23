@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,7 +83,7 @@ async function getTherapistsData() {
           },
         },
       },
-      orderBy: { submittedAt: "desc" },
+      orderBy: { requestedAt: "desc" },
     }),
   ]);
 
@@ -96,9 +95,9 @@ async function getTherapistsData() {
 }
 
 export default async function TherapistsCenterPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || session.user.role !== "admin") {
     redirect("/admin/login");
   }
 

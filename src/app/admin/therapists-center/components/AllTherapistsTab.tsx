@@ -170,7 +170,7 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => router.push(`/admin/therapists/${therapist.id}`)}
+              onClick={() => router.push(`/admin/therapists/${therapist.id}/edit`)}
             >
               查看
             </Button>
