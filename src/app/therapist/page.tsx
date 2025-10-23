@@ -43,26 +43,26 @@ export default function TherapistHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen bg-pure-black">
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
         {/* 背景装饰 */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-purple/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-gold/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-cyan/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-cyan/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative max-w-6xl mx-auto text-center">
           {/* 标题 */}
           <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-gold/10 border border-primary-gold/30 rounded-full mb-6">
-              <Sparkles className="w-4 h-4 text-primary-gold" />
-              <span className="text-primary-gold text-sm font-medium">专业技师入驻平台</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-cyan/10 border border-primary-cyan/30 rounded-full mb-6">
+              <Sparkles className="w-4 h-4 text-primary-cyan" />
+              <span className="text-primary-cyan text-sm font-medium">专业技师入驻平台</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-primary-gold via-yellow-500 to-primary-gold bg-clip-text text-transparent">
-                加入君悦SPA
+              <span className="text-pure-white">
+                加入<span className="text-primary-cyan">君悦SPA</span>
               </span>
             </h1>
 
@@ -78,7 +78,7 @@ export default function TherapistHomePage() {
             <Button
               size="lg"
               onClick={() => openModal("register")}
-              className="bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold px-8 py-6 text-lg"
+              className="bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold px-8 py-6 text-lg shadow-lg shadow-primary-cyan/30"
             >
               <UserPlus className="w-5 h-5 mr-2" />
               立即注册
@@ -87,9 +87,9 @@ export default function TherapistHomePage() {
 
             <Button
               size="lg"
-              variant="outline"
+              variant="ghost"
               onClick={() => openModal("login")}
-              className="border-gray-700 text-gray-300 hover:text-primary-gold hover:border-primary-gold px-8 py-6 text-lg"
+              className="border border-white/10 text-pure-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent px-8 py-6 text-lg font-bold"
             >
               <LogIn className="w-5 h-5 mr-2" />
               已有账号？登录
@@ -99,7 +99,7 @@ export default function TherapistHomePage() {
           {/* 数据统计 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
-              <Users className="w-8 h-8 text-primary-gold mx-auto mb-3" />
+              <Users className="w-8 h-8 text-primary-cyan mx-auto mb-3" />
               <div className="text-3xl font-bold text-white mb-1">1000+</div>
               <div className="text-gray-400 text-sm">注册技师</div>
             </div>
@@ -124,7 +124,7 @@ export default function TherapistHomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              简单<span className="text-primary-gold">四步</span>，开启您的职业之旅
+              简单<span className="text-primary-cyan">四步</span>，开启您的职业之旅
             </h2>
             <p className="text-gray-400">快速完成入驻，48小时内审核通过即可接单</p>
           </div>
@@ -132,13 +132,13 @@ export default function TherapistHomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* 步骤1 */}
             <div className="relative group">
-              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-gold/50 transition-all duration-300">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-gold to-yellow-600 rounded-full flex items-center justify-center text-black font-bold text-xl">
+              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-cyan/50 transition-all duration-300">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-cyan to-primary-cyan rounded-full flex items-center justify-center text-pure-black font-bold text-xl">
                   1
                 </div>
 
-                <div className="w-16 h-16 bg-primary-gold/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <UserPlus className="w-8 h-8 text-primary-gold" />
+                <div className="w-16 h-16 bg-primary-cyan/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <UserPlus className="w-8 h-8 text-primary-cyan" />
                 </div>
 
                 <h3 className="text-xl font-bold text-white mb-3">注册账号</h3>
@@ -148,8 +148,8 @@ export default function TherapistHomePage() {
 
             {/* 步骤2 */}
             <div className="relative group">
-              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-gold/50 transition-all duration-300">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-gold to-yellow-600 rounded-full flex items-center justify-center text-black font-bold text-xl">
+              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-cyan/50 transition-all duration-300">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-cyan to-primary-cyan rounded-full flex items-center justify-center text-pure-black font-bold text-xl">
                   2
                 </div>
 
@@ -164,8 +164,8 @@ export default function TherapistHomePage() {
 
             {/* 步骤3 */}
             <div className="relative group">
-              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-gold/50 transition-all duration-300">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-gold to-yellow-600 rounded-full flex items-center justify-center text-black font-bold text-xl">
+              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-cyan/50 transition-all duration-300">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-cyan to-primary-cyan rounded-full flex items-center justify-center text-pure-black font-bold text-xl">
                   3
                 </div>
 
@@ -180,8 +180,8 @@ export default function TherapistHomePage() {
 
             {/* 步骤4 */}
             <div className="relative group">
-              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-gold/50 transition-all duration-300">
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-gold to-yellow-600 rounded-full flex items-center justify-center text-black font-bold text-xl">
+              <div className="bg-white/5 backdrop-blur-sm border border-gray-800 rounded-2xl p-8 hover:border-primary-cyan/50 transition-all duration-300">
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-r from-primary-cyan to-primary-cyan rounded-full flex items-center justify-center text-pure-black font-bold text-xl">
                   4
                 </div>
 
@@ -202,15 +202,15 @@ export default function TherapistHomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
-              为什么选择<span className="text-primary-gold">君悦SPA</span>
+              为什么选择<span className="text-primary-cyan">君悦SPA</span>
             </h2>
             <p className="text-gray-400">我们为技师提供专业的展示平台和完善的服务支持</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-black/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
-              <div className="w-12 h-12 bg-primary-gold/10 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-primary-gold" />
+              <div className="w-12 h-12 bg-primary-cyan/10 rounded-xl flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-primary-cyan" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">信息保护</h3>
               <p className="text-gray-400 text-sm">
@@ -266,7 +266,7 @@ export default function TherapistHomePage() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-primary-gold/10 via-purple-500/10 to-primary-gold/10 border border-primary-gold/30 rounded-3xl p-12">
+          <div className="bg-gradient-to-r from-primary-cyan/10 via-purple-500/10 to-primary-cyan/10 border border-primary-cyan/30 rounded-3xl p-12">
             <h2 className="text-4xl font-bold text-white mb-4">准备好开始了吗？</h2>
             <p className="text-gray-300 mb-8 text-lg">
               立即注册，加入君悦SPA，开启您的专业服务之旅
@@ -276,7 +276,7 @@ export default function TherapistHomePage() {
               <Button
                 size="lg"
                 onClick={() => openModal("register")}
-                className="bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold px-10 py-6 text-lg"
+                className="bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold px-10 py-6 text-lg shadow-lg shadow-primary-cyan/30"
               >
                 <UserPlus className="w-5 h-5 mr-2" />
                 立即注册
@@ -285,9 +285,9 @@ export default function TherapistHomePage() {
 
               <Button
                 size="lg"
-                variant="outline"
+                variant="ghost"
                 onClick={() => openModal("login")}
-                className="border-gray-700 text-gray-300 hover:text-primary-gold hover:border-primary-gold px-10 py-6 text-lg"
+                className="border border-white/10 text-pure-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent px-10 py-6 text-lg font-bold"
               >
                 <LogIn className="w-5 h-5 mr-2" />
                 技师登录

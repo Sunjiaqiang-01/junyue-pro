@@ -11,7 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const showNavigation = pathname !== "/admin/login";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
+    <div className="min-h-screen bg-pure-black">
       {showNavigation && <AdminNavigation />}
       <div className={showNavigation ? "pt-20" : ""}>{children}</div>
     </div>

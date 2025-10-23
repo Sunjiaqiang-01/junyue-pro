@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageCircle, X, Loader2, Copy, Check } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Loader2,
+  Copy,
+  Check,
+  Download,
+  Maximize2,
+  X as CloseIcon,
+} from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -28,6 +37,7 @@ export default function CustomerServiceButton({
   const [error, setError] = useState<string | null>(null);
   const [copiedWechat, setCopiedWechat] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
+  const [fullscreenQR, setFullscreenQR] = useState(false);
 
   // 复制微信号
   const copyWechat = async () => {
@@ -44,6 +54,26 @@ export default function CustomerServiceButton({
       await navigator.clipboard.writeText(customerService.phone);
       setCopiedPhone(true);
       setTimeout(() => setCopiedPhone(false), 2000);
+    }
+  };
+
+  // 下载二维码
+  const downloadQRCode = async () => {
+    if (!customerService?.wechatQrCode) return;
+
+    try {
+      const response = await fetch(customerService.wechatQrCode);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "君悦SPA客服微信二维码.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("下载二维码失败:", error);
     }
   };
 
@@ -136,7 +166,8 @@ export default function CustomerServiceButton({
               <div className="space-y-6 py-4">
                 {/* 微信二维码 */}
                 <div className="flex flex-col items-center">
-                  <div className="relative w-64 h-64 mb-4 rounded-2xl overflow-hidden border-2 border-white/10">
+                  {/* 二维码图片 */}
+                  <div className="relative w-64 h-64 mb-3 rounded-2xl overflow-hidden border-2 border-white/10">
                     <Image
                       src={customerService.wechatQrCode}
                       alt="客服微信二维码"
@@ -144,6 +175,27 @@ export default function CustomerServiceButton({
                       className="object-cover"
                     />
                   </div>
+
+                  {/* 操作按钮（固定显示） */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <button
+                      onClick={downloadQRCode}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                      title="下载二维码"
+                    >
+                      <Download className="w-4 h-4 text-primary-cyan" />
+                      <span className="text-sm text-white font-medium">下载</span>
+                    </button>
+                    <button
+                      onClick={() => setFullscreenQR(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                      title="全屏查看"
+                    >
+                      <Maximize2 className="w-4 h-4 text-primary-cyan" />
+                      <span className="text-sm text-white font-medium">全屏</span>
+                    </button>
+                  </div>
+
                   <p className="text-gray-400 text-sm">扫描二维码添加客服微信</p>
                   {customerService.wechatId && (
                     <div className="flex items-center justify-center gap-2 mt-3 p-3 rounded-lg bg-white/5 border border-white/5">
@@ -208,6 +260,71 @@ export default function CustomerServiceButton({
             ) : null}
           </DialogContent>
         </Dialog>
+
+        {/* 全屏查看二维码 */}
+        {fullscreenQR && customerService && (
+          <div
+            className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-md flex items-center justify-center"
+            onClick={() => setFullscreenQR(false)}
+          >
+            <div className="relative max-w-2xl w-full p-8">
+              {/* 关闭按钮 */}
+              <button
+                onClick={() => setFullscreenQR(false)}
+                className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200"
+                title="关闭"
+              >
+                <CloseIcon className="w-6 h-6 text-white" />
+              </button>
+
+              {/* 二维码图片 */}
+              <div className="relative w-full aspect-square rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-6">
+                <Image
+                  src={customerService.wechatQrCode}
+                  alt="客服微信二维码"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              {/* 操作按钮 */}
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadQRCode();
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-primary-cyan text-pure-black font-medium rounded-lg hover:bg-primary-cyan/90 transition-all duration-200 shadow-lg shadow-primary-cyan/30"
+                >
+                  <Download className="w-5 h-5" />
+                  下载二维码
+                </button>
+                {customerService.wechatId && (
+                  <div className="flex items-center gap-2 p-4 rounded-lg bg-white/5 border border-white/10">
+                    <span className="text-white font-medium">
+                      微信号：{customerService.wechatId}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyWechat();
+                      }}
+                      className="p-2 rounded-md hover:bg-white/10 transition-colors"
+                      title="复制微信号"
+                    >
+                      {copiedWechat ? (
+                        <Check className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <Copy className="w-5 h-5 text-secondary/60 hover:text-primary-cyan" />
+                      )}
+                    </button>
+                  </div>
+                )}
+                <p className="text-gray-400 text-sm">点击空白处关闭</p>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     );
   }
@@ -252,7 +369,8 @@ export default function CustomerServiceButton({
           ) : customerService ? (
             <div className="space-y-6 py-4">
               <div className="flex flex-col items-center">
-                <div className="relative w-64 h-64 mb-4 rounded-2xl overflow-hidden border-2 border-white/10">
+                {/* 二维码图片 */}
+                <div className="relative w-64 h-64 mb-3 rounded-2xl overflow-hidden border-2 border-white/10">
                   <Image
                     src={customerService.wechatQrCode}
                     alt="客服微信二维码"
@@ -260,6 +378,27 @@ export default function CustomerServiceButton({
                     className="object-cover"
                   />
                 </div>
+
+                {/* 操作按钮（固定显示） */}
+                <div className="flex items-center gap-3 mb-3">
+                  <button
+                    onClick={downloadQRCode}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                    title="下载二维码"
+                  >
+                    <Download className="w-4 h-4 text-primary-cyan" />
+                    <span className="text-sm text-white font-medium">下载</span>
+                  </button>
+                  <button
+                    onClick={() => setFullscreenQR(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+                    title="全屏查看"
+                  >
+                    <Maximize2 className="w-4 h-4 text-primary-cyan" />
+                    <span className="text-sm text-white font-medium">全屏</span>
+                  </button>
+                </div>
+
                 <p className="text-gray-400 text-sm">扫描二维码添加客服微信</p>
                 {customerService.wechatId && (
                   <div className="flex items-center justify-center gap-2 mt-3 p-3 rounded-lg bg-white/5 border border-white/5">
@@ -320,6 +459,69 @@ export default function CustomerServiceButton({
           ) : null}
         </DialogContent>
       </Dialog>
+
+      {/* 全屏查看二维码 */}
+      {fullscreenQR && customerService && (
+        <div
+          className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-md flex items-center justify-center"
+          onClick={() => setFullscreenQR(false)}
+        >
+          <div className="relative max-w-2xl w-full p-8">
+            {/* 关闭按钮 */}
+            <button
+              onClick={() => setFullscreenQR(false)}
+              className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200"
+              title="关闭"
+            >
+              <CloseIcon className="w-6 h-6 text-white" />
+            </button>
+
+            {/* 二维码图片 */}
+            <div className="relative w-full aspect-square rounded-3xl overflow-hidden border-4 border-white/20 shadow-2xl mb-6">
+              <Image
+                src={customerService.wechatQrCode}
+                alt="客服微信二维码"
+                fill
+                className="object-cover"
+              />
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex flex-col items-center gap-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  downloadQRCode();
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-primary-cyan text-pure-black font-medium rounded-lg hover:bg-primary-cyan/90 transition-all duration-200 shadow-lg shadow-primary-cyan/30"
+              >
+                <Download className="w-5 h-5" />
+                下载二维码
+              </button>
+              {customerService.wechatId && (
+                <div className="flex items-center gap-2 p-4 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-white font-medium">微信号：{customerService.wechatId}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyWechat();
+                    }}
+                    className="p-2 rounded-md hover:bg-white/10 transition-colors"
+                    title="复制微信号"
+                  >
+                    {copiedWechat ? (
+                      <Check className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Copy className="w-5 h-5 text-secondary/60 hover:text-primary-cyan" />
+                    )}
+                  </button>
+                </div>
+              )}
+              <p className="text-gray-400 text-sm">点击空白处关闭</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

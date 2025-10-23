@@ -189,15 +189,15 @@ export function AdminTherapistDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-900 to-black border-primary-gold/30 custom-scrollbar">
+      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-900 to-black border-primary-cyan/30 custom-scrollbar">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
           </div>
         ) : therapist ? (
           <>
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-primary-gold flex items-center justify-between">
+              <DialogTitle className="text-2xl font-bold text-primary-cyan flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {therapist.nickname}
                   <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ export function AdminTherapistDetailModal({
                   {therapist.cardValue && (
                     <div className="text-center">
                       <p className="text-gray-400 text-sm mb-1">牌值</p>
-                      <p className="text-primary-gold text-lg font-bold">{therapist.cardValue}</p>
+                      <p className="text-primary-cyan text-lg font-bold">{therapist.cardValue}</p>
                     </div>
                   )}
                 </div>
@@ -364,7 +364,7 @@ export function AdminTherapistDetailModal({
                 )}
 
                 {/* 管理员操作区 */}
-                <div className="p-4 rounded-xl bg-primary-gold/10 border border-primary-gold/30">
+                <div className="p-4 rounded-xl bg-primary-cyan/10 border border-primary-cyan/30">
                   <h3 className="text-lg font-semibold text-white mb-3">管理员操作</h3>
                   <div className="flex gap-3">
                     <Button

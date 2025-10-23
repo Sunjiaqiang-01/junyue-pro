@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TherapistLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-deep-black">
+    <div className="min-h-screen bg-pure-black">
       <TherapistNavigation />
       {children}
     </div>

@@ -276,7 +276,7 @@ export default function TencentMapWechatStyle({
               </button>
             )}
             {isSearching ? (
-              <Loader2 className="w-4 h-4 text-primary-gold animate-spin" />
+              <Loader2 className="w-4 h-4 text-primary-cyan animate-spin" />
             ) : (
               <Search className="w-4 h-4 text-gray-400" />
             )}
@@ -335,7 +335,7 @@ export default function TencentMapWechatStyle({
                   <div
                     key={`search-${index}`}
                     onClick={() => handleSelectSearchResult(result)}
-                    className="p-4 hover:bg-primary-gold/10 active:scale-[0.98] cursor-pointer transition-all duration-200 hover:scale-[1.02]"
+                    className="p-4 hover:bg-primary-cyan/10 active:scale-[0.98] cursor-pointer transition-all duration-200 hover:scale-[1.02]"
                   >
                     <div className="flex items-start gap-3">
                       <span className="text-2xl flex-shrink-0">📍</span>
@@ -380,7 +380,7 @@ export default function TencentMapWechatStyle({
         {!isLocationConfirmed && currentLocation && (
           <button
             onClick={handleConfirmLocation}
-            className="w-full bg-primary-gold hover:bg-primary-gold/90 text-black font-semibold py-2.5 rounded-lg transition-colors duration-200"
+            className="w-full bg-primary-cyan hover:bg-primary-cyan/90 text-black font-semibold py-2.5 rounded-lg transition-colors duration-200"
           >
             确认此位置
           </button>
@@ -398,7 +398,7 @@ export default function TencentMapWechatStyle({
               </div>
               <button
                 onClick={handleReselect}
-                className="text-primary-gold hover:text-primary-gold/80 text-xs font-medium transition-colors px-2 py-1 rounded"
+                className="text-primary-cyan hover:text-primary-cyan/80 text-xs font-medium transition-colors px-2 py-1 rounded"
               >
                 重选
               </button>

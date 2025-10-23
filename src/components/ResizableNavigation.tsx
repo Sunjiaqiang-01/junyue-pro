@@ -20,8 +20,8 @@ const JunyueLogo = () => {
       href="/home"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
     >
-      <Image src="/logo.png" alt="君悦SPA" width={30} height={30} className="rounded-full" />
-      <span className="font-medium text-pure-white">君悦SPA</span>
+      <Image src="/logo.png" alt="君悦SPA" width={40} height={40} className="rounded-full" />
+      <span className="font-semibold text-xl tracking-tighter text-pure-white">君悦SPA</span>
     </a>
   );
 };

@@ -156,8 +156,8 @@ export default function TherapistDashboard() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -182,12 +182,12 @@ export default function TherapistDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8 pt-24">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24">
       <div className="max-w-7xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary-gold mb-2">技师工作台</h1>
-          <p className="text-gray-400">欢迎回来，{therapist.nickname}！</p>
+          <h1 className="text-4xl font-bold text-pure-white mb-2">技师工作台</h1>
+          <p className="text-secondary/60">欢迎回来，{therapist.nickname}！</p>
         </div>
 
         {/* 基本信息未完善提示 */}
@@ -201,7 +201,7 @@ export default function TherapistDashboard() {
               您的基本信息（年龄、身高、体重、城市）尚未填写，无法提交审核。请先完善资料。
             </p>
             <Link href="/therapist/profile/edit">
-              <Button className="bg-primary-gold hover:bg-yellow-600">
+              <Button className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium">
                 <Edit className="w-4 h-4 mr-2" />
                 立即完善资料
               </Button>
@@ -221,7 +221,7 @@ export default function TherapistDashboard() {
                 <Button
                   onClick={handleResubmit}
                   disabled={submitting}
-                  className="bg-primary-gold hover:bg-yellow-600"
+                  className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium"
                 >
                   {submitting ? "提交中..." : "重新提交审核"}
                 </Button>
@@ -247,7 +247,7 @@ export default function TherapistDashboard() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                  <User className="w-5 h-5 text-primary-gold" />
+                  <User className="w-5 h-5 text-primary-cyan" />
                   <div>
                     <p className="text-gray-400 text-sm">昵称</p>
                     <p className="text-white font-medium">{therapist.nickname}</p>
@@ -307,13 +307,13 @@ export default function TherapistDashboard() {
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-gray-400 text-sm mb-1">照片数量</p>
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-primary-gold" />
+                    <ImageIcon className="w-4 h-4 text-primary-cyan" />
                     <p className="text-white font-medium">{therapist.photos.length} 张</p>
                   </div>
                 </div>
 
                 <Link href="/therapist/profile/edit">
-                  <Button className="w-full bg-gradient-to-r from-primary-gold to-yellow-600">
+                  <Button className="w-full bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium">
                     <Edit className="w-4 h-4 mr-2" />
                     编辑资料
                   </Button>
@@ -335,13 +335,13 @@ export default function TherapistDashboard() {
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-gray-400 text-sm">完成度</span>
-                        <span className="text-primary-gold font-bold">
+                        <span className="text-primary-cyan font-bold">
                           {completeness.completionRate}%
                         </span>
                       </div>
                       <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-primary-gold to-yellow-600 transition-all duration-500"
+                          className="h-full bg-primary-cyan transition-all duration-500"
                           style={{ width: `${completeness.completionRate}%` }}
                         />
                       </div>
@@ -396,7 +396,7 @@ export default function TherapistDashboard() {
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/therapist/profile/edit">
                   <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
-                    <Edit className="w-6 h-6 text-primary-gold" />
+                    <Edit className="w-6 h-6 text-primary-cyan" />
                     <span>编辑资料</span>
                   </Button>
                 </Link>
@@ -437,8 +437,8 @@ export default function TherapistDashboard() {
             </div>
 
             {/* 使用提示 */}
-            <div className="bg-primary-gold/10 border border-primary-gold/30 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-primary-gold mb-3">💡 温馨提示</h3>
+            <div className="bg-transparent border border-white/5 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-primary-cyan mb-3">💡 温馨提示</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li>• 完善个人资料可以提高客户的预约意向</li>
                 <li>• 至少上传3张清晰照片，展示您的形象和服务环境</li>

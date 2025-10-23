@@ -121,8 +121,8 @@ export default function NotificationsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="flex items-center justify-between mb-8">
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-4xl font-bold text-primary-gold mb-2">通知中心</h1>
+              <h1 className="text-4xl font-bold text-primary-cyan mb-2">通知中心</h1>
               <p className="text-gray-400">
                 共 {notifications.length} 条通知，{unreadCount} 条未读
               </p>
@@ -173,7 +173,7 @@ export default function NotificationsPage() {
                 className={`bg-white/5 backdrop-blur-sm border rounded-2xl p-6 transition-colors ${
                   notification.isRead
                     ? "border-gray-800"
-                    : "border-primary-gold/50 bg-primary-gold/5"
+                    : "border-primary-cyan/50 bg-primary-cyan/5"
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -189,7 +189,7 @@ export default function NotificationsPage() {
                         {!notification.isRead && (
                           <Badge
                             variant="outline"
-                            className="bg-primary-gold/20 text-primary-gold border-primary-gold/30"
+                            className="bg-primary-cyan/20 text-primary-cyan border-primary-cyan/30"
                           >
                             未读
                           </Badge>

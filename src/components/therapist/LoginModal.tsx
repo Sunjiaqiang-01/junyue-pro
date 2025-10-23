@@ -71,17 +71,17 @@ export default function LoginModal({
       type="blur"
       animationType="scale"
       showCloseButton
-      showEscText
+      showEscText={false}
       borderBottom={false}
       className="bg-black/95 backdrop-blur-xl border-gray-800 sm:max-w-md"
     >
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-gold/10 rounded-full mb-4">
-            <LogIn className="w-8 h-8 text-primary-gold" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-cyan/10 rounded-full mb-4">
+            <LogIn className="w-8 h-8 text-primary-cyan" />
           </div>
-          <h2 className="text-3xl font-bold text-primary-gold mb-2">技师登录</h2>
+          <h2 className="text-3xl font-bold text-primary-cyan mb-2">技师登录</h2>
           <p className="text-gray-400">欢迎回来，登录您的账号</p>
         </div>
 
@@ -131,7 +131,7 @@ export default function LoginModal({
                 type="checkbox"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-600 bg-white/5 text-primary-gold focus:ring-primary-gold"
+                className="w-4 h-4 rounded border-gray-600 bg-white/5 text-primary-cyan focus:ring-primary-cyan"
               />
               记住我
             </label>
@@ -141,7 +141,7 @@ export default function LoginModal({
                 onClose();
                 onSwitchToForgot();
               }}
-              className="text-primary-gold hover:underline"
+              className="text-primary-cyan hover:underline"
             >
               忘记密码？
             </button>
@@ -149,7 +149,7 @@ export default function LoginModal({
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold"
+            className="w-full bg-gradient-to-r bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold"
             disabled={loading}
           >
             {loading ? "登录中..." : "登录"}
@@ -164,7 +164,7 @@ export default function LoginModal({
               onClose();
               onSwitchToRegister();
             }}
-            className="text-primary-gold hover:underline ml-1 font-medium"
+            className="text-primary-cyan hover:underline ml-1 font-medium"
           >
             立即注册
           </button>
