@@ -45,7 +45,7 @@ export function GuideTab({ initialData }: GuideTabProps) {
     setSaving(true);
     try {
       const response = await fetch("/api/admin/guide", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content }),
       });
