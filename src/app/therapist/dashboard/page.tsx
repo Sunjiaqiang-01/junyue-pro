@@ -182,7 +182,7 @@ export default function TherapistDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-7xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="mb-8">
@@ -395,16 +395,22 @@ export default function TherapistDashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/therapist/profile/edit">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 hover:bg-primary-cyan/10 hover:border-primary-cyan/50 text-white"
+                  >
                     <Edit className="w-6 h-6 text-primary-cyan" />
-                    <span>编辑资料</span>
+                    <span className="font-semibold">编辑资料</span>
                   </Button>
                 </Link>
 
                 <Link href="/therapist/notifications">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2 relative">
-                    <Bell className="w-6 h-6 text-blue-500" />
-                    <span>通知中心</span>
+                  <Button
+                    variant="ghost"
+                    className="w-full h-24 flex flex-col gap-2 relative bg-white/5 border border-white/10 hover:bg-primary-cyan/10 hover:border-primary-cyan/50 text-white"
+                  >
+                    <Bell className="w-6 h-6 text-primary-cyan" />
+                    <span className="font-semibold">通知中心</span>
                     {unreadCount > 0 && (
                       <span className="absolute top-2 right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {unreadCount}
@@ -414,24 +420,32 @@ export default function TherapistDashboard() {
                 </Link>
 
                 <Button
-                  variant="outline"
-                  className="w-full h-24 flex flex-col gap-2"
+                  variant="ghost"
+                  className={`w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 text-white ${
+                    therapist.status === "APPROVED"
+                      ? "hover:bg-primary-cyan/10 hover:border-primary-cyan/50 cursor-pointer"
+                      : "opacity-50 cursor-not-allowed"
+                  }`}
                   onClick={handleToggleOnline}
                   disabled={submitting || therapist.status !== "APPROVED"}
                 >
                   <Power
-                    className={`w-6 h-6 ${therapist.isOnline ? "text-green-500" : "text-gray-500"}`}
+                    className={`w-6 h-6 ${therapist.isOnline ? "text-green-500" : "text-primary-cyan"}`}
                   />
-                  <span>{therapist.isOnline ? "在线" : "离线"}</span>
+                  <span className="font-semibold">{therapist.isOnline ? "在线" : "离线"}</span>
                   {therapist.status === "APPROVED" && (
-                    <span className="text-xs text-gray-400">点击切换</span>
+                    <span className="text-xs text-secondary/60">点击切换</span>
                   )}
                 </Button>
 
-                <Button variant="outline" className="w-full h-24 flex flex-col gap-2" disabled>
-                  <Clock className="w-6 h-6 text-gray-500" />
-                  <span className="text-gray-500">时间管理</span>
-                  <span className="text-xs text-gray-600">即将开放</span>
+                <Button
+                  variant="ghost"
+                  className="w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 opacity-50 cursor-not-allowed text-white"
+                  disabled
+                >
+                  <Clock className="w-6 h-6 text-secondary/60" />
+                  <span className="font-semibold text-secondary/60">时间管理</span>
+                  <span className="text-xs text-secondary/40">即将开放</span>
                 </Button>
               </div>
             </div>

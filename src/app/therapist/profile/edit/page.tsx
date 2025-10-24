@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, Camera, Video as VideoIcon, Star } from "lucide-react";
+import { Loader2, Upload, X, Camera, Video as VideoIcon, Star, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 import { ProfileValidator } from "@/lib/profile-validator";
 import ProvinceCitySelector from "@/components/ProvinceCitySelector";
 import TencentMapWechatStyle from "@/components/TencentMapWechatStyle";
@@ -589,8 +590,8 @@ export default function TherapistProfileEditPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -600,11 +601,23 @@ export default function TherapistProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary-gold mb-2">编辑资料</h1>
-          <p className="text-gray-400">完善您的技师资料，让客户更了解您</p>
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/therapist/dashboard">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="border border-white/10 text-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              返回
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-4xl font-bold text-pure-white mb-2">编辑资料</h1>
+            <p className="text-secondary/60">完善您的技师资料，让客户更了解您</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -995,16 +1008,16 @@ export default function TherapistProfileEditPage() {
           <div className="flex gap-4">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={() => router.back()}
-              className="flex-1"
+              className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold"
             >
               取消
             </Button>
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-gradient-to-r from-primary-gold to-yellow-600"
+              className="flex-1 bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold shadow-lg shadow-primary-cyan/30"
             >
               {submitting ? (
                 <>

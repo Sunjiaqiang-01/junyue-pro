@@ -142,12 +142,12 @@ export default function TherapistNavigation() {
               {/* Mobile menu items - 仅在已登录时显示 */}
               {isLoggedIn && (
                 <div className="lg:hidden">
-                  <ul className="space-y-6 text-base">
+                  <ul className="space-y-6">
                     {therapistLinks.map((link, index) => (
                       <li key={index}>
                         <Link
                           href={link.href}
-                          className="text-gray-300 hover:text-primary-cyan block duration-150"
+                          className="text-xl font-semibold text-white hover:text-primary-cyan block duration-150 transition-colors"
                           onClick={() => setOpen(false)}
                         >
                           <span>{link.label}</span>

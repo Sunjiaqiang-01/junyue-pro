@@ -184,14 +184,14 @@ export default function AdminNavigation() {
               {/* Mobile menu items - 仅在已登录时显示 */}
               {isLoggedIn && (
                 <div className="lg:hidden">
-                  <ul className="space-y-6 text-base">
+                  <ul className="space-y-6">
                     {adminLinks.map((link, index) => {
                       const totalPending = pendingCount + deactivationCount;
                       return (
                         <li key={index} className="relative">
                           <Link
                             href={link.href}
-                            className="text-gray-300 hover:text-primary-cyan block duration-150 flex items-center gap-2"
+                            className="text-xl font-semibold text-white hover:text-primary-cyan block duration-150 transition-colors flex items-center gap-2"
                             onClick={() => setOpen(false)}
                           >
                             <span>{link.label}</span>

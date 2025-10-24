@@ -134,20 +134,24 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-pure-black p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link href="/therapist/dashboard">
-              <Button variant="outline" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="border border-white/10 text-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
+              >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 返回
               </Button>
             </Link>
             <div>
-              <h1 className="text-4xl font-bold text-primary-cyan mb-2">通知中心</h1>
-              <p className="text-gray-400">
+              <h1 className="text-4xl font-bold text-pure-white mb-2">通知中心</h1>
+              <p className="text-secondary/60">
                 共 {notifications.length} 条通知，{unreadCount} 条未读
               </p>
             </div>
