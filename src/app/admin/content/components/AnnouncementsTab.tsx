@@ -221,83 +221,108 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">公告管理</h2>
-          <p className="text-sm text-muted-foreground">管理平台公告和通知信息</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-pure-white">公告管理</h2>
+          <p className="text-xs md:text-sm text-secondary/60 mt-1">管理平台公告和通知信息</p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
+        <Button
+          onClick={() => handleOpenDialog()}
+          className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
+        >
           <Plus className="w-4 h-4 mr-2" />
           新建公告
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border border-white/10 overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>标题</TableHead>
-              <TableHead>类型</TableHead>
-              <TableHead>排序</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead>创建时间</TableHead>
-              <TableHead className="text-right">操作</TableHead>
+            <TableRow className="border-white/10 hover:bg-transparent">
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                标题
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                类型
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                排序
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                状态
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                创建时间
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm text-right">
+                操作
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {initialData.length > 0 ? (
               initialData.map((announcement) => (
-                <TableRow key={announcement.id}>
-                  <TableCell className="font-medium">{announcement.title}</TableCell>
+                <TableRow key={announcement.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-medium text-white text-xs md:text-sm">
+                    {announcement.title}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant="outline">
+                    <Badge className="bg-white/10 text-white border-white/20 text-xs">
                       {typeLabels[announcement.type] || announcement.type}
                     </Badge>
                   </TableCell>
-                  <TableCell>{announcement.sortOrder}</TableCell>
+                  <TableCell className="text-white text-xs md:text-sm">
+                    {announcement.sortOrder}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant={announcement.isActive ? "default" : "secondary"}>
+                    <Badge
+                      className={
+                        announcement.isActive
+                          ? "bg-primary-cyan/20 text-primary-cyan border-primary-cyan/30 text-xs"
+                          : "bg-white/10 text-secondary/60 border-white/20 text-xs"
+                      }
+                    >
                       {announcement.isActive ? "生效中" : "已禁用"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-xs md:text-sm text-secondary/60">
                     {new Date(announcement.createdAt).toLocaleString("zh-CN")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1.5">
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => handleToggleActive(announcement.id, announcement.isActive)}
+                        className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
                       >
                         {announcement.isActive ? (
-                          <EyeOff className="w-4 h-4" />
+                          <EyeOff className="w-3 h-3 md:w-4 md:h-4" />
                         ) : (
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3 h-3 md:w-4 md:h-4" />
                         )}
                       </Button>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => handleOpenDialog(announcement)}
+                        className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="w-3 h-3 md:w-4 md:h-4" />
                       </Button>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(announcement.id)}
+                        className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+              <TableRow className="border-white/10">
+                <TableCell colSpan={6} className="h-24 text-center text-secondary/60">
                   暂无公告
                 </TableCell>
               </TableRow>
@@ -310,24 +335,31 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
         open={dialogOpen}
         onOpenChange={(open) => !submitting && (open ? setDialogOpen(true) : handleCloseDialog())}
       >
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-gray-900 border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>{editingId ? "编辑公告" : "新建公告"}</DialogTitle>
+            <DialogTitle className="text-pure-white text-xl">
+              {editingId ? "编辑公告" : "新建公告"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">标题 *</Label>
+              <Label htmlFor="title" className="text-white">
+                标题 *
+              </Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="请输入公告标题"
                 required
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">内容 *</Label>
+              <Label htmlFor="content" className="text-white">
+                内容 *
+              </Label>
               <Textarea
                 id="content"
                 value={formData.content}
@@ -335,30 +367,43 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
                 placeholder="请输入公告内容"
                 rows={5}
                 required
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="type">类型</Label>
+                <Label htmlFor="type" className="text-white">
+                  类型
+                </Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => setFormData({ ...formData, type: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="NOTICE">通知</SelectItem>
-                    <SelectItem value="PROMOTION">促销</SelectItem>
-                    <SelectItem value="WARNING">警告</SelectItem>
-                    <SelectItem value="INFO">信息</SelectItem>
+                  <SelectContent className="bg-gray-900 border-white/10">
+                    <SelectItem value="NOTICE" className="text-white hover:bg-white/10">
+                      通知
+                    </SelectItem>
+                    <SelectItem value="PROMOTION" className="text-white hover:bg-white/10">
+                      促销
+                    </SelectItem>
+                    <SelectItem value="WARNING" className="text-white hover:bg-white/10">
+                      警告
+                    </SelectItem>
+                    <SelectItem value="INFO" className="text-white hover:bg-white/10">
+                      信息
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sortOrder">排序</Label>
+                <Label htmlFor="sortOrder" className="text-white">
+                  排序
+                </Label>
                 <Input
                   id="sortOrder"
                   type="number"
@@ -367,6 +412,7 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
                     setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })
                   }
                   placeholder="数字越小越靠前"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
                 />
               </div>
             </div>
@@ -377,9 +423,9 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
                 id="isActive"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-4 h-4"
+                className="w-4 h-4 rounded border-white/20 bg-white/5 text-primary-cyan focus:ring-primary-cyan focus:ring-offset-0"
               />
-              <Label htmlFor="isActive" className="cursor-pointer">
+              <Label htmlFor="isActive" className="cursor-pointer text-white">
                 立即生效
               </Label>
             </div>
@@ -387,13 +433,17 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
             <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
                 onClick={handleCloseDialog}
                 disabled={submitting}
+                className="border border-white/10 text-white hover:bg-white/10 bg-transparent"
               >
                 取消
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
+              >
                 {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingId ? "更新" : "创建"}
               </Button>

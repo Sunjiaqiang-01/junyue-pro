@@ -77,13 +77,19 @@ export function GuideTab({ initialData }: GuideTabProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">平台指南</h2>
-          <p className="text-sm text-muted-foreground">编辑平台使用指南内容（支持Markdown格式）</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-pure-white">平台指南</h2>
+          <p className="text-xs md:text-sm text-secondary/60 mt-1">
+            编辑平台使用指南内容（支持Markdown格式）
+          </p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
+        >
           {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           <Save className="w-4 h-4 mr-2" />
           保存
@@ -92,18 +98,21 @@ export function GuideTab({ initialData }: GuideTabProps) {
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="title">标题</Label>
+          <Label htmlFor="title" className="text-white">
+            标题
+          </Label>
           <Input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="请输入指南标题"
+            className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>内容（Markdown格式）</Label>
-          <div data-color-mode="light">
+          <Label className="text-white">内容（Markdown格式）</Label>
+          <div data-color-mode="dark">
             <MDEditor
               value={content}
               onChange={(val) => setContent(val || "")}

@@ -152,30 +152,30 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
       cell: ({ row }) => {
         const request = row.original;
         if (request.status !== "PENDING") {
-          return <span className="text-sm text-muted-foreground">已处理</span>;
+          return <span className="text-xs md:text-sm text-secondary/60">已处理</span>;
         }
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 md:gap-2">
             <Button
               size="sm"
-              className="bg-green-600 hover:bg-green-700"
               onClick={() => {
                 setAuditDialog({ open: true, request, action: "approve" });
                 setAdminNote("");
               }}
+              className="bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30 text-xs font-semibold"
             >
-              <CheckCircle className="w-4 h-4 mr-1" />
+              <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
               同意
             </Button>
             <Button
               size="sm"
-              variant="destructive"
               onClick={() => {
                 setAuditDialog({ open: true, request, action: "reject" });
                 setAdminNote("");
               }}
+              className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs font-semibold"
             >
-              <XCircle className="w-4 h-4 mr-1" />
+              <XCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
               拒绝
             </Button>
           </div>
@@ -246,27 +246,31 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
   const pendingCount = data.filter((r) => r.status === "PENDING").length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* 统计信息 */}
       {pendingCount > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 md:p-4">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-orange-600" />
-            <Badge className="bg-orange-500 text-white">待处理 {pendingCount}</Badge>
-            <span className="text-sm text-orange-700">有技师申请注销账号，请及时处理</span>
+            <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
+            <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs md:text-sm">
+              待处理 {pendingCount}
+            </Badge>
+            <span className="text-xs md:text-sm text-orange-400/80">
+              有技师申请注销账号，请及时处理
+            </span>
           </div>
         </div>
       )}
 
       {/* 筛选栏 */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-secondary/60" />
           <Input
             placeholder="搜索技师昵称或用户名..."
             value={(table.getColumn("therapist")?.getFilterValue() as string) ?? ""}
             onChange={(event) => table.getColumn("therapist")?.setFilterValue(event.target.value)}
-            className="pl-10"
+            className="pl-9 md:pl-10 bg-white/5 border-white/10 text-white placeholder:text-secondary/60 text-sm"
           />
         </div>
         <Select
@@ -275,26 +279,37 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
             table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
           }
         >
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full sm:w-[150px] bg-white/5 border-white/10 text-white text-sm">
             <SelectValue placeholder="筛选状态" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">全部状态</SelectItem>
-            <SelectItem value="PENDING">待处理</SelectItem>
-            <SelectItem value="APPROVED">已同意</SelectItem>
-            <SelectItem value="REJECTED">已拒绝</SelectItem>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="all" className="text-white hover:bg-white/10">
+              全部状态
+            </SelectItem>
+            <SelectItem value="PENDING" className="text-white hover:bg-white/10">
+              待处理
+            </SelectItem>
+            <SelectItem value="APPROVED" className="text-white hover:bg-white/10">
+              已同意
+            </SelectItem>
+            <SelectItem value="REJECTED" className="text-white hover:bg-white/10">
+              已拒绝
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* 表格 */}
-      <div className="rounded-md border">
+      <div className="rounded-md border border-white/10 overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-white/10 hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-secondary/80 font-semibold text-xs md:text-sm"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -306,17 +321,17 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="border-white/10 hover:bg-white/5">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-white text-xs md:text-sm">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableRow className="border-white/10">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-secondary/60">
                   暂无注销申请
                 </TableCell>
               </TableRow>
@@ -327,27 +342,27 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
 
       {/* 分页 */}
       {table.getRowModel().rows.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs md:text-sm text-secondary/60">
             共 {table.getFilteredRowModel().rows.length} 条记录
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               上一页
             </Button>
-            <div className="text-sm">
+            <div className="text-xs md:text-sm text-white">
               第 {table.getState().pagination.pageIndex + 1} 页，共 {table.getPageCount()} 页
             </div>
             <Button
-              variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               下一页
             </Button>
@@ -360,15 +375,15 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
         open={auditDialog.open}
         onOpenChange={(open) => !loading && setAuditDialog({ ...auditDialog, open })}
       >
-        <DialogContent>
+        <DialogContent className="bg-gray-900 border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-pure-white">
               {auditDialog.action === "approve" ? "同意注销申请" : "拒绝注销申请"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-secondary/60">
               {auditDialog.action === "approve" ? (
                 <>
-                  <span className="text-red-600 font-semibold">注意：</span>{" "}
+                  <span className="text-red-400 font-semibold">注意：</span>{" "}
                   同意后技师账号将被永久注销，该操作不可撤销！
                 </>
               ) : (
@@ -378,9 +393,9 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
           </DialogHeader>
           {auditDialog.request && (
             <div className="space-y-4 py-2">
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <div className="text-sm font-medium mb-2">申请信息：</div>
-                <div className="text-sm space-y-1">
+              <div className="bg-white/5 p-3 rounded-lg border border-white/10">
+                <div className="text-sm font-medium mb-2 text-white">申请信息：</div>
+                <div className="text-sm space-y-1 text-secondary/80">
                   <div>
                     技师：{auditDialog.request.therapist.nickname} (@
                     {auditDialog.request.therapist.username})
@@ -389,7 +404,9 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="admin-note">管理员备注（可选）</Label>
+                <Label htmlFor="admin-note" className="text-white">
+                  管理员备注（可选）
+                </Label>
                 <Textarea
                   id="admin-note"
                   value={adminNote}
@@ -398,6 +415,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
                     auditDialog.action === "approve" ? "备注同意原因..." : "备注拒绝原因..."
                   }
                   rows={3}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
                 />
               </div>
             </div>
@@ -407,6 +425,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
               variant="outline"
               onClick={() => setAuditDialog({ open: false, request: null, action: null })}
               disabled={loading}
+              className="border-white/10 text-white hover:bg-white/10"
             >
               取消
             </Button>
@@ -415,8 +434,8 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
               disabled={loading}
               className={
                 auditDialog.action === "approve"
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
+                  ? "bg-red-600/20 text-red-400 border-red-600/30 hover:bg-red-600/30 font-semibold"
+                  : "bg-green-600/20 text-green-400 border-green-600/30 hover:bg-green-600/30 font-semibold"
               }
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
+import SystemMonitor from "@/components/admin/SystemMonitor";
 import { PageViewsTrendChart } from "./components/PageViewsTrendChart";
 import { TherapistViewsRankingChart } from "./components/TherapistViewsRankingChart";
 import { TherapistCityDistributionChart } from "./components/TherapistCityDistributionChart";
@@ -117,11 +118,13 @@ export default async function AdminDashboard() {
   const data = await getDashboardData();
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 pt-24 md:pt-28 space-y-4 md:space-y-6">
       {/* 欢迎区域 */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">欢迎回来，{session.user.name || "管理员"}！</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold text-pure-white mb-2">
+          欢迎回来，{session.user.name || "管理员"}！
+        </h1>
+        <p className="text-xs md:text-sm text-secondary/60">
           今天是{" "}
           {new Date().toLocaleDateString("zh-CN", {
             year: "numeric",
@@ -133,12 +136,17 @@ export default async function AdminDashboard() {
       </div>
 
       {/* 统计卡片 */}
-      <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+      <Suspense fallback={<Skeleton className="h-24 w-full" />}>
         <AdminStatsCards stats={data.stats} />
       </Suspense>
 
+      {/* 系统监控 */}
+      <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+        <SystemMonitor />
+      </Suspense>
+
       {/* 数据可视化区域 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* 浏览量趋势图 */}
         <div className="lg:col-span-2">
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>

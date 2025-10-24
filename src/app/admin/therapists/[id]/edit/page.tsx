@@ -514,8 +514,8 @@ export default function AdminTherapistEditPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -525,22 +525,22 @@ export default function AdminTherapistEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 flex items-center gap-4">
           <Link href="/admin/therapists">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="border-primary-gold text-primary-gold hover:bg-primary-gold hover:text-black"
+              className="border border-white/10 text-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               返回列表
             </Button>
           </Link>
           <div>
-            <h1 className="text-4xl font-bold text-primary-gold mb-2">编辑技师资料</h1>
-            <p className="text-gray-400">管理员编辑技师资料 - {therapist?.nickname}</p>
+            <h1 className="text-4xl font-bold text-pure-white mb-2">编辑技师资料</h1>
+            <p className="text-secondary/60">管理员编辑技师资料 - {therapist?.nickname}</p>
           </div>
         </div>
 
@@ -773,10 +773,10 @@ export default function AdminTherapistEditPage() {
                   {/* 主图标识 */}
                   {photo.isPrimary && (
                     <div
-                      className={`absolute top-2 bg-gradient-to-r from-yellow-500 to-yellow-600 px-2 py-1 rounded-md flex items-center gap-1 shadow-lg ${photo.isVideo ? "left-2 top-10" : "left-2"}`}
+                      className={`absolute top-2 bg-primary-cyan px-2 py-1 rounded-md flex items-center gap-1 shadow-lg ${photo.isVideo ? "left-2 top-10" : "left-2"}`}
                     >
-                      <Star className="w-3 h-3 text-white fill-white" />
-                      <span className="text-white text-xs font-bold">主图</span>
+                      <Star className="w-3 h-3 text-pure-black fill-pure-black" />
+                      <span className="text-pure-black text-xs font-bold">主图</span>
                     </div>
                   )}
 
@@ -978,7 +978,7 @@ export default function AdminTherapistEditPage() {
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-gradient-to-r from-primary-gold to-yellow-600"
+              className="flex-1 bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
             >
               {submitting ? (
                 <>

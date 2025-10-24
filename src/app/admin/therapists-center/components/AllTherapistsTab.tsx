@@ -144,7 +144,13 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
       accessorKey: "isOnline",
       header: "在线",
       cell: ({ row }) => (
-        <Badge variant={row.original.isOnline ? "default" : "outline"}>
+        <Badge
+          className={
+            row.original.isOnline
+              ? "bg-primary-cyan/20 text-primary-cyan border-primary-cyan/30"
+              : "bg-white/10 text-secondary/60 border-white/20"
+          }
+        >
           {row.original.isOnline ? "在线" : "离线"}
         </Badge>
       ),
@@ -152,7 +158,12 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
     {
       accessorKey: "isNew",
       header: "新人",
-      cell: ({ row }) => row.original.isNew && <Badge variant="secondary">新人</Badge>,
+      cell: ({ row }) =>
+        row.original.isNew && (
+          <Badge className="bg-primary-cyan/20 text-primary-cyan border-primary-cyan/30">
+            新人
+          </Badge>
+        ),
     },
     {
       accessorKey: "isFeatured",
@@ -166,38 +177,46 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
       cell: ({ row }) => {
         const therapist = row.original;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             <Button
               size="sm"
-              variant="ghost"
               onClick={() => router.push(`/admin/therapists/${therapist.id}/edit`)}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
             >
               查看
             </Button>
             <Button
               size="sm"
-              variant={therapist.isFeatured ? "outline" : "default"}
               onClick={() => setActionDialog({ open: true, type: "feature", therapist })}
+              className={
+                therapist.isFeatured
+                  ? "border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
+                  : "bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 text-xs font-semibold border-0"
+              }
             >
               {therapist.isFeatured ? "取消精选" : "设为精选"}
             </Button>
             <Button
               size="sm"
-              variant={therapist.isNew ? "outline" : "default"}
               onClick={() => setActionDialog({ open: true, type: "new", therapist })}
+              className={
+                therapist.isNew
+                  ? "border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
+                  : "bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 text-xs font-semibold border-0"
+              }
             >
               {therapist.isNew ? "取消新人" : "设为新人"}
             </Button>
             {therapist.status !== "BANNED" && (
               <Button
                 size="sm"
-                variant="destructive"
                 onClick={() => {
                   setActionDialog({ open: true, type: "ban", therapist });
                   setBanReason("");
                 }}
+                className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs"
               >
-                <Ban className="w-4 h-4 mr-1" />
+                <Ban className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                 封禁
               </Button>
             )}
@@ -290,16 +309,16 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* 筛选栏 */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-secondary/60" />
           <Input
             placeholder="搜索昵称或用户名..."
             value={(table.getColumn("nickname")?.getFilterValue() as string) ?? ""}
             onChange={(event) => table.getColumn("nickname")?.setFilterValue(event.target.value)}
-            className="pl-10"
+            className="pl-9 md:pl-10 bg-white/5 border-white/10 text-white placeholder:text-secondary/60 text-sm"
           />
         </div>
         <Select
@@ -308,27 +327,40 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
             table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
           }
         >
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full sm:w-[150px] bg-white/5 border-white/10 text-white text-sm">
             <SelectValue placeholder="筛选状态" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">全部状态</SelectItem>
-            <SelectItem value="PENDING">待审核</SelectItem>
-            <SelectItem value="APPROVED">已通过</SelectItem>
-            <SelectItem value="REJECTED">已拒绝</SelectItem>
-            <SelectItem value="BANNED">已封禁</SelectItem>
+          <SelectContent className="bg-gray-900 border-white/10">
+            <SelectItem value="all" className="text-white hover:bg-white/10">
+              全部状态
+            </SelectItem>
+            <SelectItem value="PENDING" className="text-white hover:bg-white/10">
+              待审核
+            </SelectItem>
+            <SelectItem value="APPROVED" className="text-white hover:bg-white/10">
+              已通过
+            </SelectItem>
+            <SelectItem value="REJECTED" className="text-white hover:bg-white/10">
+              已拒绝
+            </SelectItem>
+            <SelectItem value="BANNED" className="text-white hover:bg-white/10">
+              已封禁
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* 表格 */}
-      <div className="rounded-md border">
+      <div className="rounded-md border border-white/10 overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-white/10 hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-secondary/80 font-semibold text-xs md:text-sm"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -340,17 +372,17 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="border-white/10 hover:bg-white/5">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-white text-xs md:text-sm">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableRow className="border-white/10">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-secondary/60">
                   暂无数据
                 </TableCell>
               </TableRow>
@@ -360,27 +392,27 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
       </div>
 
       {/* 分页 */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="text-xs md:text-sm text-secondary/60">
           共 {table.getFilteredRowModel().rows.length} 条记录
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             上一页
           </Button>
-          <div className="text-sm">
+          <div className="text-xs md:text-sm text-white">
             第 {table.getState().pagination.pageIndex + 1} 页，共 {table.getPageCount()} 页
           </div>
           <Button
-            variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             下一页
           </Button>
@@ -392,16 +424,16 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
         open={actionDialog.open}
         onOpenChange={(open) => !loading && setActionDialog({ ...actionDialog, open })}
       >
-        <DialogContent>
+        <DialogContent className="bg-gray-900 border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-pure-white">
               {actionDialog.type === "feature" &&
                 (actionDialog.therapist?.isFeatured ? "取消精选" : "设为精选")}
               {actionDialog.type === "new" &&
                 (actionDialog.therapist?.isNew ? "取消新人标签" : "设为新人")}
               {actionDialog.type === "ban" && "封禁技师"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-secondary/60">
               {actionDialog.type === "ban"
                 ? "封禁后该技师将无法登录系统"
                 : `确认要${actionDialog.type === "feature" ? (actionDialog.therapist?.isFeatured ? "取消精选" : "设为精选") : actionDialog.therapist?.isNew ? "取消新人标签" : "设为新人"}吗？`}
@@ -409,13 +441,16 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
           </DialogHeader>
           {actionDialog.type === "ban" && (
             <div className="space-y-2">
-              <Label htmlFor="ban-reason">封禁原因</Label>
+              <Label htmlFor="ban-reason" className="text-white">
+                封禁原因
+              </Label>
               <Textarea
                 id="ban-reason"
                 value={banReason}
                 onChange={(e) => setBanReason(e.target.value)}
                 placeholder="请输入封禁原因..."
                 rows={4}
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
           )}
@@ -424,10 +459,15 @@ export function AllTherapistsTab({ initialData }: AllTherapistsTabProps) {
               variant="outline"
               onClick={() => setActionDialog({ open: false, type: null, therapist: null })}
               disabled={loading}
+              className="border-white/10 text-white hover:bg-white/10"
             >
               取消
             </Button>
-            <Button onClick={handleAction} disabled={loading}>
+            <Button
+              onClick={handleAction}
+              disabled={loading}
+              className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold"
+            >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               确认
             </Button>

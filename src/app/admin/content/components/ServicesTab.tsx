@@ -277,82 +277,124 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
       {/* 顶部操作栏 */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">客服配置</h2>
-          <p className="text-sm text-muted-foreground">管理平台客服信息和联系方式</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-pure-white">客服配置</h2>
+          <p className="text-xs md:text-sm text-secondary/60 mt-1">管理平台客服信息和联系方式</p>
         </div>
-        <Button onClick={handleAdd}>
+        <Button
+          onClick={handleAdd}
+          className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
+        >
           <Plus className="w-4 h-4 mr-2" />
           添加客服
         </Button>
       </div>
 
       {/* 客服列表表格 */}
-      <div className="rounded-md border">
+      <div className="rounded-md border border-white/10 overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>客服名称</TableHead>
-              <TableHead>服务城市</TableHead>
-              <TableHead>微信号</TableHead>
-              <TableHead>电话</TableHead>
-              <TableHead>工作时间</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead className="text-right">操作</TableHead>
+            <TableRow className="border-white/10 hover:bg-transparent">
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                客服名称
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                服务城市
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                微信号
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                电话
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                工作时间
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
+                状态
+              </TableHead>
+              <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm text-right">
+                操作
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {initialData.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+              <TableRow className="border-white/10">
+                <TableCell colSpan={7} className="text-center text-secondary/60 py-12">
                   暂无客服配置，点击"添加客服"来创建
                 </TableCell>
               </TableRow>
             ) : (
               initialData.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="font-medium">{service.name}</TableCell>
+                <TableRow key={service.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell className="font-medium text-white text-xs md:text-sm">
+                    {service.name}
+                  </TableCell>
                   <TableCell>
                     {service.cities && service.cities.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {service.cities.map((sc) => (
-                          <Badge key={sc.id} variant="outline">
+                          <Badge
+                            key={sc.id}
+                            className="bg-white/10 text-white border-white/20 text-xs"
+                          >
                             {sc.city.name}
                           </Badge>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground">全国服务</span>
+                      <span className="text-secondary/60 text-xs md:text-sm">全国服务</span>
                     )}
                   </TableCell>
-                  <TableCell>{service.wechatId || "-"}</TableCell>
-                  <TableCell>{service.phone || "-"}</TableCell>
-                  <TableCell>{service.workingHours}</TableCell>
+                  <TableCell className="text-white text-xs md:text-sm">
+                    {service.wechatId || "-"}
+                  </TableCell>
+                  <TableCell className="text-white text-xs md:text-sm">
+                    {service.phone || "-"}
+                  </TableCell>
+                  <TableCell className="text-white text-xs md:text-sm">
+                    {service.workingHours}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant={service.isActive ? "default" : "secondary"}>
+                    <Badge
+                      className={
+                        service.isActive
+                          ? "bg-green-500/20 text-green-400 border-green-500/30 text-xs"
+                          : "bg-white/10 text-secondary/60 border-white/20 text-xs"
+                      }
+                    >
                       {service.isActive ? "启用" : "禁用"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleToggle(service.id)}>
-                        <Power className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(service)}>
-                        <Pencil className="w-4 h-4" />
+                    <div className="flex items-center justify-end gap-1.5">
+                      <Button
+                        size="sm"
+                        onClick={() => handleToggle(service.id)}
+                        className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
+                      >
+                        <Power className="w-3 h-3 md:w-4 md:h-4" />
                       </Button>
                       <Button
-                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(service)}
+                        className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs"
+                      >
+                        <Pencil className="w-3 h-3 md:w-4 md:h-4" />
+                      </Button>
+                      <Button
                         size="sm"
                         onClick={() => {
                           setServiceToDelete(service.id);
                           setDeleteDialogOpen(true);
                         }}
+                        className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -365,22 +407,26 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
 
       {/* 添加/编辑Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>{editingService ? "编辑客服" : "添加客服"}</DialogTitle>
-            <DialogDescription>配置客服信息和微信二维码</DialogDescription>
+            <DialogTitle className="text-pure-white text-xl">
+              {editingService ? "编辑客服" : "添加客服"}
+            </DialogTitle>
+            <DialogDescription className="text-secondary/60">
+              配置客服信息和微信二维码
+            </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>负责城市（可多选）</Label>
+              <Label className="text-white">负责城市（可多选）</Label>
 
               {form.cityNames.length > 0 && (
-                <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-lg">
+                <div className="flex flex-wrap gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
                   {form.cityNames.map((cityName, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary/20 text-primary text-sm rounded-full"
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary-cyan/20 text-primary-cyan border border-primary-cyan/30 text-sm rounded-full"
                     >
                       {cityName}
                       <button
@@ -391,7 +437,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
                             cityNames: form.cityNames.filter((_, i) => i !== index),
                           })
                         }
-                        className="hover:bg-primary/30 rounded-full p-0.5"
+                        className="hover:bg-primary-cyan/30 rounded-full p-0.5"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -409,26 +455,29 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
                 }}
                 placeholder="点击选择城市"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-secondary/60">
                 不选择城市将为全国服务客服，可选择多个城市
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">客服名称</Label>
+              <Label htmlFor="name" className="text-white">
+                客服名称
+              </Label>
               <Input
                 id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="例如：小李客服、张客服"
                 required
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>微信二维码</Label>
+              <Label className="text-white">微信二维码</Label>
               {form.wechatQrCode && (
-                <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border-2 border-primary/30">
+                <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border-2 border-primary-cyan/30">
                   <Image
                     src={form.wechatQrCode}
                     alt="客服微信二维码"
@@ -447,11 +496,11 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
               />
               <label
                 htmlFor="qr-upload"
-                className={`flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors ${uploadingQr ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-primary-cyan transition-colors text-white ${uploadingQr ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {uploadingQr ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin text-primary-cyan" />
                     <span>上传中...</span>
                   </>
                 ) : (
@@ -465,45 +514,59 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="wechatId">微信号</Label>
+                <Label htmlFor="wechatId" className="text-white">
+                  微信号
+                </Label>
                 <Input
                   id="wechatId"
                   value={form.wechatId}
                   onChange={(e) => setForm({ ...form, wechatId: e.target.value })}
                   placeholder="填写可选客服微信号"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">客服电话</Label>
+                <Label htmlFor="phone" className="text-white">
+                  客服电话
+                </Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="填写可选客服电话"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="workingHours">工作时间</Label>
+              <Label htmlFor="workingHours" className="text-white">
+                工作时间
+              </Label>
               <Input
                 id="workingHours"
                 value={form.workingHours}
                 onChange={(e) => setForm({ ...form, workingHours: e.target.value })}
-                placeholder="如例如：9:00 - 22:00"
+                placeholder="例如：9:00 - 22:00"
                 required
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
+              <Button
+                type="button"
+                onClick={() => setShowDialog(false)}
+                className="border border-white/10 text-white hover:bg-white/10 bg-transparent"
+              >
                 取消
               </Button>
               <Button
                 type="submit"
                 disabled={submitting || !form.name || !form.wechatQrCode || !form.workingHours}
+                className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30 disabled:opacity-50"
               >
                 {submitting ? (
                   <>
@@ -521,17 +584,21 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
 
       {/* 删除确认Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-gray-900 border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
-            <AlertDialogDescription>此操作不可撤销。确定要删除这个客服吗？</AlertDialogDescription>
+            <AlertDialogTitle className="text-pure-white">确认删除</AlertDialogTitle>
+            <AlertDialogDescription className="text-secondary/60">
+              此操作不可撤销。确定要删除这个客服吗？
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel className="border border-white/10 text-white hover:bg-white/10 bg-transparent">
+              取消
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => serviceToDelete && handleDelete(serviceToDelete)}
               disabled={deleting}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30"
             >
               {deleting ? (
                 <>

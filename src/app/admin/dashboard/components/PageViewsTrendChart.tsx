@@ -25,53 +25,58 @@ interface PageViewsTrendChartProps {
 
 export function PageViewsTrendChart({ data, totalViews, todayViews }: PageViewsTrendChartProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-pure-white text-base">
+              <Eye className="w-4 h-4 text-primary-cyan" />
               网站浏览量趋势
             </CardTitle>
-            <CardDescription>最近7天的访问量统计</CardDescription>
+            <CardDescription className="text-secondary/60 text-xs mt-0.5">
+              最近7天 · 今日: {todayViews.toLocaleString()}
+            </CardDescription>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
-            <div className="text-sm text-muted-foreground">总浏览量</div>
+            <div className="text-xl font-bold text-pure-white">{totalViews.toLocaleString()}</div>
+            <div className="text-xs text-secondary/60">总浏览量</div>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <TrendingUp className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium">今日: {todayViews.toLocaleString()}</span>
-          </div>
-        </div>
-
-        <ResponsiveContainer width="100%" height={300}>
+      <CardContent className="pt-0">
+        <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="date" className="text-xs" tick={{ fill: "currentColor" }} />
-            <YAxis className="text-xs" tick={{ fill: "currentColor" }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+            <XAxis dataKey="date" className="text-xs" tick={{ fill: "#94a3b8" }} />
+            <YAxis className="text-xs" tick={{ fill: "#94a3b8" }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
+                backgroundColor: "rgba(0,0,0,0.95)",
+                border: "1px solid #06b6d4",
                 borderRadius: "8px",
+                padding: "8px 12px",
               }}
-              labelStyle={{ color: "hsl(var(--foreground))" }}
+              labelStyle={{
+                color: "#06b6d4",
+                fontWeight: "600",
+                marginBottom: "4px",
+              }}
+              itemStyle={{
+                color: "#fff",
+                fontSize: "14px",
+              }}
+              formatter={(value: number) => [`${value.toLocaleString()}`, "浏览量"]}
             />
             <Area
               type="monotone"
               dataKey="views"
-              stroke="#3b82f6"
+              stroke="#06b6d4"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorViews)"

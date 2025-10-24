@@ -109,35 +109,58 @@ export default async function TherapistsCenterPage() {
   ).length;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-4 py-6 pt-24 md:pt-28 space-y-4 md:space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">技师管理中心</h1>
-        <p className="text-muted-foreground">统一管理所有技师、审核新注册、处理注销申请</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-pure-white mb-2">技师管理中心</h1>
+        <p className="text-xs md:text-sm text-secondary/60">
+          统一管理所有技师、审核新注册、处理注销申请
+        </p>
       </div>
 
       {/* Tab导航 */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
+        <CardContent className="pt-4 md:pt-6">
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                全部技师
-                <Badge variant="secondary">{data.allTherapists.length}</Badge>
+            <TabsList className="grid w-full grid-cols-3 mb-4 md:mb-6 bg-white/5 border border-white/10">
+              <TabsTrigger
+                value="all"
+                className="flex items-center gap-1 md:gap-2 text-xs md:text-sm data-[state=active]:bg-primary-cyan/20 data-[state=active]:text-primary-cyan"
+              >
+                <Users className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">全部技师</span>
+                <span className="sm:hidden">全部</span>
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] md:text-xs bg-white/10 text-white border-white/20"
+                >
+                  {data.allTherapists.length}
+                </Badge>
               </TabsTrigger>
-              <TabsTrigger value="pending" className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                待审核
+              <TabsTrigger
+                value="pending"
+                className="flex items-center gap-1 md:gap-2 text-xs md:text-sm data-[state=active]:bg-primary-cyan/20 data-[state=active]:text-primary-cyan"
+              >
+                <Clock className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">待审核</span>
+                <span className="sm:hidden">待审</span>
                 {pendingCount > 0 && (
-                  <Badge className="bg-yellow-500 text-white">{pendingCount}</Badge>
+                  <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-[10px] md:text-xs">
+                    {pendingCount}
+                  </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="deactivation" className="flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                注销申请
+              <TabsTrigger
+                value="deactivation"
+                className="flex items-center gap-1 md:gap-2 text-xs md:text-sm data-[state=active]:bg-primary-cyan/20 data-[state=active]:text-primary-cyan"
+              >
+                <AlertCircle className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">注销申请</span>
+                <span className="sm:hidden">注销</span>
                 {deactivationPendingCount > 0 && (
-                  <Badge className="bg-orange-500 text-white">{deactivationPendingCount}</Badge>
+                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] md:text-xs">
+                    {deactivationPendingCount}
+                  </Badge>
                 )}
               </TabsTrigger>
             </TabsList>

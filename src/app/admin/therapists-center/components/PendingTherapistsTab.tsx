@@ -118,7 +118,7 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
               </div>
               <div className="flex gap-1 flex-wrap mt-1">
                 {row.original.profile.specialties.slice(0, 3).map((s, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">
+                  <Badge key={i} className="bg-white/10 text-white border-white/20 text-xs">
                     {s}
                   </Badge>
                 ))}
@@ -133,8 +133,12 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
       header: "媒体",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">{row.original._count?.photos || 0}张照片</Badge>
-          <Badge variant="secondary">{row.original._count?.videos || 0}个视频</Badge>
+          <Badge className="bg-white/10 text-white border-white/20 text-xs">
+            {row.original._count?.photos || 0}张照片
+          </Badge>
+          <Badge className="bg-white/10 text-white border-white/20 text-xs">
+            {row.original._count?.videos || 0}个视频
+          </Badge>
         </div>
       ),
     },
@@ -153,36 +157,36 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
       cell: ({ row }) => {
         const therapist = row.original;
         return (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Button
               size="sm"
-              variant="ghost"
               onClick={() => router.push(`/admin/therapists/${therapist.id}`)}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs justify-start"
             >
-              <Eye className="w-4 h-4 mr-1" />
+              <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
               查看详情
             </Button>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               <Button
                 size="sm"
-                className="bg-green-600 hover:bg-green-700"
                 onClick={() => {
                   setAuditDialog({ open: true, therapist, action: "approve" });
                   setRejectReason("");
                 }}
+                className="bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30 text-xs font-semibold flex-1"
               >
-                <CheckCircle className="w-4 h-4 mr-1" />
+                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                 通过
               </Button>
               <Button
                 size="sm"
-                variant="destructive"
                 onClick={() => {
                   setAuditDialog({ open: true, therapist, action: "reject" });
                   setRejectReason("");
                 }}
+                className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs font-semibold flex-1"
               >
-                <XCircle className="w-4 h-4 mr-1" />
+                <XCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                 拒绝
               </Button>
             </div>
@@ -254,34 +258,39 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* 统计信息 */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 md:p-4">
         <div className="flex items-center gap-2">
-          <Badge className="bg-yellow-500 text-white">待审核 {data.length}</Badge>
-          <span className="text-sm text-yellow-700">请及时审核新注册的技师</span>
+          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs md:text-sm">
+            待审核 {data.length}
+          </Badge>
+          <span className="text-xs md:text-sm text-yellow-400/80">请及时审核新注册的技师</span>
         </div>
       </div>
 
       {/* 搜索栏 */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-secondary/60" />
         <Input
           placeholder="搜索昵称或用户名..."
           value={(table.getColumn("nickname")?.getFilterValue() as string) ?? ""}
           onChange={(event) => table.getColumn("nickname")?.setFilterValue(event.target.value)}
-          className="pl-10"
+          className="pl-9 md:pl-10 bg-white/5 border-white/10 text-white placeholder:text-secondary/60 text-sm"
         />
       </div>
 
       {/* 表格 */}
-      <div className="rounded-md border">
+      <div className="rounded-md border border-white/10 overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-white/10 hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-secondary/80 font-semibold text-xs md:text-sm"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -293,17 +302,17 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="border-white/10 hover:bg-white/5">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-white text-xs md:text-sm">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableRow className="border-white/10">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-secondary/60">
                   🎉 暂无待审核的技师
                 </TableCell>
               </TableRow>
@@ -314,27 +323,27 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
 
       {/* 分页 */}
       {table.getRowModel().rows.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs md:text-sm text-secondary/60">
             共 {table.getFilteredRowModel().rows.length} 条记录
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               上一页
             </Button>
-            <div className="text-sm">
+            <div className="text-xs md:text-sm text-white">
               第 {table.getState().pagination.pageIndex + 1} 页，共 {table.getPageCount()} 页
             </div>
             <Button
-              variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
+              className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               下一页
             </Button>
@@ -347,10 +356,12 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
         open={auditDialog.open}
         onOpenChange={(open) => !loading && setAuditDialog({ ...auditDialog, open })}
       >
-        <DialogContent>
+        <DialogContent className="bg-gray-900 border-white/10 text-white">
           <DialogHeader>
-            <DialogTitle>{auditDialog.action === "approve" ? "通过审核" : "拒绝审核"}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-pure-white">
+              {auditDialog.action === "approve" ? "通过审核" : "拒绝审核"}
+            </DialogTitle>
+            <DialogDescription className="text-secondary/60">
               {auditDialog.action === "approve"
                 ? `确认通过技师 "${auditDialog.therapist?.nickname}" 的注册审核吗？`
                 : `请填写拒绝原因，技师将收到通知`}
@@ -358,13 +369,16 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
           </DialogHeader>
           {auditDialog.action === "reject" && (
             <div className="space-y-2">
-              <Label htmlFor="reject-reason">拒绝原因 *</Label>
+              <Label htmlFor="reject-reason" className="text-white">
+                拒绝原因 *
+              </Label>
               <Textarea
                 id="reject-reason"
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="例如：照片不清晰、资料不完整、信息造假等"
                 rows={4}
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
               />
             </div>
           )}
@@ -373,13 +387,18 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
               variant="outline"
               onClick={() => setAuditDialog({ open: false, therapist: null, action: null })}
               disabled={loading}
+              className="border-white/10 text-white hover:bg-white/10"
             >
               取消
             </Button>
             <Button
               onClick={handleAudit}
               disabled={loading}
-              className={auditDialog.action === "approve" ? "bg-green-600 hover:bg-green-700" : ""}
+              className={
+                auditDialog.action === "approve"
+                  ? "bg-green-600/20 text-green-400 border-green-600/30 hover:bg-green-600/30 font-semibold"
+                  : "bg-red-600/20 text-red-400 border-red-600/30 hover:bg-red-600/30 font-semibold"
+              }
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               确认{auditDialog.action === "approve" ? "通过" : "拒绝"}
