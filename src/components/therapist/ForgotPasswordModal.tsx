@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Mail, CheckCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { NeonLogo } from "@/components/NeonLogo";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -160,8 +161,8 @@ export default function ForgotPasswordModal({
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-cyan/10 rounded-full mb-4">
-            <KeyRound className="w-8 h-8 text-primary-cyan" />
+          <div className="flex justify-center mb-4">
+            <NeonLogo size={64} variant="full" />
           </div>
           <h2 className="text-3xl font-bold text-primary-cyan mb-2">找回密码</h2>
           <p className="text-gray-400">请按照以下步骤重置您的密码</p>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { NeonLogo } from "@/components/NeonLogo";
 
 interface LoginModalProps {
   open: boolean;
@@ -78,8 +79,8 @@ export default function LoginModal({
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-cyan/10 rounded-full mb-4">
-            <LogIn className="w-8 h-8 text-primary-cyan" />
+          <div className="flex justify-center mb-4">
+            <NeonLogo size={64} variant="full" />
           </div>
           <h2 className="text-3xl font-bold text-primary-cyan mb-2">技师登录</h2>
           <p className="text-gray-400">欢迎回来，登录您的账号</p>

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { User, LogOut, Clock } from "lucide-react";
+import { NeonLogo } from "./NeonLogo";
 import { motion } from "framer-motion";
 
 // 管理端已登录时的导航链接
@@ -91,9 +92,7 @@ export default function AdminNavigation() {
                 aria-label="home"
                 className="flex gap-2 items-center"
               >
-                <div className="relative w-10 h-10">
-                  <Image src="/logo.png" alt="君悦SPA" fill className="object-contain" />
-                </div>
+                <NeonLogo size={40} variant="full" />
                 <p className="font-semibold text-xl tracking-tighter text-pure-white">君悦SPA</p>
               </Link>
 

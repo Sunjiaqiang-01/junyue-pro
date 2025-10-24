@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Eye, EyeOff, Mail, Key } from "lucide-react";
+import { NeonLogo } from "@/components/NeonLogo";
 
 interface RegisterModalProps {
   open: boolean;
@@ -102,8 +103,8 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-cyan/10 rounded-full mb-4">
-            <UserPlus className="w-8 h-8 text-primary-cyan" />
+          <div className="flex justify-center mb-4">
+            <NeonLogo size={64} variant="full" />
           </div>
           <h2 className="text-3xl font-bold text-primary-cyan mb-2">技师注册</h2>
           <p className="text-gray-400">加入君悦SPA，开启您的职业之旅</p>

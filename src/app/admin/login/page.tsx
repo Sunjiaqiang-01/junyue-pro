@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Lock, User } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -48,6 +49,49 @@ export default function AdminLoginPage() {
         <div className="bg-transparent border border-white/5 rounded-lg p-8">
           {/* Logo和标题 */}
           <div className="mb-8 text-center">
+            {/* Logo with white core + cyan glow flowing ring effect */}
+            <div className="mb-6 flex justify-center">
+              <div className="relative inline-block">
+                {/* Outer layer - Cyan soft glow */}
+                <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-primary-cyan/20 via-primary-cyan/40 to-primary-cyan/20 blur-2xl opacity-60 animate-pulse" />
+
+                {/* Flowing light ring - White core + Cyan transition */}
+                <div
+                  className="absolute -inset-1 rounded-full animate-spin"
+                  style={{
+                    background:
+                      "conic-gradient(from 0deg, transparent 0%, rgba(255, 255, 255, 1) 5%, rgba(6, 182, 212, 0.8) 10%, transparent 20%, transparent 100%)",
+                    animationDuration: "3s",
+                    filter: "drop-shadow(0 0 6px rgba(6, 182, 212, 0.8))",
+                  }}
+                />
+
+                {/* Secondary flowing ring - White to Cyan gradient */}
+                <div
+                  className="absolute -inset-1 rounded-full"
+                  style={{
+                    background:
+                      "conic-gradient(from 180deg, transparent 0%, rgba(255, 255, 255, 0.7) 8%, rgba(6, 182, 212, 0.5) 15%, transparent 30%, transparent 100%)",
+                    animation: "spin 4s linear infinite reverse",
+                    filter: "blur(2px)",
+                  }}
+                />
+
+                {/* Logo container with white ring and cyan shadow */}
+                <div className="relative rounded-full ring-1 ring-white/30 shadow-lg shadow-primary-cyan/30">
+                  <Image
+                    src="/logo.png"
+                    alt="君悦SPA Logo"
+                    width={100}
+                    height={100}
+                    className="rounded-full"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Brand name */}
             <h1 className="text-3xl font-semibold text-pure-white mb-2">君悦SPA</h1>
             <p className="text-secondary/50">管理员登录</p>
           </div>

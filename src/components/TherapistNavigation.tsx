@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { User, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
+import { NeonLogo } from "./NeonLogo";
 
 // 技师端已登录时的导航链接
 const therapistLinks = [
@@ -57,9 +58,7 @@ export default function TherapistNavigation() {
                 aria-label="home"
                 className="flex gap-2 items-center"
               >
-                <div className="relative w-10 h-10">
-                  <Image src="/logo.png" alt="君悦SPA" fill className="object-contain" />
-                </div>
+                <NeonLogo size={40} variant="full" />
                 <p className="font-semibold text-xl tracking-tighter text-pure-white">君悦SPA</p>
               </Link>
 
