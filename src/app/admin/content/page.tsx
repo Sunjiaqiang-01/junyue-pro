@@ -18,6 +18,25 @@ async function getContentData() {
     }),
     prisma.guideContent.findFirst(),
     prisma.customerService.findMany({
+      include: {
+        city: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        cities: {
+          select: {
+            id: true,
+            city: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { order: "asc" },
     }),
   ]);

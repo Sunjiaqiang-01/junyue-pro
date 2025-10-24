@@ -31,15 +31,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "技师不存在" }, { status: 404 });
     }
 
-    // 记录技师浏览
-    await prisma.therapistView.create({
-      data: {
-        therapistId,
-        ip,
-        userAgent,
-        referrer,
-      },
-    });
+    // 同时执行：1) 记录技师浏览 2) 增加浏览计数
+    await prisma.$transaction([
+      // 记录浏览详情
+      prisma.therapistView.create({
+        data: {
+          therapistId,
+          ip,
+          userAgent,
+          referrer,
+        },
+      }),
+      // 增加技师的浏览计数
+      prisma.therapist.update({
+        where: { id: therapistId },
+        data: {
+          viewCount: {
+            increment: 1,
+          },
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

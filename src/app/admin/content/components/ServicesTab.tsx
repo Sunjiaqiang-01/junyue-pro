@@ -49,24 +49,26 @@ interface CustomerServiceCity {
 
 interface CustomerService {
   id: string;
-  cityId: string | null;
-  city: City | null;
   name: string;
   wechatQrCode: string;
   wechatId: string | null;
-  phone: string | null;
+  qq: string | null;
   workingHours: string;
   isActive: boolean;
-  priority: number;
+  order: number;
+  cityId: string | null;
+  city: City | null;
   cities: CustomerServiceCity[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 interface ServiceForm {
-  cityNames: string[];
   name: string;
+  cityNames: string[];
   wechatQrCode: string;
   wechatId: string;
-  phone: string;
+  qq: string;
   workingHours: string;
 }
 
@@ -88,22 +90,22 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
   const [deleting, setDeleting] = useState(false);
 
   const [form, setForm] = useState<ServiceForm>({
-    cityNames: [],
     name: "",
+    cityNames: [],
     wechatQrCode: "",
     wechatId: "",
-    phone: "",
+    qq: "",
     workingHours: "9:00 - 22:00",
   });
 
   const handleAdd = () => {
     setEditingService(null);
     setForm({
-      cityNames: [],
       name: "",
+      cityNames: [],
       wechatQrCode: "",
       wechatId: "",
-      phone: "",
+      qq: "",
       workingHours: "9:00 - 22:00",
     });
     setShowDialog(true);
@@ -112,11 +114,11 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
   const handleEdit = (service: CustomerService) => {
     setEditingService(service);
     setForm({
-      cityNames: service.cities?.map((c) => c.city.name) || [],
       name: service.name,
+      cityNames: service.cities?.map((c) => c.city.name) || [],
       wechatQrCode: service.wechatQrCode,
       wechatId: service.wechatId || "",
-      phone: service.phone || "",
+      qq: service.qq || "",
       workingHours: service.workingHours,
     });
     setShowDialog(true);
@@ -177,11 +179,11 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cityNames: form.cityNames,
           name: form.name,
+          cityNames: form.cityNames,
           wechatQrCode: form.wechatQrCode,
           wechatId: form.wechatId || null,
-          phone: form.phone || null,
+          qq: form.qq || null,
           workingHours: form.workingHours,
         }),
       });
@@ -302,13 +304,13 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
                 客服名称
               </TableHead>
               <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
-                服务城市
+                负责城市
               </TableHead>
               <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
                 微信号
               </TableHead>
               <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
-                电话
+                QQ号
               </TableHead>
               <TableHead className="text-secondary/80 font-semibold text-xs md:text-sm">
                 工作时间
@@ -340,7 +342,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
                         {service.cities.map((sc) => (
                           <Badge
                             key={sc.id}
-                            className="bg-white/10 text-white border-white/20 text-xs"
+                            className="bg-primary-cyan/20 text-primary-cyan border-primary-cyan/30 text-xs"
                           >
                             {sc.city.name}
                           </Badge>
@@ -354,7 +356,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
                     {service.wechatId || "-"}
                   </TableCell>
                   <TableCell className="text-white text-xs md:text-sm">
-                    {service.phone || "-"}
+                    {service.qq || "-"}
                   </TableCell>
                   <TableCell className="text-white text-xs md:text-sm">
                     {service.workingHours}
@@ -419,6 +421,20 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="name" className="text-white">
+                客服名称
+              </Label>
+              <Input
+                id="name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="例如：小李客服、张客服"
+                required
+                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label className="text-white">负责城市（可多选）</Label>
 
               {form.cityNames.length > 0 && (
@@ -461,28 +477,15 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-white">
-                客服名称
-              </Label>
-              <Input
-                id="name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="例如：小李客服、张客服"
-                required
-                className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-white">微信二维码</Label>
+              <Label className="text-white">微信二维码（必填）</Label>
               {form.wechatQrCode && (
-                <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border-2 border-primary-cyan/30">
+                <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border-2 border-primary-cyan/30 bg-white">
                   <Image
                     src={form.wechatQrCode}
                     alt="客服微信二维码"
                     fill
-                    className="object-cover"
+                    className="object-contain p-2"
+                    unoptimized
                   />
                 </div>
               )}
@@ -527,15 +530,14 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white">
-                  客服电话
+                <Label htmlFor="qq" className="text-white">
+                  客服QQ号
                 </Label>
                 <Input
-                  id="phone"
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="填写可选客服电话"
+                  id="qq"
+                  value={form.qq}
+                  onChange={(e) => setForm({ ...form, qq: e.target.value })}
+                  placeholder="填写可选客服QQ号"
                   className="bg-white/5 border-white/10 text-white placeholder:text-secondary/60"
                 />
               </div>

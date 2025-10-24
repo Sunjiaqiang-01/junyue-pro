@@ -117,7 +117,7 @@ export default function RegistrationCodesPage() {
   // Generate Form State
   const [generateForm, setGenerateForm] = useState({
     quantity: 1,
-    type: "ONE_TIME",
+    type: "ONETIME",
     maxUses: 1,
     validityDays: 0, // 0 = 永久
     note: "",
@@ -187,7 +187,7 @@ export default function RegistrationCodesPage() {
         setShowGenerateDialog(false);
         setGenerateForm({
           quantity: 1,
-          type: "ONE_TIME",
+          type: "ONETIME",
           maxUses: 1,
           validityDays: 0,
           note: "",
@@ -357,7 +357,7 @@ export default function RegistrationCodesPage() {
       ...exportData.map((code) =>
         [
           code.code,
-          code.type === "ONE_TIME" ? "一次性" : code.type === "LIMITED" ? "限次数" : "无限次",
+          code.type === "ONETIME" ? "一次性" : code.type === "LIMITED" ? "限次数" : "无限次",
           code.maxUses,
           code.currentUses,
           code.remainingUses,
@@ -423,7 +423,7 @@ export default function RegistrationCodesPage() {
       cell: ({ row }) => {
         const type = row.getValue("type") as string;
         const typeMap: Record<string, { label: string; color: string }> = {
-          ONE_TIME: { label: "一次性", color: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
+          ONETIME: { label: "一次性", color: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
           LIMITED: {
             label: "限次数",
             color: "bg-orange-600/20 text-orange-400 border-orange-600/30",
@@ -433,7 +433,7 @@ export default function RegistrationCodesPage() {
             color: "bg-green-600/20 text-green-400 border-green-600/30",
           },
         };
-        const config = typeMap[type] || typeMap.ONE_TIME;
+        const config = typeMap[type] || typeMap.ONETIME;
         return <Badge className={config.color}>{config.label}</Badge>;
       },
     },
@@ -906,7 +906,7 @@ export default function RegistrationCodesPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-600">
                   <SelectItem
-                    value="ONE_TIME"
+                    value="ONETIME"
                     className="text-white font-medium hover:bg-gray-700 cursor-pointer"
                   >
                     一次性（只能使用1次）
@@ -1019,7 +1019,7 @@ export default function RegistrationCodesPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">类型:</span>
                   <span className="text-white">
-                    {selectedCode.type === "ONE_TIME"
+                    {selectedCode.type === "ONETIME"
                       ? "一次性"
                       : selectedCode.type === "LIMITED"
                         ? "限次数"

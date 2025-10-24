@@ -46,6 +46,26 @@ async function getDashboardData() {
     }),
   ]);
 
+  // 获取周环比趋势数据
+  let trends = null;
+  try {
+    const trendsRes = await fetch(
+      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/admin/dashboard/stats-trend`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    if (trendsRes.ok) {
+      const trendsData = await trendsRes.json();
+      if (trendsData.success && trendsData.data) {
+        trends = trendsData.data;
+      }
+    }
+  } catch (error) {
+    console.error("获取趋势数据失败:", error);
+  }
+
   // 获取城市分布
   const cityDistribution = await prisma.therapist.groupBy({
     by: ["city"],
@@ -62,21 +82,37 @@ async function getDashboardData() {
     },
   });
 
-  // 模拟7天浏览量趋势（这里使用模拟数据，实际应该从数据库获取）
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
-  });
+  // 获取真实的7天浏览量趋势数据
+  let pageViewsTrend: Array<{ date: string; views: number }> = [];
+  let totalViews = 0;
+  let todayViews = 0;
 
-  // 模拟浏览量数据（实际应从visit tracking系统获取）
-  const pageViewsTrend = last7Days.map((date, index) => ({
-    date,
-    views: Math.floor(Math.random() * 500) + 200 + index * 50,
-  }));
+  try {
+    const visitStatsRes = await fetch(
+      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/visit/stats`,
+      {
+        cache: "no-store",
+      }
+    );
 
-  const totalViews = pageViewsTrend.reduce((sum, item) => sum + item.views, 0);
-  const todayViews = pageViewsTrend[pageViewsTrend.length - 1].views;
+    if (visitStatsRes.ok) {
+      const visitData = await visitStatsRes.json();
+      if (visitData.success && visitData.data) {
+        pageViewsTrend = visitData.data.pageViewsTrend;
+        totalViews = visitData.data.totalViews;
+        todayViews = visitData.data.todayViews;
+      }
+    }
+  } catch (error) {
+    console.error("获取访问统计失败，使用默认值:", error);
+    // 如果API调用失败，使用空数据（而非随机数据）
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+    });
+    pageViewsTrend = last7Days.map((date) => ({ date, views: 0 }));
+  }
 
   // 格式化排行榜数据
   const therapistRankings = topViewedTherapists.map((t, index) => ({
@@ -85,11 +121,11 @@ async function getDashboardData() {
     rank: index + 1,
   }));
 
-  // 格式化城市分布数据
+  // 格式化城市分布数据（修复：使用approvedTherapists作为分母）
   const cityDistData = cityDistribution.map((item) => ({
     city: item.city,
     count: item._count.city,
-    percentage: (item._count.city / totalTherapists) * 100,
+    percentage: approvedTherapists > 0 ? (item._count.city / approvedTherapists) * 100 : 0,
   }));
 
   return {
@@ -100,6 +136,7 @@ async function getDashboardData() {
       onlineTherapists,
       todayNew: todayNewTherapists,
     },
+    trends,
     pageViewsTrend,
     totalViews,
     todayViews,
@@ -137,7 +174,7 @@ export default async function AdminDashboard() {
 
       {/* 统计卡片 */}
       <Suspense fallback={<Skeleton className="h-24 w-full" />}>
-        <AdminStatsCards stats={data.stats} />
+        <AdminStatsCards stats={data.stats} trends={data.trends} />
       </Suspense>
 
       {/* 系统监控 */}

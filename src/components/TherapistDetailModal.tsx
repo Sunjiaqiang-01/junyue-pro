@@ -72,6 +72,7 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
   useEffect(() => {
     if (open && therapistId) {
       fetchTherapistDetail();
+      trackTherapistView();
     }
   }, [open, therapistId]);
 
@@ -93,6 +94,25 @@ export function TherapistDetailModal({ therapistId, open, onClose }: TherapistDe
       toast.error("网络错误");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 记录技师浏览量
+  const trackTherapistView = async () => {
+    if (!therapistId) return;
+
+    try {
+      await fetch("/api/visit/therapist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          therapistId,
+          referrer: document.referrer || undefined,
+        }),
+      });
+    } catch (error) {
+      // 静默失败，不影响用户体验
+      console.error("记录浏览失败:", error);
     }
   };
 

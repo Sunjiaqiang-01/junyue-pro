@@ -18,20 +18,41 @@ export default function SystemMonitor() {
     disk: 0,
     uptime: "0天0小时",
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 模拟系统监控数据（实际项目中应从API获取）
-    const updateStats = () => {
-      setStats({
-        cpu: Math.random() * 30 + 20, // 20-50%
-        memory: Math.random() * 20 + 60, // 60-80%
-        disk: Math.random() * 10 + 45, // 45-55%
-        uptime: `${Math.floor(Math.random() * 30 + 1)}天${Math.floor(Math.random() * 24)}小时`,
-      });
+    // 获取真实系统监控数据
+    const fetchSystemStats = async () => {
+      try {
+        const response = await fetch("/api/admin/system/stats");
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const { server } = data.data;
+
+          // 格式化运行时间
+          const uptimeSeconds = server.uptime;
+          const days = Math.floor(uptimeSeconds / 86400);
+          const hours = Math.floor((uptimeSeconds % 86400) / 3600);
+          const uptimeStr = `${days}天${hours}小时`;
+
+          setStats({
+            cpu: server.cpu.usage,
+            memory: server.memory.percentage,
+            disk: 0, // 暂无磁盘数据，显示0或隐藏
+            uptime: uptimeStr,
+          });
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("获取系统状态失败:", error);
+        setLoading(false);
+      }
     };
 
-    updateStats();
-    const interval = setInterval(updateStats, 5000);
+    fetchSystemStats();
+    // 每30秒更新一次（而非5秒，减少服务器压力）
+    const interval = setInterval(fetchSystemStats, 30000);
 
     return () => clearInterval(interval);
   }, []);

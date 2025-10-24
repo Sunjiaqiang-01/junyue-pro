@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/card-21st";
 import { ArrowDown, ArrowUp, Users, UserCheck, Clock, TrendingUp } from "lucide-react";
 
+interface TrendData {
+  growth: number;
+}
+
 interface AdminStatsCardsProps {
   stats: {
     totalTherapists: number;
@@ -16,6 +20,12 @@ interface AdminStatsCardsProps {
     pendingTherapists: number;
     onlineTherapists: number;
     todayNew: number;
+  } | null;
+  trends?: {
+    totalTherapists?: TrendData;
+    approvedTherapists?: TrendData;
+    pendingTherapists?: TrendData;
+    onlineTherapists?: TrendData;
   } | null;
 }
 
@@ -135,14 +145,16 @@ const statsConfig = [
   },
 ];
 
-export default function AdminStatsCards({ stats }: AdminStatsCardsProps) {
+export default function AdminStatsCards({ stats, trends }: AdminStatsCardsProps) {
   const icons = [Users, UserCheck, Clock, TrendingUp];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
       {statsConfig.map((config, index) => {
         const value = stats?.[config.key] || 0;
-        const delta = index === 0 ? 2.5 : index === 1 ? 5.2 : index === 2 ? -1.3 : 3.8;
+        // 使用真实的增长率数据，如果没有则显示0
+        const trendData = trends?.[config.key];
+        const delta = trendData?.growth || 0;
         const Icon = icons[index];
 
         return (
