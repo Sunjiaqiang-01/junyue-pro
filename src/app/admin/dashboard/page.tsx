@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Skeleton } from "@/components/ui/skeleton";
+import PageVisitTracker from "@/components/PageVisitTracker";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
 import SystemMonitor from "@/components/admin/SystemMonitor";
 import { PageViewsTrendChart } from "./components/PageViewsTrendChart";
@@ -88,24 +89,61 @@ async function getDashboardData() {
   let todayViews = 0;
 
   try {
-    const visitStatsRes = await fetch(
-      `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/visit/stats`,
-      {
-        cache: "no-store",
-      }
-    );
+    // 获取最近7天的日期范围
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
-    if (visitStatsRes.ok) {
-      const visitData = await visitStatsRes.json();
-      if (visitData.success && visitData.data) {
-        pageViewsTrend = visitData.data.pageViewsTrend;
-        totalViews = visitData.data.totalViews;
-        todayViews = visitData.data.todayViews;
-      }
+    // 查询SiteVisit表获取访问记录
+    const visits = await prisma.siteVisit.findMany({
+      where: {
+        createdAt: {
+          gte: sevenDaysAgo,
+          lte: today,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    // 按日期聚合统计
+    const dateMap = new Map<string, number>();
+
+    // 初始化7天的数据（确保每天都有数据，即使是0）
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+      dateMap.set(dateKey, 0);
     }
+
+    // 统计每天的访问量
+    visits.forEach((visit) => {
+      const dateKey = new Date(visit.createdAt).toLocaleDateString("zh-CN", {
+        month: "short",
+        day: "numeric",
+      });
+      if (dateMap.has(dateKey)) {
+        dateMap.set(dateKey, (dateMap.get(dateKey) || 0) + 1);
+      }
+    });
+
+    // 转换为数组格式
+    pageViewsTrend = Array.from(dateMap.entries()).map(([date, views]) => ({
+      date,
+      views,
+    }));
+
+    // 计算总浏览量和今日浏览量
+    totalViews = visits.length;
+    const todayKey = today.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+    todayViews = dateMap.get(todayKey) || 0;
   } catch (error) {
     console.error("获取访问统计失败，使用默认值:", error);
-    // 如果API调用失败，使用空数据（而非随机数据）
+    // 如果查询失败，使用空数据
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (6 - i));
@@ -156,6 +194,9 @@ export default async function AdminDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-6 pt-24 md:pt-28 space-y-4 md:space-y-6">
+      {/* 页面访问追踪 */}
+      <PageVisitTracker page="/admin/dashboard" />
+
       {/* 欢迎区域 */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-pure-white mb-2">

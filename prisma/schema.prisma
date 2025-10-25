@@ -39,6 +39,7 @@ model Therapist {
   profile              TherapistProfile?
   schedules            TherapistSchedule[]
   videos               TherapistVideo[]
+  views                TherapistView[]
   registrationCode     RegistrationCode?              @relation(fields: [registrationCodeId], references: [id])
 
   @@index([username])
@@ -386,4 +387,34 @@ enum DeactivationStatus {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+model TherapistView {
+  id          String    @id @default(cuid())
+  therapistId String
+  ip          String
+  userAgent   String?
+  referrer    String?
+  createdAt   DateTime  @default(now())
+  
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  @@index([therapistId])
+  @@index([createdAt])
+  @@index([ip])
+  @@map("therapist_views")
+}
+
+model SiteVisit {
+  id        String   @id @default(cuid())
+  page      String
+  ip        String
+  userAgent String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([page])
+  @@index([ip])
+  @@map("site_visits")
 }

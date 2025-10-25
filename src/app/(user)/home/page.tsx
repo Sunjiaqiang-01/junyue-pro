@@ -3,6 +3,7 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 import CustomerServiceButton from "@/components/CustomerServiceButton";
 import ResizableNavigation from "@/components/ResizableNavigation";
 import PageContainer from "@/components/PageContainer";
+import PageVisitTracker from "@/components/PageVisitTracker";
 import * as PricingCard from "@/components/ui/pricing-card";
 import prisma from "@/lib/prisma";
 
@@ -40,9 +41,9 @@ export default async function HomePage() {
     {
       icon: "💆‍♀️",
       name: "项目二",
-      badge: "热门",
+      badge: "🔥 热门",
       price: "¥598",
-      duration: "80分钟",
+      duration: "75分钟",
       features: ["包含项目一全部内容", "额外增加头疗", "激情助浴", "耳边调情", "手指弹滑"],
     },
     {
@@ -56,6 +57,9 @@ export default async function HomePage() {
 
   return (
     <PageContainer className="bg-pure-black">
+      {/* 页面访问追踪 */}
+      <PageVisitTracker page="/home" />
+
       {/* 导航栏 */}
       <ResizableNavigation />
 
@@ -141,7 +145,7 @@ export default async function HomePage() {
                 <span className="text-3xl">💰</span>
                 <h3 className="text-2xl font-medium text-pure-white">预约说明</h3>
               </div>
-              <ul className="space-y-3 text-secondary/60">
+              <ul className="space-y-3 text-pure-white font-semibold">
                 <li className="flex items-start gap-3">
                   <span className="text-primary-cyan">•</span>
                   <span>预约需支付定金100元</span>

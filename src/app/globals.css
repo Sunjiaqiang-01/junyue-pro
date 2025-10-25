@@ -190,3 +190,18 @@
   opacity: 0;
 }
 
+/* 火焰动画 - 优雅脉动效果 */
+.animate-flame {
+  display: inline-block;
+  animation: flame-glow 2s ease-in-out infinite;
+}
+
+@keyframes flame-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 140, 0, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(255, 100, 0, 0.8));
+  }
+}
+

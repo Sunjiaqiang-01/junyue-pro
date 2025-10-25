@@ -7,6 +7,7 @@ import TherapistDetailModal from "@/components/TherapistDetailModal";
 import CustomerServiceButton from "@/components/CustomerServiceButton";
 import ResizableNavigation from "@/components/ResizableNavigation";
 import PageContainer from "@/components/PageContainer";
+import PageVisitTracker from "@/components/PageVisitTracker";
 import ProvinceCitySelector from "@/components/ProvinceCitySelector";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -152,6 +153,9 @@ export default function TherapistsPage() {
 
   return (
     <PageContainer className="bg-pure-black">
+      {/* 页面访问追踪 */}
+      <PageVisitTracker page="/therapists" />
+
       {/* 导航栏 */}
       <ResizableNavigation />
 

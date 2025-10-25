@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import PageVisitTracker from "@/components/PageVisitTracker";
 import LoginModal from "@/components/therapist/LoginModal";
 import RegisterModal from "@/components/therapist/RegisterModal";
 import ForgotPasswordModal from "@/components/therapist/ForgotPasswordModal";
@@ -44,6 +45,9 @@ export default function TherapistHomePage() {
 
   return (
     <div className="min-h-screen bg-pure-black">
+      {/* 页面访问追踪 */}
+      <PageVisitTracker page="/therapist" />
+
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
         {/* 背景装饰 */}

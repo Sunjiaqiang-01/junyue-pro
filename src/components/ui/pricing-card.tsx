@@ -47,7 +47,7 @@ function PlanName({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "text-pure-white flex items-center gap-2 text-lg font-medium [&_svg:not([class*='size-'])]:size-5",
+        "text-pure-white flex items-center gap-2 text-lg font-bold [&_svg:not([class*='size-'])]:size-5",
         className
       )}
       {...props}
@@ -55,7 +55,18 @@ function PlanName({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function Badge({ className, ...props }: React.ComponentProps<"span">) {
+function Badge({ className, children, ...props }: React.ComponentProps<"span">) {
+  // 检测是否包含火焰 Emoji 并应用动画
+  const content =
+    typeof children === "string" && children.includes("🔥")
+      ? children.split("🔥").map((text, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <span className="animate-flame">🔥</span>}
+            {text}
+          </React.Fragment>
+        ))
+      : children;
+
   return (
     <span
       className={cn(
@@ -63,7 +74,9 @@ function Badge({ className, ...props }: React.ComponentProps<"span">) {
         className
       )}
       {...props}
-    />
+    >
+      {content}
+    </span>
   );
 }
 
@@ -81,7 +94,9 @@ function MainPrice({ className, ...props }: React.ComponentProps<"span">) {
 }
 
 function Period({ className, ...props }: React.ComponentProps<"span">) {
-  return <span className={cn("text-secondary/40 pb-1 text-base", className)} {...props} />;
+  return (
+    <span className={cn("text-pure-white font-semibold pb-1 text-base", className)} {...props} />
+  );
 }
 
 function OriginalPrice({ className, ...props }: React.ComponentProps<"span">) {
@@ -104,7 +119,10 @@ function List({ className, ...props }: React.ComponentProps<"ul">) {
 function ListItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
-      className={cn("text-secondary/60 flex items-start gap-3 text-sm leading-relaxed", className)}
+      className={cn(
+        "text-pure-white font-semibold flex items-start gap-3 text-sm leading-relaxed",
+        className
+      )}
       {...props}
     />
   );
