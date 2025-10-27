@@ -52,27 +52,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         },
       });
 
-      // 如果通过申请，执行注销操作
+      // 如果通过申请，直接删除技师账号
       if (action === "approve") {
-        // 软删除技师账号 - 更新状态为BANNED并清空敏感信息
-        await tx.therapist.update({
+        // 直接删除技师账号（级联删除所有关联数据）
+        await tx.therapist.delete({
           where: { id: deactivationRequest.therapistId },
-          data: {
-            status: "BANNED",
-            phone: null,
-            email: null,
-            isOnline: false,
-            // 保留基本信息用于历史记录，但标记为已注销
-            nickname: `${deactivationRequest.therapist.nickname}(已注销)`,
-          },
-        });
-
-        // 清空技师的个人资料敏感信息
-        await tx.therapistProfile.updateMany({
-          where: { therapistId: deactivationRequest.therapistId },
-          data: {
-            introduction: "该技师已注销账号",
-          },
         });
       }
 

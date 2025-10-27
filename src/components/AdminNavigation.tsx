@@ -8,16 +8,15 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { User, LogOut, Clock } from "lucide-react";
+import { NeonLogo } from "./NeonLogo";
+import { motion } from "framer-motion";
 
 // 管理端已登录时的导航链接
 const adminLinks = [
   { href: "/admin/dashboard", label: "数据看板" },
-  { href: "/admin/system", label: "系统监控" },
-  { href: "/admin/therapists", label: "技师管理" },
-  { href: "/admin/therapists/pending", label: "技师审核", badge: true },
-  { href: "/admin/deactivation", label: "注销申请", badge: true, badgeType: "deactivation" },
-  { href: "/admin/customer-services", label: "客服配置" },
-  { href: "/admin/announcements", label: "公告管理" },
+  { href: "/admin/therapists-center", label: "技师中心", badge: true },
+  { href: "/admin/content", label: "内容管理" },
+  { href: "/admin/registration-codes", label: "注册码" },
 ];
 
 export default function AdminNavigation() {
@@ -25,6 +24,7 @@ export default function AdminNavigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [deactivationCount, setDeactivationCount] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -92,62 +92,85 @@ export default function AdminNavigation() {
                 aria-label="home"
                 className="flex gap-2 items-center"
               >
-                <div className="relative w-10 h-10">
-                  <Image src="/logo.png" alt="君悦SPA" fill className="object-contain" />
-                </div>
-                <p className="font-semibold text-xl tracking-tighter text-primary-gold">君悦SPA</p>
+                <NeonLogo size={40} variant="full" />
+                <p className="font-semibold text-xl tracking-tighter text-pure-white">君悦SPA</p>
               </Link>
 
               {/* Mobile menu button */}
-              <button
-                onClick={() => setOpen(!open)}
-                aria-label={open ? "Close Menu" : "Open Menu"}
-                className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden"
-              >
-                <div className="relative flex items-center justify-center">
-                  <div className="relative size-4">
-                    <span
-                      className={cn(
-                        "bg-white absolute left-0 block h-0.5 w-4 transition-all duration-100",
-                        open ? "top-[0.4rem] -rotate-45" : "top-1"
-                      )}
+              {open ? (
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-white/10 bg-black/95 backdrop-blur-sm hover:bg-white/5 transition-all duration-200 lg:hidden"
+                >
+                  <svg
+                    className="text-secondary/60 hover:text-primary-cyan w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
                     />
-                    <span
-                      className={cn(
-                        "bg-white absolute left-0 block h-0.5 w-4 transition-all duration-100",
-                        open ? "top-[0.4rem] rotate-45" : "top-2.5"
-                      )}
+                  </svg>
+                  <span className="text-sm font-bold text-white">关闭</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-primary-cyan bg-black/95 backdrop-blur-sm hover:bg-primary-cyan/10 transition-all duration-200 shadow-lg shadow-primary-cyan/20 hover:shadow-primary-cyan/30 lg:hidden"
+                >
+                  <svg
+                    className="text-primary-cyan w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
                     />
-                  </div>
-                </div>
-              </button>
+                  </svg>
+                  <span className="text-sm font-bold text-primary-cyan">菜单</span>
+                </button>
+              )}
             </div>
 
             {/* Desktop Navigation - 仅在已登录时显示 */}
             {isLoggedIn && (
-              <div className="absolute inset-0 m-auto hidden size-fit lg:block">
-                <ul className="flex gap-8 text-sm">
-                  {adminLinks.map((link, index) => {
-                    const badgeCount =
-                      link.badgeType === "deactivation" ? deactivationCount : pendingCount;
-                    return (
-                      <li key={index} className="relative">
-                        <Link
-                          href={link.href}
-                          className="text-gray-300 hover:text-primary-gold block duration-150 font-medium"
-                        >
-                          <span>{link.label}</span>
-                          {link.badge && badgeCount > 0 && (
-                            <span className="absolute -top-2 -right-3 bg-yellow-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                              {badgeCount}
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              <motion.div
+                onMouseLeave={() => setHovered(null)}
+                className="absolute inset-0 m-auto hidden size-fit lg:flex gap-2 text-lg font-semibold"
+              >
+                {adminLinks.map((link, index) => {
+                  const totalPending = pendingCount + deactivationCount;
+                  return (
+                    <Link
+                      key={index}
+                      href={link.href}
+                      onMouseEnter={() => setHovered(index)}
+                      className="relative px-4 py-2 text-white hover:text-primary-cyan transition-colors duration-200"
+                    >
+                      {hovered === index && (
+                        <motion.div
+                          layoutId="hovered"
+                          className="absolute inset-0 h-full w-full rounded-full bg-primary-cyan/10"
+                        />
+                      )}
+                      <span className="relative z-20">{link.label}</span>
+                      {link.badge && totalPending > 0 && (
+                        <span className="absolute -top-1 -right-2 bg-yellow-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center z-30">
+                          {totalPending}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </motion.div>
             )}
 
             {/* Right side buttons */}
@@ -160,21 +183,20 @@ export default function AdminNavigation() {
               {/* Mobile menu items - 仅在已登录时显示 */}
               {isLoggedIn && (
                 <div className="lg:hidden">
-                  <ul className="space-y-6 text-base">
+                  <ul className="space-y-6">
                     {adminLinks.map((link, index) => {
-                      const badgeCount =
-                        link.badgeType === "deactivation" ? deactivationCount : pendingCount;
+                      const totalPending = pendingCount + deactivationCount;
                       return (
                         <li key={index} className="relative">
                           <Link
                             href={link.href}
-                            className="text-gray-300 hover:text-primary-gold block duration-150 flex items-center gap-2"
+                            className="text-xl font-semibold text-white hover:text-primary-cyan block duration-150 transition-colors flex items-center gap-2"
                             onClick={() => setOpen(false)}
                           >
                             <span>{link.label}</span>
-                            {link.badge && badgeCount > 0 && (
+                            {link.badge && totalPending > 0 && (
                               <span className="bg-yellow-500 text-black text-xs font-bold rounded-full px-2 py-0.5">
-                                {badgeCount}
+                                {totalPending}
                               </span>
                             )}
                           </Link>
@@ -189,17 +211,17 @@ export default function AdminNavigation() {
                 {isLoggedIn ? (
                   // 已登录：显示管理员信息和退出按钮
                   <>
-                    <div className="hidden lg:flex items-center gap-2 px-4 py-2 text-gray-300 bg-white/5 rounded-lg">
-                      <User className="w-4 h-4 text-primary-gold" />
-                      <span className="text-sm font-medium">
+                    <div className="hidden lg:flex items-center gap-2 px-4 py-2 text-pure-white bg-white/5 rounded-lg border border-white/10">
+                      <User className="w-4 h-4 text-primary-cyan" />
+                      <span className="text-sm font-semibold">
                         {session.user.name || session.user.username || "管理员"}
                       </span>
                     </div>
                     <Button
                       onClick={handleLogout}
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="border-gray-700 text-gray-300 hover:text-red-500 hover:border-red-500"
+                      className="border border-white/10 text-secondary/80 hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       <span>退出登录</span>
@@ -209,9 +231,9 @@ export default function AdminNavigation() {
                   // 未登录：显示登录按钮
                   <Button
                     onClick={() => router.push("/admin/login")}
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="border-gray-700 text-gray-300 hover:text-primary-gold hover:border-primary-gold"
+                    className="border border-white/10 text-secondary/80 hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
                   >
                     <span>管理员登录</span>
                   </Button>

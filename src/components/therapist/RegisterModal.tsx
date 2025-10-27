@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Eye, EyeOff, Mail, Key } from "lucide-react";
+import { NeonLogo } from "@/components/NeonLogo";
 
 interface RegisterModalProps {
   open: boolean;
@@ -95,17 +96,17 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
       type="blur"
       animationType="scale"
       showCloseButton
-      showEscText
+      showEscText={false}
       borderBottom={false}
       className="bg-black/95 backdrop-blur-xl border-gray-800 sm:max-w-md"
     >
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-gold/10 rounded-full mb-4">
-            <UserPlus className="w-8 h-8 text-primary-gold" />
+          <div className="flex justify-center mb-4">
+            <NeonLogo size={64} variant="full" />
           </div>
-          <h2 className="text-3xl font-bold text-primary-gold mb-2">技师注册</h2>
+          <h2 className="text-3xl font-bold text-primary-cyan mb-2">技师注册</h2>
           <p className="text-gray-400">加入君悦SPA，开启您的职业之旅</p>
         </div>
 
@@ -150,7 +151,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
           </div>
 
           <div>
-            <Label htmlFor="register-email" className="text-gray-300">
+            <Label htmlFor="register-email" className="text-gray-300 mb-2 block">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 邮箱
@@ -169,7 +170,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
           </div>
 
           <div>
-            <Label htmlFor="register-code" className="text-gray-300">
+            <Label htmlFor="register-code" className="text-gray-300 mb-2 block">
               <div className="flex items-center gap-2">
                 <Key className="w-4 h-4" />
                 注册验证码
@@ -193,7 +194,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold"
+            className="w-full bg-gradient-to-r bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold"
             disabled={loading}
           >
             {loading ? "注册中..." : "注册"}
@@ -208,7 +209,7 @@ export default function RegisterModal({ open, onClose, onSwitchToLogin }: Regist
               onClose();
               onSwitchToLogin();
             }}
-            className="text-primary-gold hover:underline ml-1 font-medium"
+            className="text-primary-cyan hover:underline ml-1 font-medium"
           >
             立即登录
           </button>

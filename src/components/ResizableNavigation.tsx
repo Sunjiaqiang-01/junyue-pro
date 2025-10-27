@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { NeonLogo } from "./NeonLogo";
 
 // 自定义Logo组件（替换默认的NavbarLogo）
 const JunyueLogo = () => {
@@ -20,8 +21,8 @@ const JunyueLogo = () => {
       href="/home"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
     >
-      <Image src="/logo.png" alt="君悦SPA" width={30} height={30} className="rounded-full" />
-      <span className="font-medium text-primary-gold">君悦SPA</span>
+      <NeonLogo size={40} variant="full" />
+      <span className="font-semibold text-xl tracking-tighter text-pure-white">君悦SPA</span>
     </a>
   );
 };

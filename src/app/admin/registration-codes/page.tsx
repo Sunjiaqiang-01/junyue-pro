@@ -117,7 +117,7 @@ export default function RegistrationCodesPage() {
   // Generate Form State
   const [generateForm, setGenerateForm] = useState({
     quantity: 1,
-    type: "ONE_TIME",
+    type: "ONETIME",
     maxUses: 1,
     validityDays: 0, // 0 = 永久
     note: "",
@@ -187,7 +187,7 @@ export default function RegistrationCodesPage() {
         setShowGenerateDialog(false);
         setGenerateForm({
           quantity: 1,
-          type: "ONE_TIME",
+          type: "ONETIME",
           maxUses: 1,
           validityDays: 0,
           note: "",
@@ -357,7 +357,7 @@ export default function RegistrationCodesPage() {
       ...exportData.map((code) =>
         [
           code.code,
-          code.type === "ONE_TIME" ? "一次性" : code.type === "LIMITED" ? "限次数" : "无限次",
+          code.type === "ONETIME" ? "一次性" : code.type === "LIMITED" ? "限次数" : "无限次",
           code.maxUses,
           code.currentUses,
           code.remainingUses,
@@ -405,12 +405,12 @@ export default function RegistrationCodesPage() {
       header: "注册码",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <code className="text-primary-gold font-mono text-sm font-medium bg-white/5 px-3 py-1 rounded">
+          <code className="text-primary-cyan font-mono text-sm font-medium bg-white/5 px-3 py-1 rounded">
             {row.getValue("code")}
           </code>
           <button
             onClick={() => handleCopy(row.getValue("code"))}
-            className="text-gray-300 hover:text-primary-gold transition-colors"
+            className="text-gray-300 hover:text-primary-cyan transition-colors"
           >
             <Copy className="w-4 h-4" />
           </button>
@@ -423,7 +423,7 @@ export default function RegistrationCodesPage() {
       cell: ({ row }) => {
         const type = row.getValue("type") as string;
         const typeMap: Record<string, { label: string; color: string }> = {
-          ONE_TIME: { label: "一次性", color: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
+          ONETIME: { label: "一次性", color: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
           LIMITED: {
             label: "限次数",
             color: "bg-orange-600/20 text-orange-400 border-orange-600/30",
@@ -433,7 +433,7 @@ export default function RegistrationCodesPage() {
             color: "bg-green-600/20 text-green-400 border-green-600/30",
           },
         };
-        const config = typeMap[type] || typeMap.ONE_TIME;
+        const config = typeMap[type] || typeMap.ONETIME;
         return <Badge className={config.color}>{config.label}</Badge>;
       },
     },
@@ -465,9 +465,7 @@ export default function RegistrationCodesPage() {
           return <Badge className="bg-red-600/20 text-red-400 border-red-600/30">已用完</Badge>;
         }
         if (!code.isActive) {
-          return (
-            <Badge className="bg-yellow-600/20 text-yellow-400 border-yellow-600/30">已禁用</Badge>
-          );
+          return <Badge className="bg-red-600/20 text-red-400 border-red-600/30">已禁用</Badge>;
         }
         return <Badge className="bg-green-600/20 text-green-400 border-green-600/30">可用</Badge>;
       },
@@ -557,7 +555,7 @@ export default function RegistrationCodesPage() {
               onClick={() => handleToggleActive(code)}
               className={`${
                 code.isActive
-                  ? "text-yellow-400 hover:text-yellow-300"
+                  ? "text-primary-cyan hover:text-primary-cyan/80"
                   : "text-green-400 hover:text-green-300"
               } transition-colors`}
               title={code.isActive ? "禁用" : "启用"}
@@ -607,24 +605,24 @@ export default function RegistrationCodesPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-primary-gold animate-spin" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-primary-cyan animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
+    <div className="min-h-screen bg-pure-black p-6 pt-24 md:pt-28">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">注册码管理</h1>
-            <p className="text-gray-400 mt-2">管理技师注册码，生成、查看、启用/禁用</p>
+            <h1 className="text-3xl font-bold text-pure-white">注册码管理</h1>
+            <p className="text-secondary/60 mt-2">管理技师注册码，生成、查看、启用/禁用</p>
           </div>
           <Button
             onClick={() => setShowGenerateDialog(true)}
-            className="bg-primary-gold text-black hover:bg-primary-gold/90"
+            className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold shadow-lg shadow-primary-cyan/30"
           >
             <Plus className="w-4 h-4 mr-2" />
             生成注册码
@@ -643,14 +641,17 @@ export default function RegistrationCodesPage() {
               />
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="border-gray-700">
+                  <Button
+                    variant="outline"
+                    className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent"
+                  >
                     <Filter className="w-4 h-4 mr-2" />
                     筛选状态
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56 bg-gray-800 border-gray-600">
+                <PopoverContent className="w-56 bg-gray-900 border-white/10">
                   <div className="space-y-2">
-                    <Label className="text-gray-100 font-medium text-sm">状态筛选</Label>
+                    <Label className="text-pure-white font-semibold text-sm">状态筛选</Label>
                     <Select
                       value={(table.getColumn("isActive")?.getFilterValue() as string) ?? "all"}
                       onValueChange={(value) =>
@@ -659,25 +660,25 @@ export default function RegistrationCodesPage() {
                           ?.setFilterValue(value === "all" ? undefined : value === "true")
                       }
                     >
-                      <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-100">
+                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectContent className="bg-gray-900 border-white/10">
                         <SelectItem
                           value="all"
-                          className="text-white font-medium hover:bg-gray-700 cursor-pointer"
+                          className="text-white font-medium hover:bg-white/10 hover:text-primary-cyan cursor-pointer"
                         >
                           全部
                         </SelectItem>
                         <SelectItem
                           value="true"
-                          className="text-white font-medium hover:bg-gray-700 cursor-pointer"
+                          className="text-white font-medium hover:bg-white/10 hover:text-primary-cyan cursor-pointer"
                         >
                           可用
                         </SelectItem>
                         <SelectItem
                           value="false"
-                          className="text-white font-medium hover:bg-gray-700 cursor-pointer"
+                          className="text-white font-medium hover:bg-white/10 hover:text-primary-cyan cursor-pointer"
                         >
                           已禁用
                         </SelectItem>
@@ -703,7 +704,7 @@ export default function RegistrationCodesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleBatchToggle(false)}
-                  className="border-yellow-600/30 text-yellow-400 hover:bg-yellow-600/10"
+                  className="border-red-600/30 text-red-400 hover:bg-red-600/10"
                 >
                   <Ban className="w-4 h-4 mr-2" />
                   批量禁用 ({selectedRowCount})
@@ -905,7 +906,7 @@ export default function RegistrationCodesPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-600">
                   <SelectItem
-                    value="ONE_TIME"
+                    value="ONETIME"
                     className="text-white font-medium hover:bg-gray-700 cursor-pointer"
                   >
                     一次性（只能使用1次）
@@ -976,14 +977,14 @@ export default function RegistrationCodesPage() {
             <Button
               variant="outline"
               onClick={() => setShowGenerateDialog(false)}
-              className="border-gray-700 text-white font-medium"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white font-medium"
             >
               取消
             </Button>
             <Button
               onClick={handleGenerate}
               disabled={generating}
-              className="bg-primary-gold text-black font-medium hover:bg-primary-gold/90"
+              className="bg-primary-cyan text-pure-black font-semibold hover:bg-primary-cyan/90 shadow-lg shadow-primary-cyan/30"
             >
               {generating ? (
                 <>
@@ -1013,12 +1014,12 @@ export default function RegistrationCodesPage() {
               <div className="bg-white/5 rounded-lg p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">注册码:</span>
-                  <code className="text-primary-gold font-mono">{selectedCode.code}</code>
+                  <code className="text-primary-cyan font-mono">{selectedCode.code}</code>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">类型:</span>
                   <span className="text-white">
-                    {selectedCode.type === "ONE_TIME"
+                    {selectedCode.type === "ONETIME"
                       ? "一次性"
                       : selectedCode.type === "LIMITED"
                         ? "限次数"
@@ -1078,7 +1079,7 @@ export default function RegistrationCodesPage() {
             <Button
               variant="outline"
               onClick={() => setShowDetailsDialog(false)}
-              className="border-gray-700"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white"
             >
               关闭
             </Button>
@@ -1096,7 +1097,9 @@ export default function RegistrationCodesPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700">取消</AlertDialogCancel>
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white">
+              取消
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => codeToDelete && handleDelete(codeToDelete)}
               disabled={deleting}

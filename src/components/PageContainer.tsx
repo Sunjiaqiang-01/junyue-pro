@@ -13,7 +13,7 @@ interface PageContainerProps {
  *
  * 使用方法：
  * ```tsx
- * <PageContainer className="bg-deep-black">
+ * <PageContainer className="bg-pure-black">
  *   <ResizableNavigation />
  *   <div className="px-4 py-8">
  *     {/* 页面内容 *\/}

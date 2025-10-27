@@ -135,8 +135,8 @@ export default function TherapistSettingsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -146,19 +146,23 @@ export default function TherapistSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/therapist/dashboard">
-            <Button variant="outline" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="border border-white/10 text-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               返回
             </Button>
           </Link>
           <div>
-            <h1 className="text-4xl font-bold text-primary-gold mb-2">账号设置</h1>
-            <p className="text-gray-400">管理您的账号设置</p>
+            <h1 className="text-4xl font-bold text-pure-white mb-2">账号设置</h1>
+            <p className="text-secondary/60">管理您的账号设置</p>
           </div>
         </div>
 

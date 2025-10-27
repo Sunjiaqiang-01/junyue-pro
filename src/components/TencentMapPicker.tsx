@@ -128,7 +128,7 @@ export default function TencentMapPicker({ value, onChange, className }: Tencent
               className="pl-10 pr-10 bg-white/5 border-gray-700 text-white placeholder:text-gray-500"
             />
             {isSearching && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-gold animate-spin" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-cyan animate-spin" />
             )}
           </div>
 
@@ -142,7 +142,7 @@ export default function TencentMapPicker({ value, onChange, className }: Tencent
                   className="w-full text-left px-4 py-3 hover:bg-white/10 transition-colors border-b border-gray-800 last:border-b-0"
                 >
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-primary-gold flex-shrink-0 mt-1" />
+                    <MapPin className="w-4 h-4 text-primary-cyan flex-shrink-0 mt-1" />
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-medium truncate">{result.name}</p>
                       <p className="text-gray-400 text-sm truncate">{result.address}</p>
@@ -171,7 +171,7 @@ export default function TencentMapPicker({ value, onChange, className }: Tencent
 
           {/* 位置信息 */}
           <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-gray-800">
-            <MapPin className="w-5 h-5 text-primary-gold flex-shrink-0 mt-0.5" />
+            <MapPin className="w-5 h-5 text-primary-cyan flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-white font-semibold text-base mb-1">{selectedLocation.name}</p>
               <p className="text-gray-400 text-sm">{selectedLocation.address}</p>

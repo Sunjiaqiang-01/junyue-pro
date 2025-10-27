@@ -10,41 +10,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // 君悦SPA主题色
-        "primary-gold": "#D4AF37", // 金色
-        "primary-purple": "#8B5CF6", // 紫色 (violet-500)
-        "deep-black": "#0B0C0F", // 深黑色
+        // 君悦SPA冷色调极简主题 - 方案J
+        "primary-cyan": "#06b6d4", // 青色主色（cyan-500）
+        "pure-black": "#0a0a0a", // 纯黑背景
+        "pure-white": "#ffffff", // 纯白
         primary: {
-          DEFAULT: "#D4AF37", // 金色
-          50: "#FBF7EC",
-          100: "#F6EFD9",
-          200: "#EDDEB3",
-          300: "#E3CE8D",
-          400: "#DABE67",
-          500: "#D4AF37", // 主色
-          600: "#B8982C",
-          700: "#8A7221",
-          800: "#5C4C16",
-          900: "#2E260B",
-          gold: "#D4AF37", // 别名
+          DEFAULT: "#06b6d4", // 青色
+          50: "#ecfeff",
+          100: "#cffafe",
+          200: "#a5f3fc",
+          300: "#67e8f9",
+          400: "#22d3ee",
+          500: "#06b6d4", // 主色
+          600: "#0891b2",
+          700: "#0e7490",
+          800: "#155e75",
+          900: "#164e63",
+          cyan: "#06b6d4", // 别名
         },
         secondary: {
-          DEFAULT: "#2D2D2D", // 深灰
-          50: "#F5F5F5",
-          100: "#E5E5E5",
-          200: "#CCCCCC",
-          300: "#B2B2B2",
-          400: "#999999",
-          500: "#7F7F7F",
-          600: "#666666",
-          700: "#4C4C4C",
-          800: "#333333",
-          900: "#2D2D2D", // 主色
+          DEFAULT: "#ededed", // 浅灰文字
+          50: "#ffffff",
+          100: "#fafafa",
+          200: "#f5f5f5",
+          300: "#f0f0f0",
+          400: "#ededed",
+          500: "#d4d4d4",
+          600: "#a3a3a3",
+          700: "#737373",
+          800: "#525252",
+          900: "#404040",
         },
         accent: {
-          DEFAULT: "#F5E6D3", // 米白色
-          light: "#FAF3E9",
-          dark: "#E8D4BE",
+          DEFAULT: "rgba(255, 255, 255, 0.05)", // 极浅白色透明
+          light: "rgba(255, 255, 255, 0.1)",
+          dark: "rgba(255, 255, 255, 0.02)",
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

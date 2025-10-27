@@ -237,11 +237,11 @@ const Modal: React.FC<ModalProps> = ({
                       </span>
                     )}
                     <button
-                      className="p-1 rounded-md hover:bg-muted transition-colors"
+                      className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
                       onClick={onClose}
                       aria-label="Close modal"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-5 h-5 text-pure-white hover:text-primary-cyan transition-colors" />
                     </button>
                   </div>
                 )}
@@ -255,11 +255,11 @@ const Modal: React.FC<ModalProps> = ({
                     </span>
                   )}
                   <button
-                    className="p-1 rounded-md hover:bg-muted transition-colors"
+                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
                     onClick={onClose}
                     aria-label="Close modal"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 text-pure-white hover:text-primary-cyan transition-colors" />
                   </button>
                 </div>
               )

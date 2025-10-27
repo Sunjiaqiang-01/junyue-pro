@@ -116,7 +116,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-lg font-semibold text-gray-300 transition duration-200 hover:text-primary-gold lg:flex lg:space-x-2 dark:text-gray-300 dark:hover:text-primary-gold",
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-lg font-semibold text-secondary/80 transition duration-200 hover:text-primary-cyan lg:flex lg:space-x-2 dark:text-secondary/80 dark:hover:text-primary-cyan",
         className
       )}
     >
@@ -124,14 +124,14 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
         <a
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
-          className="relative px-4 py-2 text-white hover:text-primary-gold dark:text-white dark:hover:text-primary-gold transition-colors duration-200"
+          className="relative px-4 py-2 text-white hover:text-primary-cyan dark:text-white dark:hover:text-primary-cyan transition-colors duration-200"
           key={`link-${idx}`}
           href={item.link}
         >
           {hovered === idx && (
             <motion.div
               layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-primary-gold/10 dark:bg-primary-gold/10"
+              className="absolute inset-0 h-full w-full rounded-full bg-primary-cyan/10 dark:bg-primary-cyan/10"
             />
           )}
           <span className="relative z-20">{item.name}</span>
@@ -189,7 +189,7 @@ export const MobileNavMenu = ({ children, className, isOpen, onClose }: MobileNa
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className={cn(
-            "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-gradient-to-b from-black to-gray-900 px-4 py-8 shadow-[0_0_50px_rgba(212,_175,_55,_0.3)] border border-primary-gold/50 dark:bg-gradient-to-b dark:from-black dark:to-gray-900",
+            "absolute inset-x-0 top-16 z-50 flex w-full flex-col items-start justify-start gap-4 rounded-lg bg-pure-black px-4 py-8 shadow-[0_0_50px_rgba(6,_182,_212,_0.3)] border border-primary-cyan/50 dark:bg-pure-black",
             className
           )}
         >
@@ -202,21 +202,21 @@ export const MobileNavMenu = ({ children, className, isOpen, onClose }: MobileNa
 
 export const MobileNavToggle = ({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
   return isOpen ? (
-    // 展开时：关闭按钮（红色边框+文字）
+    // 展开时：关闭按钮
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-red-500 bg-black/95 backdrop-blur-sm hover:bg-red-500/10 transition-all duration-200"
+      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-white/10 bg-black/95 backdrop-blur-sm hover:bg-white/5 transition-all duration-200"
     >
-      <IconX className="text-red-500 w-5 h-5" />
+      <IconX className="text-secondary/60 hover:text-primary-cyan w-5 h-5" />
       <span className="text-sm font-bold text-white">关闭</span>
     </button>
   ) : (
-    // 未展开时：菜单按钮（金色边框+文字）
+    // 未展开时：菜单按钮
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-primary-gold bg-black/95 backdrop-blur-sm hover:bg-primary-gold/10 transition-all duration-200 shadow-lg shadow-primary-gold/20 hover:shadow-primary-gold/30"
+      className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-primary-cyan bg-black/95 backdrop-blur-sm hover:bg-primary-cyan/10 transition-all duration-200 shadow-lg shadow-primary-cyan/20 hover:shadow-primary-cyan/30"
     >
-      <IconMenu2 className="text-primary-gold w-5 h-5" />
+      <IconMenu2 className="text-primary-cyan w-5 h-5" />
       <span className="text-sm font-bold text-white">菜单</span>
     </button>
   );
@@ -253,12 +253,12 @@ export const NavbarButton = ({
 
   const variantStyles = {
     primary:
-      "bg-gradient-to-r from-primary-gold to-yellow-600 text-white shadow-[0_8px_24px_rgba(212,_175,_55,_0.4)] hover:shadow-[0_12px_32px_rgba(212,_175,_55,_0.5)]",
+      "bg-primary-cyan text-pure-black shadow-[0_8px_24px_rgba(6,_182,_212,_0.4)] hover:shadow-[0_12px_32px_rgba(6,_182,_212,_0.5)] hover:bg-primary-cyan/90",
     secondary:
-      "bg-transparent shadow-none text-primary-gold border border-primary-gold hover:bg-primary-gold/10 dark:text-primary-gold dark:border-primary-gold",
+      "bg-transparent shadow-none text-primary-cyan border border-primary-cyan hover:bg-primary-cyan/10 dark:text-primary-cyan dark:border-primary-cyan",
     dark: "bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
     gradient:
-      "bg-gradient-to-r from-primary-gold to-yellow-600 text-white shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset]",
+      "bg-primary-cyan text-pure-black shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset] hover:bg-primary-cyan/90",
   };
 
   return (

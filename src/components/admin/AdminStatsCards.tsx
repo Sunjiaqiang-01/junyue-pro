@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/card-21st";
 import { ArrowDown, ArrowUp, Users, UserCheck, Clock, TrendingUp } from "lucide-react";
 
+interface TrendData {
+  growth: number;
+}
+
 interface AdminStatsCardsProps {
   stats: {
     totalTherapists: number;
@@ -17,13 +21,19 @@ interface AdminStatsCardsProps {
     onlineTherapists: number;
     todayNew: number;
   } | null;
+  trends?: {
+    totalTherapists?: TrendData;
+    approvedTherapists?: TrendData;
+    pendingTherapists?: TrendData;
+    onlineTherapists?: TrendData;
+  } | null;
 }
 
 const statsConfig = [
   {
     title: "技师总数",
     key: "totalTherapists" as const,
-    bg: "bg-zinc-950",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 h-full w-2/3 pointer-events-none"
@@ -41,7 +51,7 @@ const statsConfig = [
   {
     title: "已审核通过",
     key: "approvedTherapists" as const,
-    bg: "bg-green-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -72,7 +82,7 @@ const statsConfig = [
   {
     title: "待审核",
     key: "pendingTherapists" as const,
-    bg: "bg-yellow-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -104,7 +114,7 @@ const statsConfig = [
   {
     title: "在线技师",
     key: "onlineTherapists" as const,
-    bg: "bg-blue-600",
+    bg: "bg-transparent border border-white/5",
     svg: (
       <svg
         className="absolute right-0 top-0 w-48 h-48 pointer-events-none"
@@ -135,40 +145,51 @@ const statsConfig = [
   },
 ];
 
-export default function AdminStatsCards({ stats }: AdminStatsCardsProps) {
+export default function AdminStatsCards({ stats, trends }: AdminStatsCardsProps) {
+  const icons = [Users, UserCheck, Clock, TrendingUp];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
       {statsConfig.map((config, index) => {
         const value = stats?.[config.key] || 0;
-        // 简单的增长率计算（这里可以后续从API获取真实数据）
-        const delta = index === 0 ? 2.5 : index === 1 ? 5.2 : index === 2 ? -1.3 : 3.8;
+        // 使用真实的增长率数据，如果没有则显示0
+        const trendData = trends?.[config.key];
+        const delta = trendData?.growth || 0;
+        const Icon = icons[index];
 
         return (
           <Card
             key={config.key}
-            className={`relative overflow-hidden ${config.bg} text-white border-0`}
+            className="relative overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 text-white hover:bg-white/[0.07] transition-all"
           >
-            <CardHeader className="border-0 z-10 relative pb-2">
-              <CardTitle className="text-white/90 text-sm font-medium">{config.title}</CardTitle>
+            <CardHeader className="border-0 pb-2 p-3 md:p-6">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-secondary/80 text-xs md:text-sm font-medium">
+                  {config.title}
+                </CardTitle>
+                <Icon className="w-3 h-3 md:w-4 md:h-4 text-primary-cyan" />
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2.5 z-10 relative pt-0">
-              <div className="flex items-center gap-2.5">
-                <span className="text-3xl font-semibold tracking-tight">
+            <CardContent className="pt-0 p-3 md:p-6">
+              <div className="flex items-baseline gap-1 md:gap-2">
+                <span className="text-xl md:text-2xl font-bold text-pure-white">
                   {value.toLocaleString()}
                 </span>
-                <Badge className="bg-white/20 font-semibold text-xs">
-                  {delta > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                <Badge
+                  className={`text-[10px] md:text-xs font-semibold ${delta > 0 ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}
+                >
+                  {delta > 0 ? (
+                    <ArrowUp className="w-2 h-2 md:w-3 md:h-3" />
+                  ) : (
+                    <ArrowDown className="w-2 h-2 md:w-3 md:h-3" />
+                  )}
                   {Math.abs(delta)}%
                 </Badge>
               </div>
-              <div className="text-xs text-white/80 mt-2 border-t border-white/20 pt-2.5">
-                较上周:{" "}
-                <span className="font-medium text-white">
-                  {delta > 0 ? "增长" : "下降"} {Math.abs(delta)}%
-                </span>
-              </div>
+              <p className="text-[10px] md:text-xs text-secondary/60 mt-1">
+                较上周: {delta > 0 ? "增长" : "下降"} {Math.abs(delta)}%
+              </p>
             </CardContent>
-            {config.svg}
           </Card>
         );
       })}

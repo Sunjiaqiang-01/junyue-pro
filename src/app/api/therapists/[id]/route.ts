@@ -8,6 +8,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       where: {
         id,
         status: "APPROVED", // 只显示审核通过的技师
+        isOnline: true, // 只显示在线的技师
       },
       select: {
         id: true,

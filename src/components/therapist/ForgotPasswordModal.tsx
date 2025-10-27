@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Mail, CheckCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { NeonLogo } from "@/components/NeonLogo";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -153,27 +154,27 @@ export default function ForgotPasswordModal({
       type="blur"
       animationType="scale"
       showCloseButton
-      showEscText
+      showEscText={false}
       borderBottom={false}
       className="bg-black/95 backdrop-blur-xl border-gray-800 sm:max-w-md"
     >
       <div className="space-y-6">
         {/* 标题 */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-gold/10 rounded-full mb-4">
-            <KeyRound className="w-8 h-8 text-primary-gold" />
+          <div className="flex justify-center mb-4">
+            <NeonLogo size={64} variant="full" />
           </div>
-          <h2 className="text-3xl font-bold text-primary-gold mb-2">找回密码</h2>
+          <h2 className="text-3xl font-bold text-primary-cyan mb-2">找回密码</h2>
           <p className="text-gray-400">请按照以下步骤重置您的密码</p>
         </div>
 
         {/* 步骤指示器 */}
         <div className="flex items-center justify-between">
           <div
-            className={`flex items-center gap-2 ${step >= 1 ? "text-primary-gold" : "text-gray-500"}`}
+            className={`flex items-center gap-2 ${step >= 1 ? "text-primary-cyan" : "text-gray-500"}`}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 1 ? "border-primary-gold bg-primary-gold/20" : "border-gray-500"}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 1 ? "border-primary-cyan bg-primary-cyan/20" : "border-gray-500"}`}
             >
               1
             </div>
@@ -181,10 +182,10 @@ export default function ForgotPasswordModal({
           </div>
           <div className="flex-1 h-0.5 bg-gray-700 mx-2"></div>
           <div
-            className={`flex items-center gap-2 ${step >= 2 ? "text-primary-gold" : "text-gray-500"}`}
+            className={`flex items-center gap-2 ${step >= 2 ? "text-primary-cyan" : "text-gray-500"}`}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 2 ? "border-primary-gold bg-primary-gold/20" : "border-gray-500"}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 2 ? "border-primary-cyan bg-primary-cyan/20" : "border-gray-500"}`}
             >
               2
             </div>
@@ -192,10 +193,10 @@ export default function ForgotPasswordModal({
           </div>
           <div className="flex-1 h-0.5 bg-gray-700 mx-2"></div>
           <div
-            className={`flex items-center gap-2 ${step >= 3 ? "text-primary-gold" : "text-gray-500"}`}
+            className={`flex items-center gap-2 ${step >= 3 ? "text-primary-cyan" : "text-gray-500"}`}
           >
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 3 ? "border-primary-gold bg-primary-gold/20" : "border-gray-500"}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${step >= 3 ? "border-primary-cyan bg-primary-cyan/20" : "border-gray-500"}`}
             >
               3
             </div>
@@ -222,7 +223,7 @@ export default function ForgotPasswordModal({
             </div>
             <Button
               onClick={handleCheckUsername}
-              className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold"
+              className="w-full bg-gradient-to-r bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold"
               disabled={loading}
             >
               {loading ? "查询中..." : "下一步"}
@@ -259,7 +260,7 @@ export default function ForgotPasswordModal({
 
             <Button
               onClick={handleSendCode}
-              className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold"
+              className="w-full bg-gradient-to-r bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold"
               disabled={loading || countdown > 0}
             >
               {countdown > 0 ? `${countdown}秒后可重新发送` : loading ? "发送中..." : "发送验证码"}
@@ -328,7 +329,7 @@ export default function ForgotPasswordModal({
 
             <Button
               onClick={handleResetPassword}
-              className="w-full bg-gradient-to-r from-primary-gold to-yellow-600 hover:from-yellow-600 hover:to-primary-gold text-black font-bold"
+              className="w-full bg-gradient-to-r bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold"
               disabled={loading}
             >
               {loading ? "重置中..." : "重置密码"}
@@ -352,7 +353,7 @@ export default function ForgotPasswordModal({
               onClose();
               onSwitchToLogin();
             }}
-            className="text-primary-gold hover:underline font-medium"
+            className="text-primary-cyan hover:underline font-medium"
           >
             返回登录
           </button>

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const isVideo = fileType === "video";
 
-    // 使用事务确保order的原子性
+    // 使用事务确保order和isPrimary的原子性
     const photo = await prisma.$transaction(async (tx) => {
       // 在事务中获取最大order
       const maxOrderPhoto = await tx.therapistPhoto.findFirst({
@@ -44,6 +44,20 @@ export async function POST(req: NextRequest) {
       });
 
       const newOrder = maxOrderPhoto ? maxOrderPhoto.order + 1 : 1;
+
+      // 检查是否已有主图（只检查照片，不检查视频）
+      let isPrimary = false;
+      if (!isVideo) {
+        const existingPrimaryPhoto = await tx.therapistPhoto.findFirst({
+          where: {
+            therapistId: session.user.id,
+            isPrimary: true,
+            isVideo: false, // 只查找照片类型的主图
+          },
+        });
+        // 如果没有主图，则将当前照片设为主图
+        isPrimary = !existingPrimaryPhoto;
+      }
 
       // 在同一事务中创建
       return await tx.therapistPhoto.create({
@@ -56,6 +70,7 @@ export async function POST(req: NextRequest) {
           coverUrl: isVideo ? coverUrl : null,
           duration: isVideo ? duration : null,
           order: newOrder,
+          isPrimary, // 自动设置主图
         },
       });
     });

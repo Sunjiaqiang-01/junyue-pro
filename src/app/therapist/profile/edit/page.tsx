@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload, X, Camera, Video as VideoIcon, Star } from "lucide-react";
+import { Loader2, Upload, X, Camera, Video as VideoIcon, Star, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 import { ProfileValidator } from "@/lib/profile-validator";
 import ProvinceCitySelector from "@/components/ProvinceCitySelector";
 import TencentMapWechatStyle from "@/components/TencentMapWechatStyle";
@@ -110,26 +111,34 @@ export default function TherapistProfileEditPage() {
     }
   }, [status, session, router]);
 
-  const fetchTherapistData = async () => {
+  const fetchTherapistData = async (updatePhotosOnly = false) => {
     try {
       const res = await fetch(`/api/therapist/profile`);
       const data = await res.json();
 
       if (data.success) {
         const t = data.data;
-        setTherapist(t);
-        setNickname(t.nickname);
-        // 如果是未填写状态（0值），显示为空字符串便于用户输入
-        setAge(ProfileValidator.isFieldFilled("age", t.age) ? t.age.toString() : "");
-        setHeight(ProfileValidator.isFieldFilled("height", t.height) ? t.height.toString() : "");
-        setWeight(ProfileValidator.isFieldFilled("weight", t.weight) ? t.weight.toString() : "");
-        setCardValue(t.cardValue || "");
-        setCity(ProfileValidator.isFieldFilled("city", t.city) ? t.city : "");
-        setPhone(t.phone || "");
-        setLocation(t.location);
-        setIntroduction(t.profile?.introduction || "");
-        setServiceAddress(t.profile?.serviceAddress || "");
-        setPhotoPreview(t.photos.map((p: any) => p.url));
+
+        if (updatePhotosOnly) {
+          // 仅更新照片列表，不触发其他状态变更
+          setTherapist((prev) => (prev ? { ...prev, photos: t.photos } : t));
+          return; // 提前返回，避免执行 finally 块
+        } else {
+          // 完整更新：重置所有字段
+          setTherapist(t);
+          setNickname(t.nickname);
+          // 如果是未填写状态（0值），显示为空字符串便于用户输入
+          setAge(ProfileValidator.isFieldFilled("age", t.age) ? t.age.toString() : "");
+          setHeight(ProfileValidator.isFieldFilled("height", t.height) ? t.height.toString() : "");
+          setWeight(ProfileValidator.isFieldFilled("weight", t.weight) ? t.weight.toString() : "");
+          setCardValue(t.cardValue || "");
+          setCity(ProfileValidator.isFieldFilled("city", t.city) ? t.city : "");
+          setPhone(t.phone || "");
+          setLocation(t.location);
+          setIntroduction(t.profile?.introduction || "");
+          setServiceAddress(t.profile?.serviceAddress || "");
+          setPhotoPreview(t.photos.map((p: any) => p.url));
+        }
       } else {
         toast.error("获取资料失败");
       }
@@ -137,7 +146,10 @@ export default function TherapistProfileEditPage() {
       console.error("获取资料失败:", error);
       toast.error("网络错误");
     } finally {
-      setLoading(false);
+      // 只有完整更新时才修改 loading 状态
+      if (!updatePhotosOnly) {
+        setLoading(false);
+      }
     }
   };
 
@@ -270,7 +282,7 @@ export default function TherapistProfileEditPage() {
       // 3. 显示结果
       if (results.success.length > 0) {
         toast.success(`成功上传 ${results.success.length} 个文件`);
-        await fetchTherapistData();
+        await fetchTherapistData(true); // 仅刷新照片列表
       }
 
       if (results.failed.length > 0) {
@@ -373,7 +385,7 @@ export default function TherapistProfileEditPage() {
     // 显示结果
     if (results.success.length > 0) {
       toast.success(`成功上传 ${results.success.length} 张图片`);
-      fetchTherapistData(); // 刷新数据
+      fetchTherapistData(true); // 仅刷新照片列表
     }
 
     if (results.failed.length > 0) {
@@ -464,7 +476,7 @@ export default function TherapistProfileEditPage() {
       const dbData = await dbRes.json();
       if (dbData.success) {
         toast.success(`视频上传成功！时长: ${formatDuration(info.duration)}`);
-        fetchTherapistData(); // 刷新数据
+        fetchTherapistData(true); // 仅刷新照片列表
         setVideoPreview(null); // 清除预览
       } else {
         toast.error(dbData.error || "视频保存失败");
@@ -489,7 +501,7 @@ export default function TherapistProfileEditPage() {
 
       if (res.ok) {
         toast.success("照片删除成功");
-        fetchTherapistData();
+        fetchTherapistData(true); // 仅刷新照片列表
       } else {
         toast.error("删除失败");
       }
@@ -509,7 +521,7 @@ export default function TherapistProfileEditPage() {
 
       if (data.success) {
         toast.success("主图设置成功");
-        fetchTherapistData();
+        fetchTherapistData(true); // 仅刷新照片列表
       } else {
         toast.error(data.error || "设置失败");
       }
@@ -589,8 +601,8 @@ export default function TherapistProfileEditPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -600,11 +612,23 @@ export default function TherapistProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary-gold mb-2">编辑资料</h1>
-          <p className="text-gray-400">完善您的技师资料，让客户更了解您</p>
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/therapist/dashboard">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="border border-white/10 text-white hover:text-primary-cyan hover:border-primary-cyan/50 hover:bg-primary-cyan/10 bg-transparent font-semibold"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              返回
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-4xl font-bold text-pure-white mb-2">编辑资料</h1>
+            <p className="text-secondary/60">完善您的技师资料，让客户更了解您</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -995,16 +1019,16 @@ export default function TherapistProfileEditPage() {
           <div className="flex gap-4">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={() => router.back()}
-              className="flex-1"
+              className="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold"
             >
               取消
             </Button>
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-gradient-to-r from-primary-gold to-yellow-600"
+              className="flex-1 bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-bold shadow-lg shadow-primary-cyan/30"
             >
               {submitting ? (
                 <>

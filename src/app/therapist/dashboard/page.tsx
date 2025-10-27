@@ -18,6 +18,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ProfileValidator } from "@/lib/profile-validator";
@@ -57,6 +69,7 @@ export default function TherapistDashboard() {
   const [therapist, setTherapist] = useState<TherapistData | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showOnlineConfirm, setShowOnlineConfirm] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -97,9 +110,15 @@ export default function TherapistDashboard() {
     }
   };
 
+  const handleToggleOnlineClick = () => {
+    if (!therapist || therapist.status !== "APPROVED") return;
+    setShowOnlineConfirm(true);
+  };
+
   const handleToggleOnline = async () => {
     if (!therapist) return;
 
+    setShowOnlineConfirm(false);
     setSubmitting(true);
     try {
       const res = await fetch("/api/therapist/toggle-online", {
@@ -156,8 +175,8 @@ export default function TherapistDashboard() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-gold" />
+      <div className="min-h-screen bg-pure-black flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -174,20 +193,18 @@ export default function TherapistDashboard() {
         return <Badge className="bg-yellow-600">待审核</Badge>;
       case "REJECTED":
         return <Badge className="bg-red-600">已拒绝</Badge>;
-      case "BANNED":
-        return <Badge className="bg-gray-600">已封禁</Badge>;
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 p-4 md:p-8 pt-24">
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-7xl mx-auto">
         {/* 顶部标题栏 */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary-gold mb-2">技师工作台</h1>
-          <p className="text-gray-400">欢迎回来，{therapist.nickname}！</p>
+          <h1 className="text-4xl font-bold text-pure-white mb-2">技师工作台</h1>
+          <p className="text-secondary/60">欢迎回来，{therapist.nickname}！</p>
         </div>
 
         {/* 基本信息未完善提示 */}
@@ -201,7 +218,7 @@ export default function TherapistDashboard() {
               您的基本信息（年龄、身高、体重、城市）尚未填写，无法提交审核。请先完善资料。
             </p>
             <Link href="/therapist/profile/edit">
-              <Button className="bg-primary-gold hover:bg-yellow-600">
+              <Button className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium">
                 <Edit className="w-4 h-4 mr-2" />
                 立即完善资料
               </Button>
@@ -221,7 +238,7 @@ export default function TherapistDashboard() {
                 <Button
                   onClick={handleResubmit}
                   disabled={submitting}
-                  className="bg-primary-gold hover:bg-yellow-600"
+                  className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium"
                 >
                   {submitting ? "提交中..." : "重新提交审核"}
                 </Button>
@@ -231,7 +248,6 @@ export default function TherapistDashboard() {
               {therapist.status === "PENDING" && "您的资料正在审核中，预计48小时内完成审核。"}
               {therapist.status === "REJECTED" &&
                 '您的资料审核未通过，请修改资料后点击"重新提交审核"按钮。'}
-              {therapist.status === "BANNED" && "您的账号已被封禁，如有疑问请联系客服。"}
             </p>
           </div>
         )}
@@ -247,7 +263,7 @@ export default function TherapistDashboard() {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                  <User className="w-5 h-5 text-primary-gold" />
+                  <User className="w-5 h-5 text-primary-cyan" />
                   <div>
                     <p className="text-gray-400 text-sm">昵称</p>
                     <p className="text-white font-medium">{therapist.nickname}</p>
@@ -307,13 +323,13 @@ export default function TherapistDashboard() {
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-gray-400 text-sm mb-1">照片数量</p>
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-primary-gold" />
+                    <ImageIcon className="w-4 h-4 text-primary-cyan" />
                     <p className="text-white font-medium">{therapist.photos.length} 张</p>
                   </div>
                 </div>
 
                 <Link href="/therapist/profile/edit">
-                  <Button className="w-full bg-gradient-to-r from-primary-gold to-yellow-600">
+                  <Button className="w-full bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-medium">
                     <Edit className="w-4 h-4 mr-2" />
                     编辑资料
                   </Button>
@@ -335,13 +351,13 @@ export default function TherapistDashboard() {
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-gray-400 text-sm">完成度</span>
-                        <span className="text-primary-gold font-bold">
+                        <span className="text-primary-cyan font-bold">
                           {completeness.completionRate}%
                         </span>
                       </div>
                       <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-primary-gold to-yellow-600 transition-all duration-500"
+                          className="h-full bg-primary-cyan transition-all duration-500"
                           style={{ width: `${completeness.completionRate}%` }}
                         />
                       </div>
@@ -395,16 +411,22 @@ export default function TherapistDashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Link href="/therapist/profile/edit">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
-                    <Edit className="w-6 h-6 text-primary-gold" />
-                    <span>编辑资料</span>
+                  <Button
+                    variant="ghost"
+                    className="w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 hover:bg-primary-cyan/10 hover:border-primary-cyan/50 text-white"
+                  >
+                    <Edit className="w-6 h-6 text-primary-cyan" />
+                    <span className="font-semibold">编辑资料</span>
                   </Button>
                 </Link>
 
                 <Link href="/therapist/notifications">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2 relative">
-                    <Bell className="w-6 h-6 text-blue-500" />
-                    <span>通知中心</span>
+                  <Button
+                    variant="ghost"
+                    className="w-full h-24 flex flex-col gap-2 relative bg-white/5 border border-white/10 hover:bg-primary-cyan/10 hover:border-primary-cyan/50 text-white"
+                  >
+                    <Bell className="w-6 h-6 text-primary-cyan" />
+                    <span className="font-semibold">通知中心</span>
                     {unreadCount > 0 && (
                       <span className="absolute top-2 right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {unreadCount}
@@ -413,32 +435,55 @@ export default function TherapistDashboard() {
                   </Button>
                 </Link>
 
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex flex-col gap-2"
-                  onClick={handleToggleOnline}
-                  disabled={submitting || therapist.status !== "APPROVED"}
-                >
-                  <Power
-                    className={`w-6 h-6 ${therapist.isOnline ? "text-green-500" : "text-gray-500"}`}
-                  />
-                  <span>{therapist.isOnline ? "在线" : "离线"}</span>
-                  {therapist.status === "APPROVED" && (
-                    <span className="text-xs text-gray-400">点击切换</span>
-                  )}
-                </Button>
+                <Card className="bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors">
+                  <CardContent className="p-3 sm:p-4">
+                    {/* 第一行：图标+标题+开关 */}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <Power
+                          className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
+                            therapist.isOnline ? "text-green-500" : "text-gray-400"
+                          }`}
+                        />
+                        <h3 className="font-semibold text-white text-sm sm:text-base">
+                          {therapist.isOnline ? "在线接单" : "当前离线"}
+                        </h3>
+                      </div>
+                      <Switch
+                        checked={therapist.isOnline}
+                        onCheckedChange={handleToggleOnlineClick}
+                        disabled={submitting || therapist.status !== "APPROVED"}
+                        className="data-[state=checked]:bg-green-500 scale-90 sm:scale-100"
+                      />
+                    </div>
 
-                <Button variant="outline" className="w-full h-24 flex flex-col gap-2" disabled>
-                  <Clock className="w-6 h-6 text-gray-500" />
-                  <span className="text-gray-500">时间管理</span>
-                  <span className="text-xs text-gray-600">即将开放</span>
+                    {/* 第二行：简短说明 */}
+                    <p className="text-xs sm:text-sm text-secondary/70 pl-6 sm:pl-7">
+                      {therapist.isOnline ? "✅ 用户可见，可接预约" : "⚠️ 用户不可见"}
+                    </p>
+
+                    {/* 未审核提示 */}
+                    {therapist.status !== "APPROVED" && (
+                      <p className="text-xs text-yellow-500 mt-2 pl-6 sm:pl-7">审核后可上线</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Button
+                  variant="ghost"
+                  className="w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 opacity-50 cursor-not-allowed text-white"
+                  disabled
+                >
+                  <Clock className="w-6 h-6 text-secondary/60" />
+                  <span className="font-semibold text-secondary/60">时间管理</span>
+                  <span className="text-xs text-secondary/40">即将开放</span>
                 </Button>
               </div>
             </div>
 
             {/* 使用提示 */}
-            <div className="bg-primary-gold/10 border border-primary-gold/30 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-primary-gold mb-3">💡 温馨提示</h3>
+            <div className="bg-transparent border border-white/5 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-primary-cyan mb-3">💡 温馨提示</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
                 <li>• 完善个人资料可以提高客户的预约意向</li>
                 <li>• 至少上传3张清晰照片，展示您的形象和服务环境</li>
@@ -449,6 +494,33 @@ export default function TherapistDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 在线/离线确认对话框 */}
+      <AlertDialog open={showOnlineConfirm} onOpenChange={setShowOnlineConfirm}>
+        <AlertDialogContent className="bg-gray-900 border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl text-white">
+              {therapist?.isOnline ? "确认离线？" : "确认上线？"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              {therapist?.isOnline
+                ? "离线后，用户将无法在平台上看到您的信息，无法预约您的服务。"
+                : "上线后，您的资料将展示在平台上，用户可以通过客服预约您的服务。"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white">
+              取消
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleOnline}
+              className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold"
+            >
+              确认{therapist?.isOnline ? "离线" : "上线"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

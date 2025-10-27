@@ -34,10 +34,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("用户名或密码错误");
         }
 
-        if (therapist.status === "BANNED") {
-          throw new Error("账号已被封禁");
-        }
-
         return {
           id: therapist.id,
           username: therapist.username,
@@ -89,6 +85,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   pages: {
     signIn: "/therapist?modal=login", // 技师登录弹窗
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   session: {
     strategy: "jwt",

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,49 +8,41 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ==================== 技师相关表 (5张) ====================
-
-// 1. 技师表
 model Therapist {
-  id                  String            @id @default(cuid())
-  username            String            @unique // 🆕 用户名登录
-  password            String
-  email               String?           // 🆕 邮箱（找回密码用）
-  phone               String?           // 改为可选
-  nickname            String
-  
-  age                 Int
-  height              Int
-  weight              Int
-  cardValue           String?           // 🆕 牌值，例如 "17cm"
-  city                String
-  areas               String[]
-  location            Json?             // 🆕 位置信息 {name, street, latitude, longitude}
-  
-  status              TherapistStatus   @default(PENDING)
-  auditReason         String?
-  
-  isOnline            Boolean           @default(false)
-  lastOnlineAt        DateTime?
-  
-  isNew               Boolean           @default(true)
-  isFeatured          Boolean           @default(false)
-  
-  // 注册验证码（管理员生成）
-  registrationCodeId  String?
-  registrationCode    RegistrationCode? @relation(fields: [registrationCodeId], references: [id])
-  
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  auditedAt           DateTime?
-  
-  profile             TherapistProfile?
-  photos              TherapistPhoto[]
-  videos              TherapistVideo[]
-  schedules           TherapistSchedule[]
-  notifications       Notification[]
+  id                   String                         @id @default(cuid())
+  phone                String?
+  password             String
+  nickname             String
+  age                  Int
+  height               Int
+  weight               Int
+  city                 String
+  areas                String[]
+  status               TherapistStatus                @default(PENDING)
+  auditReason          String?
+  approvedAt           DateTime?
+  isOnline             Boolean                        @default(false)
+  lastOnlineAt         DateTime?
+  isNew                Boolean                        @default(true)
+  isFeatured           Boolean                        @default(false)
+  createdAt            DateTime                       @default(now())
+  updatedAt            DateTime                       @updatedAt
+  auditedAt            DateTime?
+  cardValue            String?
+  location             Json?
+  email                String?
+  username             String                         @unique
+  registrationCodeId   String?
+  viewCount            Int                            @default(0)
+  notifications        Notification[]
   deactivationRequests TherapistDeactivationRequest[]
-  
+  photos               TherapistPhoto[]
+  profile              TherapistProfile?
+  schedules            TherapistSchedule[]
+  videos               TherapistVideo[]
+  views                TherapistView[]
+  registrationCode     RegistrationCode?              @relation(fields: [registrationCodeId], references: [id])
+
   @@index([username])
   @@index([email])
   @@index([phone])
@@ -61,241 +50,181 @@ model Therapist {
   @@index([city])
   @@index([isOnline])
   @@index([createdAt])
+  @@index([viewCount])
+  // 🆕 复合索引 - 优化常用查询组合
+  @@index([status, city, createdAt])
+  @@index([status, isOnline])
+  @@index([status, isFeatured])
+  @@index([status, isNew])
+  @@index([status, city, viewCount])
+  // 🎯 优化排序索引 - 匹配新的多字段排序逻辑
+  @@index([status, isOnline, isFeatured, viewCount, createdAt])
   @@map("therapists")
 }
 
-enum TherapistStatus {
-  PENDING   // 待审核
-  APPROVED  // 已通过
-  REJECTED  // 已拒绝
-  BANNED    // 已封禁
-}
-
-// 2. 技师资料表
 model TherapistProfile {
-  id              String        @id @default(cuid())
-  therapistId     String        @unique
-  therapist       Therapist     @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
-  introduction    String        @db.Text
-  specialties     String[]
-  
-  serviceType     ServiceType[]
-  serviceAddress  String?
-  serviceLat      Decimal?      @db.Decimal(10, 7)
-  serviceLng      Decimal?      @db.Decimal(10, 7)
-  serviceRadius   Int?
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
+  id             String        @id @default(cuid())
+  therapistId    String        @unique
+  introduction   String
+  specialties    String[]
+  serviceType    ServiceType[]
+  serviceAddress String?
+  serviceLat     Decimal?      @db.Decimal(10, 7)
+  serviceLng     Decimal?      @db.Decimal(10, 7)
+  serviceRadius  Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  therapist      Therapist     @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@index([therapistId])
   @@map("therapist_profiles")
 }
 
-enum ServiceType {
-  VISIT_CLIENT  // 上门服务
-  CLIENT_VISIT  // 客户到店
-  NEGOTIATE     // 双方协商
-}
-
-// 3. 技师照片表
 model TherapistPhoto {
-  id          String    @id @default(cuid())
-  therapistId String
-  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
-  // 原URL (保持兼容,指向large)
-  url         String
-  
-  // 多尺寸URLs (图片专用)
-  thumbnailUrl String?  // 缩略图 200x200
-  mediumUrl    String?  // 中等尺寸 800x800
-  largeUrl     String?  // 原图 1200x1200
-  
-  // 视频字段
-  isVideo      Boolean  @default(false)  // 是否为视频
-  videoUrl     String?  // 视频URL
-  coverUrl     String?  // 视频封面
-  duration     Int?     // 视频时长(秒)
-  
-  order        Int      @default(0)
-  isPrimary    Boolean  @default(false)  // 是否为主图
-  
-  createdAt    DateTime @default(now())
-  
+  id           String    @id @default(cuid())
+  therapistId  String
+  url          String
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  isPrimary    Boolean   @default(false)
+  coverUrl     String?
+  duration     Int?
+  isVideo      Boolean   @default(false)
+  largeUrl     String?
+  mediumUrl    String?
+  thumbnailUrl String?
+  videoUrl     String?
+  therapist    Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@index([therapistId])
   @@index([therapistId, isPrimary])
   @@index([order])
   @@map("therapist_photos")
 }
 
-// 4. 技师视频表
 model TherapistVideo {
   id          String    @id @default(cuid())
   therapistId String
-  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
   url         String
   coverUrl    String?
   duration    Int?
-  
   createdAt   DateTime  @default(now())
-  
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@index([therapistId])
   @@map("therapist_videos")
 }
 
-// 5. 技师时间表（可选保留）
 model TherapistSchedule {
   id          String    @id @default(cuid())
   therapistId String
-  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
   date        DateTime  @db.Date
   startTime   String
   endTime     String
-  
   isAvailable Boolean   @default(true)
   isRecurring Boolean   @default(false)
-  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@unique([therapistId, date, startTime])
   @@index([therapistId])
   @@index([date])
   @@map("therapist_schedules")
 }
 
-// ==================== 服务相关表 (2张) ====================
-
-// 6. 城市表
 model City {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  code      String    @unique
+  id                    String                 @id @default(cuid())
+  name                  String                 @unique
+  code                  String                 @unique
+  isActive              Boolean                @default(true)
+  order                 Int                    @default(0)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
   
-  isActive  Boolean   @default(true)
-  order     Int       @default(0)
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  areas     Area[]
-  
+  areas                 Area[]
+  customerServices      CustomerService[]      // 主负责该城市的客服
+  customerServiceCities CustomerServiceCity[]  // 负责该城市的所有客服（多对多）
+
   @@index([isActive])
   @@index([order])
   @@map("cities")
 }
 
-// 7. 区域表
 model Area {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   cityId    String
-  city      City      @relation(fields: [cityId], references: [id])
   name      String
   code      String
-  
-  isActive  Boolean   @default(true)
-  order     Int       @default(0)
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  city      City     @relation(fields: [cityId], references: [id])
+
   @@unique([cityId, name])
   @@index([cityId])
   @@index([isActive])
   @@map("areas")
 }
 
-// ==================== 系统相关表 (4张) ====================
-
-// 8. 管理员表
 model Admin {
-  id          String      @id @default(cuid())
-  username    String      @unique
+  id          String    @id @default(cuid())
+  username    String    @unique
   password    String
   name        String
-  
-  role        AdminRole   @default(ADMIN)
-  
+  role        AdminRole @default(ADMIN)
   lastLoginAt DateTime?
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   @@index([username])
   @@map("admins")
 }
 
-enum AdminRole {
-  SUPER_ADMIN  // 超级管理员
-  ADMIN        // 管理员
-  OPERATOR     // 运营
-}
-
-// 10. 必看攻略内容表
 model GuideContent {
   id        String   @id @default(cuid())
   title     String   @default("必看攻略")
-  content   String   @db.Text  // Markdown格式内容
+  content   String
   order     Int      @default(1)
   isActive  Boolean  @default(true)
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([isActive])
   @@index([order])
   @@map("guide_contents")
 }
 
-// 9. 通知消息表
 model Notification {
   id          String           @id @default(cuid())
-  
   therapistId String?
-  therapist   Therapist?       @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
   type        NotificationType
   title       String
-  content     String           @db.Text
-  
+  content     String
   isRead      Boolean          @default(false)
   readAt      DateTime?
-  
   createdAt   DateTime         @default(now())
-  
+  therapist   Therapist?       @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@index([therapistId])
   @@index([isRead])
   @@index([createdAt])
   @@map("notifications")
 }
 
-enum NotificationType {
-  SYSTEM      // 系统通知
-  AUDIT       // 审核通知
-  ANNOUNCEMENT // 公告通知
-}
-
-// 10. 公告表
 model Announcement {
-  id          String    @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
-  content     String    @db.Text
-  
+  content     String
   type        AnnouncementType @default(NOTICE)
-  
-  isPublished Boolean   @default(false)
+  isPublished Boolean          @default(false)
   publishedAt DateTime?
-  
-  isActive    Boolean   @default(true)  // 是否激活显示
-  sortOrder   Int       @default(0)     // 排序顺序
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  isActive    Boolean          @default(true)
+  sortOrder   Int              @default(0)
+
   @@index([type])
   @@index([isPublished])
   @@index([publishedAt])
@@ -304,147 +233,203 @@ model Announcement {
   @@map("announcements")
 }
 
-enum AnnouncementType {
-  NOTICE      // 通知
-  ACTIVITY    // 活动
-  MAINTENANCE // 维护
-}
-
-// 11. 客服配置表
 model CustomerService {
-  id              String   @id @default(cuid())
-  wechatQrCode    String   // 客服微信二维码URL
-  wechatId        String?  // 客服微信号
-  phone           String?  // 客服电话
-  workingHours    String   // 工作时间（如：9:00-22:00）
+  id              String                 @id @default(cuid())
+  name            String                 @default("默认客服") // 客服名称
+  wechatQrCode    String                 // 客服微信二维码URL
+  wechatId        String?                // 客服微信号
+  qq              String?                // 客服QQ号
+  workingHours    String                 // 工作时间
+  isActive        Boolean                @default(true)
+  order           Int                    @default(0)
   
-  isActive        Boolean  @default(true)
-  order           Int      @default(0)
+  // 主负责城市（可选，用于向后兼容单城市模式）
+  cityId          String?
+  city            City?                  @relation(fields: [cityId], references: [id], onDelete: SetNull)
   
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  // 负责的城市列表（多对多）
+  cities          CustomerServiceCity[]
   
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
   @@index([isActive])
+  @@index([cityId])
   @@map("customer_services")
 }
 
-// 12. 验证码表
+// 客服-城市关联表（多对多）
+model CustomerServiceCity {
+  id                 String           @id @default(cuid())
+  customerServiceId  String
+  customerService    CustomerService  @relation(fields: [customerServiceId], references: [id], onDelete: Cascade)
+  
+  cityId             String
+  city               City             @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  
+  createdAt          DateTime         @default(now())
+  
+  @@unique([customerServiceId, cityId])
+  @@index([customerServiceId])
+  @@index([cityId])
+  @@map("customer_service_cities")
+}
+
 model VerificationCode {
-  id          String   @id @default(cuid())
-  email       String   // 邮箱地址
-  code        String   // 6位验证码
-  type        CodeType @default(RESET_PASSWORD) // 验证码类型
-  
-  expiresAt   DateTime // 过期时间
-  usedAt      DateTime? // 使用时间
-  
-  createdAt   DateTime @default(now())
-  
+  id        String    @id @default(cuid())
+  email     String
+  code      String
+  type      CodeType  @default(RESET_PASSWORD)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
   @@index([email])
   @@index([code])
   @@index([expiresAt])
   @@map("verification_codes")
 }
 
-enum CodeType {
-  RESET_PASSWORD  // 重置密码
-  EMAIL_VERIFY    // 邮箱验证
-}
-
-// 13. 安全日志表（防暴力破解）
 model SecurityLog {
-  id          String      @id @default(cuid())
-  email       String      // 邮箱或用户标识
-  action      SecurityAction // 操作类型
-  success     Boolean     // 是否成功
-  ipAddress   String?     // IP地址
-  userAgent   String?     // 用户代理
-  
-  createdAt   DateTime    @default(now())
-  
+  id        String         @id @default(cuid())
+  email     String
+  action    SecurityAction
+  success   Boolean
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime       @default(now())
+
   @@index([email, action, createdAt])
   @@index([ipAddress, createdAt])
   @@map("security_logs")
 }
 
-enum SecurityAction {
-  CODE_VERIFY       // 验证码验证
-  PASSWORD_RESET    // 密码重置
-  LOGIN_ATTEMPT     // 登录尝试
-  USERNAME_CHECK    // 用户名检查
-}
-
-// 14. 注册验证码表（管理员生成）
 model RegistrationCode {
-  id          String    @id @default(cuid())
-  code        String    @unique // 6位数字验证码
-  
-  // 类型
+  id          String               @id @default(cuid())
+  code        String               @unique
   codeType    RegistrationCodeType @default(LIMITED)
-  
-  // 使用限制
-  maxUses     Int       @default(1) // 最大使用次数（-1表示无限）
-  currentUses Int       @default(0) // 当前已使用次数
-  
-  // 时效性
-  expiresAt   DateTime? // 过期时间（null表示永久有效）
-  
-  // 状态
-  isActive    Boolean   @default(true) // 是否启用
-  
-  // 备注信息
-  note        String?   // 备注（如：春节招募批次）
-  
-  // 创建者
-  createdBy   String    // 管理员ID
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // 使用该验证码注册的技师
+  maxUses     Int                  @default(1)
+  currentUses Int                  @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean              @default(true)
+  note        String?
+  createdBy   String
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   therapists  Therapist[]
-  
+
   @@index([code])
   @@index([isActive])
   @@index([expiresAt])
   @@map("registration_codes")
 }
 
-enum RegistrationCodeType {
-  ONETIME     // 一次性（使用1次后失效）
-  LIMITED     // 限次数（可设置使用次数）
-  UNLIMITED   // 无限次数（仅受时效限制）
-}
-
-// 15. 技师注销申请表
 model TherapistDeactivationRequest {
-  id          String    @id @default(cuid())
+  id          String             @id @default(cuid())
   therapistId String
-  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  
   status      DeactivationStatus @default(PENDING)
-  
-  // 审核相关
-  reviewerId  String?   // 审核管理员ID
-  reviewNote  String?   // 审核意见
-  reviewedAt  DateTime? // 审核时间
-  
-  // 时间节点
-  requestedAt DateTime  @default(now()) // 申请时间
-  executedAt  DateTime? // 实际注销时间
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  reviewerId  String?
+  reviewNote  String?
+  reviewedAt  DateTime?
+  requestedAt DateTime           @default(now())
+  executedAt  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  therapist   Therapist          @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
   @@index([therapistId])
   @@index([status])
   @@index([requestedAt])
   @@map("therapist_deactivation_requests")
 }
 
+enum TherapistStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ServiceType {
+  VISIT_CLIENT
+  CLIENT_VISIT
+  NEGOTIATE
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  OPERATOR
+}
+
+enum NotificationType {
+  SYSTEM
+  AUDIT
+  ANNOUNCEMENT
+}
+
+enum AnnouncementType {
+  NOTICE
+  ACTIVITY
+  MAINTENANCE
+}
+
+enum CodeType {
+  RESET_PASSWORD
+  EMAIL_VERIFY
+}
+
+enum SecurityAction {
+  CODE_VERIFY
+  PASSWORD_RESET
+  LOGIN_ATTEMPT
+  USERNAME_CHECK
+}
+
+enum RegistrationCodeType {
+  ONETIME
+  LIMITED
+  UNLIMITED
+}
+
 enum DeactivationStatus {
-  PENDING   // 待审核
-  APPROVED  // 已通过
-  REJECTED  // 已拒绝
-  CANCELLED // 已撤销
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model TherapistView {
+  id          String    @id @default(cuid())
+  therapistId String
+  ip          String
+  userAgent   String?
+  referrer    String?
+  createdAt   DateTime  @default(now())
+  
+  therapist   Therapist @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+
+  @@index([therapistId])
+  @@index([createdAt])
+  @@index([ip])
+  // 🆕 复合索引 - 优化统计和防刷查询
+  @@index([therapistId, createdAt])
+  @@index([ip, createdAt])
+  @@map("therapist_views")
+}
+
+model SiteVisit {
+  id        String   @id @default(cuid())
+  page      String
+  ip        String
+  userAgent String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([page])
+  @@index([ip])
+  // 🆕 复合索引 - 优化统计和防刷查询
+  @@index([page, createdAt])
+  @@index([ip, page, createdAt])
+  @@map("site_visits")
 }

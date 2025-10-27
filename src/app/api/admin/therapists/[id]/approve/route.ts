@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { ProfileValidator } from "@/lib/profile-validator";
+import { clearCache } from "@/lib/cache";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -36,12 +37,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       );
     }
 
-    // 更新技师状态为已通过
+    // 更新技师状态为已通过，同时设置为在线
     await prisma.therapist.update({
       where: { id },
       data: {
         status: "APPROVED",
+        isOnline: true, // 审核通过后自动在线
         auditedAt: new Date(),
+        approvedAt: new Date(), // 🆕 记录审核通过时间，用于新人标签自动化
       },
     });
 
@@ -51,9 +54,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         therapistId: id,
         type: "AUDIT",
         title: "审核通过",
-        content: "恭喜！您的资料已通过审核，现在可以正常展示在平台上了。",
+        content: "恭喜！您的资料已通过审核，您的状态已自动设置为在线，现在可以正常展示在平台上了。",
       },
     });
+
+    // 🆕 清除系统统计缓存
+    clearCache("admin:system:stats");
 
     return NextResponse.json({
       success: true,

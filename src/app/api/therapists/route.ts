@@ -24,6 +24,7 @@ export async function GET(request: Request) {
     // 构建查询条件
     const where: any = {
       status: "APPROVED", // 只显示审核通过的技师
+      isOnline: true, // 只显示在线的技师
     };
 
     if (search) {
@@ -136,36 +137,37 @@ export async function GET(request: Request) {
         where,
         skip,
         take: limit,
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
+        // 🎯 多字段排序：推荐优先 → 浏览量高的优先 → 新注册的优先
+        orderBy: [
+          { isFeatured: "desc" }, // 1. 推荐技师优先显示
+          { viewCount: "desc" }, // 2. 同等级内，浏览量高的优先
+          { createdAt: "desc" }, // 3. 同等级内，新注册的优先
+        ],
         select: {
           id: true,
           nickname: true,
           age: true,
           height: true,
           weight: true,
-          cardValue: true, // 🆕 牌值
+          cardValue: true,
           city: true,
           areas: true,
-          location: true, // 🆕 位置信息
+          location: true,
           isOnline: true,
           isNew: true,
           isFeatured: true,
+          viewCount: true, // 🆕 添加浏览量
           createdAt: true,
           photos: {
-            orderBy: [
-              { isPrimary: "desc" }, // 主图排第一
-              { order: "asc" },
-            ],
+            where: { isPrimary: true }, // 🆕 只查询主图
             take: 1,
-            select: { url: true },
+            select: {
+              url: true, // ✅ 只需要原图URL
+            },
           },
           profile: {
             select: {
-              introduction: true,
-              specialties: true,
-              // 不返回联系方式
+              introduction: true, // 🆕 添加个人简介
             },
           },
         },
@@ -180,16 +182,17 @@ export async function GET(request: Request) {
       age: therapist.age,
       height: therapist.height,
       weight: therapist.weight,
-      cardValue: therapist.cardValue, // 🆕 牌值
+      cardValue: therapist.cardValue,
       city: therapist.city,
       areas: therapist.areas,
-      location: therapist.location, // 🆕 位置信息
+      location: therapist.location,
       isOnline: therapist.isOnline,
       isNew: therapist.isNew,
       isFeatured: therapist.isFeatured,
-      avatar: therapist.photos[0]?.url || "/placeholder-avatar.jpg",
-      introduction: therapist.profile?.introduction || "",
-      specialties: therapist.profile?.specialties || [],
+      viewCount: therapist.viewCount, // 🆕 返回浏览量
+      // ✅ 使用原图（已WebP压缩，配合Next.js Image自动优化）
+      avatar: therapist.photos[0]?.url || "/placeholder-avatar.svg",
+      introduction: therapist.profile?.introduction, // 🆕 返回个人简介
     }));
 
     return NextResponse.json({
