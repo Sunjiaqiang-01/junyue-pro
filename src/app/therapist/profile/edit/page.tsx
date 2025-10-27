@@ -111,26 +111,34 @@ export default function TherapistProfileEditPage() {
     }
   }, [status, session, router]);
 
-  const fetchTherapistData = async () => {
+  const fetchTherapistData = async (updatePhotosOnly = false) => {
     try {
       const res = await fetch(`/api/therapist/profile`);
       const data = await res.json();
 
       if (data.success) {
         const t = data.data;
-        setTherapist(t);
-        setNickname(t.nickname);
-        // 如果是未填写状态（0值），显示为空字符串便于用户输入
-        setAge(ProfileValidator.isFieldFilled("age", t.age) ? t.age.toString() : "");
-        setHeight(ProfileValidator.isFieldFilled("height", t.height) ? t.height.toString() : "");
-        setWeight(ProfileValidator.isFieldFilled("weight", t.weight) ? t.weight.toString() : "");
-        setCardValue(t.cardValue || "");
-        setCity(ProfileValidator.isFieldFilled("city", t.city) ? t.city : "");
-        setPhone(t.phone || "");
-        setLocation(t.location);
-        setIntroduction(t.profile?.introduction || "");
-        setServiceAddress(t.profile?.serviceAddress || "");
-        setPhotoPreview(t.photos.map((p: any) => p.url));
+
+        if (updatePhotosOnly) {
+          // 仅更新照片列表，不触发其他状态变更
+          setTherapist((prev) => (prev ? { ...prev, photos: t.photos } : t));
+          return; // 提前返回，避免执行 finally 块
+        } else {
+          // 完整更新：重置所有字段
+          setTherapist(t);
+          setNickname(t.nickname);
+          // 如果是未填写状态（0值），显示为空字符串便于用户输入
+          setAge(ProfileValidator.isFieldFilled("age", t.age) ? t.age.toString() : "");
+          setHeight(ProfileValidator.isFieldFilled("height", t.height) ? t.height.toString() : "");
+          setWeight(ProfileValidator.isFieldFilled("weight", t.weight) ? t.weight.toString() : "");
+          setCardValue(t.cardValue || "");
+          setCity(ProfileValidator.isFieldFilled("city", t.city) ? t.city : "");
+          setPhone(t.phone || "");
+          setLocation(t.location);
+          setIntroduction(t.profile?.introduction || "");
+          setServiceAddress(t.profile?.serviceAddress || "");
+          setPhotoPreview(t.photos.map((p: any) => p.url));
+        }
       } else {
         toast.error("获取资料失败");
       }
@@ -138,7 +146,10 @@ export default function TherapistProfileEditPage() {
       console.error("获取资料失败:", error);
       toast.error("网络错误");
     } finally {
-      setLoading(false);
+      // 只有完整更新时才修改 loading 状态
+      if (!updatePhotosOnly) {
+        setLoading(false);
+      }
     }
   };
 
@@ -271,7 +282,7 @@ export default function TherapistProfileEditPage() {
       // 3. 显示结果
       if (results.success.length > 0) {
         toast.success(`成功上传 ${results.success.length} 个文件`);
-        await fetchTherapistData();
+        await fetchTherapistData(true); // 仅刷新照片列表
       }
 
       if (results.failed.length > 0) {
@@ -374,7 +385,7 @@ export default function TherapistProfileEditPage() {
     // 显示结果
     if (results.success.length > 0) {
       toast.success(`成功上传 ${results.success.length} 张图片`);
-      fetchTherapistData(); // 刷新数据
+      fetchTherapistData(true); // 仅刷新照片列表
     }
 
     if (results.failed.length > 0) {
@@ -465,7 +476,7 @@ export default function TherapistProfileEditPage() {
       const dbData = await dbRes.json();
       if (dbData.success) {
         toast.success(`视频上传成功！时长: ${formatDuration(info.duration)}`);
-        fetchTherapistData(); // 刷新数据
+        fetchTherapistData(true); // 仅刷新照片列表
         setVideoPreview(null); // 清除预览
       } else {
         toast.error(dbData.error || "视频保存失败");
@@ -490,7 +501,7 @@ export default function TherapistProfileEditPage() {
 
       if (res.ok) {
         toast.success("照片删除成功");
-        fetchTherapistData();
+        fetchTherapistData(true); // 仅刷新照片列表
       } else {
         toast.error("删除失败");
       }
@@ -510,7 +521,7 @@ export default function TherapistProfileEditPage() {
 
       if (data.success) {
         toast.success("主图设置成功");
-        fetchTherapistData();
+        fetchTherapistData(true); // 仅刷新照片列表
       } else {
         toast.error(data.error || "设置失败");
       }

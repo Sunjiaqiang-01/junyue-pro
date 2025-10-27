@@ -137,9 +137,12 @@ export async function GET(request: Request) {
         where,
         skip,
         take: limit,
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
+        // 🎯 多字段排序：推荐优先 → 浏览量高的优先 → 新注册的优先
+        orderBy: [
+          { isFeatured: "desc" }, // 1. 推荐技师优先显示
+          { viewCount: "desc" }, // 2. 同等级内，浏览量高的优先
+          { createdAt: "desc" }, // 3. 同等级内，新注册的优先
+        ],
         select: {
           id: true,
           nickname: true,
@@ -162,7 +165,11 @@ export async function GET(request: Request) {
               url: true, // ✅ 只需要原图URL
             },
           },
-          // ❌ 移除 profile.introduction（列表页不需要）
+          profile: {
+            select: {
+              introduction: true, // 🆕 添加个人简介
+            },
+          },
         },
       }),
       prisma.therapist.count({ where }),
@@ -185,7 +192,7 @@ export async function GET(request: Request) {
       viewCount: therapist.viewCount, // 🆕 返回浏览量
       // ✅ 使用原图（已WebP压缩，配合Next.js Image自动优化）
       avatar: therapist.photos[0]?.url || "/placeholder-avatar.svg",
-      // ❌ 移除 introduction 和 specialties（列表页不需要）
+      introduction: therapist.profile?.introduction, // 🆕 返回个人简介
     }));
 
     return NextResponse.json({

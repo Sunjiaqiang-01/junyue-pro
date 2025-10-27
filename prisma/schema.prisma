@@ -57,6 +57,8 @@ model Therapist {
   @@index([status, isFeatured])
   @@index([status, isNew])
   @@index([status, city, viewCount])
+  // 🎯 优化排序索引 - 匹配新的多字段排序逻辑
+  @@index([status, isOnline, isFeatured, viewCount, createdAt])
   @@map("therapists")
 }
 

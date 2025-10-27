@@ -45,9 +45,31 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }
     }
 
-    // 删除数据库记录
-    await prisma.therapistPhoto.delete({
-      where: { id },
+    // 使用事务删除照片并处理主图逻辑
+    await prisma.$transaction(async (tx) => {
+      // 删除数据库记录
+      await tx.therapistPhoto.delete({
+        where: { id },
+      });
+
+      // 如果删除的是主图，自动将下一张照片设为主图
+      if (photo.isPrimary && !photo.isVideo) {
+        const newPrimaryPhoto = await tx.therapistPhoto.findFirst({
+          where: {
+            therapistId: session.user.id,
+            isVideo: false, // 只选择照片作为主图
+          },
+          orderBy: { order: "asc" }, // 按顺序选择第一张
+        });
+
+        if (newPrimaryPhoto) {
+          await tx.therapistPhoto.update({
+            where: { id: newPrimaryPhoto.id },
+            data: { isPrimary: true },
+          });
+          console.log("✅ 自动设置新主图:", newPrimaryPhoto.id);
+        }
+      }
     });
 
     return NextResponse.json({

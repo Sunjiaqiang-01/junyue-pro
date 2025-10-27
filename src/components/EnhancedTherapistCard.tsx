@@ -221,17 +221,10 @@ export function EnhancedTherapistCard({
           {therapist.cardValue && (
             <>
               <span>•</span>
-              <span>{therapist.cardValue}</span>
+              <span>牌{therapist.cardValue}</span>
             </>
           )}
         </motion.div>
-
-        {/* 个人简介（单行） */}
-        {therapist.introduction && (
-          <motion.p variants={itemVariants} className="text-sm text-gray-300 line-clamp-1">
-            {therapist.introduction}
-          </motion.p>
-        )}
 
         {/* Location - 双行显示（地名 + 街道） */}
         {therapist.location ? (
@@ -256,6 +249,13 @@ export function EnhancedTherapistCard({
               </span>
             </motion.div>
           )
+        )}
+
+        {/* 个人简介（单行）- 位置信息下方 */}
+        {therapist.introduction && (
+          <motion.p variants={itemVariants} className="text-sm text-gray-300 line-clamp-1">
+            {therapist.introduction}
+          </motion.p>
         )}
 
         {/* View Details Button */}

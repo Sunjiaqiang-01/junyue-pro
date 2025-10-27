@@ -31,7 +31,9 @@ export interface TherapistWithRelations {
   photos: Array<{
     id: string;
     isPrimary: boolean;
-    mediumUrl: string;
+    url: string;
+    mediumUrl: string | null;
+    isVideo: boolean;
   }>;
   _count?: {
     photos: number;

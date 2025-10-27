@@ -12,7 +12,7 @@ import { DeactivationRequestsTab } from "./components/DeactivationRequestsTab";
 import { Users, Clock, AlertCircle } from "lucide-react";
 
 async function getTherapistsData() {
-  const [allTherapists, pendingTherapists, deactivationRequests] = await Promise.all([
+  const [allTherapistsRaw, pendingTherapistsRaw, deactivationRequests] = await Promise.all([
     // 全部技师
     prisma.therapist.findMany({
       include: {
@@ -30,14 +30,9 @@ async function getTherapistsData() {
             isPrimary: true,
             url: true,
             mediumUrl: true,
+            isVideo: true,
           },
           orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
-        },
-        _count: {
-          select: {
-            photos: true,
-            videos: true,
-          },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -60,14 +55,9 @@ async function getTherapistsData() {
             isPrimary: true,
             url: true,
             mediumUrl: true,
+            isVideo: true,
           },
           orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
-        },
-        _count: {
-          select: {
-            photos: true,
-            videos: true,
-          },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -88,6 +78,23 @@ async function getTherapistsData() {
       orderBy: { requestedAt: "desc" },
     }),
   ]);
+
+  // 手动计算照片和视频数量（因为它们都存在 photos 表中，通过 isVideo 区分）
+  const allTherapists = allTherapistsRaw.map((t) => ({
+    ...t,
+    _count: {
+      photos: t.photos.filter((p) => !p.isVideo).length,
+      videos: t.photos.filter((p) => p.isVideo).length,
+    },
+  }));
+
+  const pendingTherapists = pendingTherapistsRaw.map((t) => ({
+    ...t,
+    _count: {
+      photos: t.photos.filter((p) => !p.isVideo).length,
+      videos: t.photos.filter((p) => p.isVideo).length,
+    },
+  }));
 
   return {
     allTherapists,
