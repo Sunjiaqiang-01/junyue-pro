@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { Check, MapPin, Star } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -40,6 +41,7 @@ export function EnhancedTherapistCard({
   className,
 }: EnhancedTherapistCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const shouldAnimate = enableAnimations && !shouldReduceMotion;
 
@@ -143,13 +145,22 @@ export function EnhancedTherapistCard({
       )}
     >
       {/* Full Cover Image - 9:16 比例 */}
-      <motion.img
-        src={therapist.avatar}
-        alt={therapist.nickname}
-        className="absolute inset-0 w-full h-full object-cover"
-        variants={imageVariants}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      />
+      <div className="absolute inset-0">
+        <Image
+          src={therapist.avatar}
+          alt={therapist.nickname}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+          className={cn(
+            "object-cover transition-opacity duration-300",
+            imageLoaded ? "opacity-100" : "opacity-0"
+          )}
+          priority={false}
+          loading="lazy"
+          quality={85}
+          onLoad={() => setImageLoaded(true)}
+        />
+      </div>
 
       {/* Smooth Blur Overlay - Multiple layers for seamless fade */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-black/20 via-black/10 to-transparent" />

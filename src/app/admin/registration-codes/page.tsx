@@ -977,7 +977,7 @@ export default function RegistrationCodesPage() {
             <Button
               variant="outline"
               onClick={() => setShowGenerateDialog(false)}
-              className="border-gray-700 text-white font-medium"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white font-medium"
             >
               取消
             </Button>
@@ -1079,7 +1079,7 @@ export default function RegistrationCodesPage() {
             <Button
               variant="outline"
               onClick={() => setShowDetailsDialog(false)}
-              className="border-gray-700"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white"
             >
               关闭
             </Button>
@@ -1097,7 +1097,9 @@ export default function RegistrationCodesPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700">取消</AlertDialogCancel>
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white">
+              取消
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => codeToDelete && handleDelete(codeToDelete)}
               disabled={deleting}

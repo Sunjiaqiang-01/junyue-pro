@@ -20,6 +20,7 @@ model Therapist {
   areas                String[]
   status               TherapistStatus                @default(PENDING)
   auditReason          String?
+  approvedAt           DateTime?
   isOnline             Boolean                        @default(false)
   lastOnlineAt         DateTime?
   isNew                Boolean                        @default(true)
@@ -49,6 +50,13 @@ model Therapist {
   @@index([city])
   @@index([isOnline])
   @@index([createdAt])
+  @@index([viewCount])
+  // 🆕 复合索引 - 优化常用查询组合
+  @@index([status, city, createdAt])
+  @@index([status, isOnline])
+  @@index([status, isFeatured])
+  @@index([status, isNew])
+  @@index([status, city, viewCount])
   @@map("therapists")
 }
 
@@ -337,7 +345,6 @@ enum TherapistStatus {
   PENDING
   APPROVED
   REJECTED
-  BANNED
 }
 
 enum ServiceType {
@@ -402,6 +409,9 @@ model TherapistView {
   @@index([therapistId])
   @@index([createdAt])
   @@index([ip])
+  // 🆕 复合索引 - 优化统计和防刷查询
+  @@index([therapistId, createdAt])
+  @@index([ip, createdAt])
   @@map("therapist_views")
 }
 
@@ -416,5 +426,8 @@ model SiteVisit {
   @@index([createdAt])
   @@index([page])
   @@index([ip])
+  // 🆕 复合索引 - 优化统计和防刷查询
+  @@index([page, createdAt])
+  @@index([ip, page, createdAt])
   @@map("site_visits")
 }

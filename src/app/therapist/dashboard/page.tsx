@@ -18,6 +18,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ProfileValidator } from "@/lib/profile-validator";
@@ -57,6 +69,7 @@ export default function TherapistDashboard() {
   const [therapist, setTherapist] = useState<TherapistData | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showOnlineConfirm, setShowOnlineConfirm] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -97,9 +110,15 @@ export default function TherapistDashboard() {
     }
   };
 
+  const handleToggleOnlineClick = () => {
+    if (!therapist || therapist.status !== "APPROVED") return;
+    setShowOnlineConfirm(true);
+  };
+
   const handleToggleOnline = async () => {
     if (!therapist) return;
 
+    setShowOnlineConfirm(false);
     setSubmitting(true);
     try {
       const res = await fetch("/api/therapist/toggle-online", {
@@ -174,8 +193,6 @@ export default function TherapistDashboard() {
         return <Badge className="bg-yellow-600">待审核</Badge>;
       case "REJECTED":
         return <Badge className="bg-red-600">已拒绝</Badge>;
-      case "BANNED":
-        return <Badge className="bg-gray-600">已封禁</Badge>;
       default:
         return null;
     }
@@ -231,7 +248,6 @@ export default function TherapistDashboard() {
               {therapist.status === "PENDING" && "您的资料正在审核中，预计48小时内完成审核。"}
               {therapist.status === "REJECTED" &&
                 '您的资料审核未通过，请修改资料后点击"重新提交审核"按钮。'}
-              {therapist.status === "BANNED" && "您的账号已被封禁，如有疑问请联系客服。"}
             </p>
           </div>
         )}
@@ -419,24 +435,39 @@ export default function TherapistDashboard() {
                   </Button>
                 </Link>
 
-                <Button
-                  variant="ghost"
-                  className={`w-full h-24 flex flex-col gap-2 bg-white/5 border border-white/10 text-white ${
-                    therapist.status === "APPROVED"
-                      ? "hover:bg-primary-cyan/10 hover:border-primary-cyan/50 cursor-pointer"
-                      : "opacity-50 cursor-not-allowed"
-                  }`}
-                  onClick={handleToggleOnline}
-                  disabled={submitting || therapist.status !== "APPROVED"}
-                >
-                  <Power
-                    className={`w-6 h-6 ${therapist.isOnline ? "text-green-500" : "text-primary-cyan"}`}
-                  />
-                  <span className="font-semibold">{therapist.isOnline ? "在线" : "离线"}</span>
-                  {therapist.status === "APPROVED" && (
-                    <span className="text-xs text-secondary/60">点击切换</span>
-                  )}
-                </Button>
+                <Card className="bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors">
+                  <CardContent className="p-3 sm:p-4">
+                    {/* 第一行：图标+标题+开关 */}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <Power
+                          className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
+                            therapist.isOnline ? "text-green-500" : "text-gray-400"
+                          }`}
+                        />
+                        <h3 className="font-semibold text-white text-sm sm:text-base">
+                          {therapist.isOnline ? "在线接单" : "当前离线"}
+                        </h3>
+                      </div>
+                      <Switch
+                        checked={therapist.isOnline}
+                        onCheckedChange={handleToggleOnlineClick}
+                        disabled={submitting || therapist.status !== "APPROVED"}
+                        className="data-[state=checked]:bg-green-500 scale-90 sm:scale-100"
+                      />
+                    </div>
+
+                    {/* 第二行：简短说明 */}
+                    <p className="text-xs sm:text-sm text-secondary/70 pl-6 sm:pl-7">
+                      {therapist.isOnline ? "✅ 用户可见，可接预约" : "⚠️ 用户不可见"}
+                    </p>
+
+                    {/* 未审核提示 */}
+                    {therapist.status !== "APPROVED" && (
+                      <p className="text-xs text-yellow-500 mt-2 pl-6 sm:pl-7">审核后可上线</p>
+                    )}
+                  </CardContent>
+                </Card>
 
                 <Button
                   variant="ghost"
@@ -463,6 +494,33 @@ export default function TherapistDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 在线/离线确认对话框 */}
+      <AlertDialog open={showOnlineConfirm} onOpenChange={setShowOnlineConfirm}>
+        <AlertDialogContent className="bg-gray-900 border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl text-white">
+              {therapist?.isOnline ? "确认离线？" : "确认上线？"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              {therapist?.isOnline
+                ? "离线后，用户将无法在平台上看到您的信息，无法预约您的服务。"
+                : "上线后，您的资料将展示在平台上，用户可以通过客服预约您的服务。"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white">
+              取消
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleToggleOnline}
+              className="bg-primary-cyan text-pure-black hover:bg-primary-cyan/90 font-semibold"
+            >
+              确认{therapist?.isOnline ? "离线" : "上线"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

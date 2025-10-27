@@ -561,7 +561,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
               <Button
                 type="button"
                 onClick={() => setShowDialog(false)}
-                className="border border-white/10 text-white hover:bg-white/10 bg-transparent"
+                className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white"
               >
                 取消
               </Button>
@@ -594,7 +594,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border border-white/10 text-white hover:bg-white/10 bg-transparent">
+            <AlertDialogCancel className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white">
               取消
             </AlertDialogCancel>
             <AlertDialogAction

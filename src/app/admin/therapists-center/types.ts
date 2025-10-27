@@ -12,7 +12,7 @@ export interface TherapistWithRelations {
   cardValue: string | null;
   city: string;
   areas: string[];
-  status: "PENDING" | "APPROVED" | "REJECTED" | "BANNED";
+  status: "PENDING" | "APPROVED" | "REJECTED";
   auditReason: string | null;
   isOnline: boolean;
   lastOnlineAt: Date | null;

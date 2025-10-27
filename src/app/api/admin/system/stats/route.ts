@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getCache, setCache } from "@/lib/cache";
 import os from "os";
 
 // 获取系统状态和数据库统计
@@ -10,6 +11,17 @@ export async function GET() {
 
     if (!session || session.user?.role !== "admin") {
       return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
+    }
+
+    // 🆕 检查缓存（10分钟有效期）
+    const cacheKey = "admin:system:stats";
+    const cached = getCache(cacheKey);
+    if (cached) {
+      return NextResponse.json({
+        success: true,
+        data: cached,
+        cached: true,
+      });
     }
 
     // 获取服务器信息
@@ -107,9 +119,13 @@ export async function GET() {
       },
     };
 
+    // 🆕 缓存结果（10分钟 = 600秒）
+    setCache(cacheKey, stats, 600);
+
     return NextResponse.json({
       success: true,
       data: stats,
+      cached: false,
     });
   } catch (error) {
     console.error("获取系统状态失败:", error);

@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     // 处理图片: 生成单一优化版本
     console.log(`📸 开始处理图片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
-    const { url } = await processImage(buffer, uploadDir, baseFileName);
+    const url = await processImage(buffer, uploadDir, baseFileName);
 
     // 构建正确的URL路径
     const basePath = folderName

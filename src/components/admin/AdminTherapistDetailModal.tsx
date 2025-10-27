@@ -140,38 +140,6 @@ export function AdminTherapistDetailModal({
     }
   };
 
-  const handleToggleBan = async () => {
-    if (!therapist || submitting) return;
-
-    const isBanned = therapist.status === "BANNED";
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/admin/therapists/${therapist.id}/ban`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ban: !isBanned }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success(isBanned ? "已解封" : "已封禁");
-        // 通知父组件并关闭弹窗
-        if (onToggleBan) {
-          onToggleBan(therapist.id, therapist.status);
-        }
-        onClose();
-      } else {
-        toast.error(data.error || "操作失败");
-      }
-    } catch (error) {
-      console.error("操作失败:", error);
-      toast.error("网络错误");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "APPROVED":
@@ -180,8 +148,6 @@ export function AdminTherapistDetailModal({
         return <Badge className="bg-yellow-600">待审核</Badge>;
       case "REJECTED":
         return <Badge className="bg-red-600">已拒绝</Badge>;
-      case "BANNED":
-        return <Badge className="bg-gray-600">已封禁</Badge>;
       default:
         return null;
     }
@@ -382,21 +348,6 @@ export function AdminTherapistDetailModal({
                         <Star className="w-4 h-4 mr-2" />
                       )}
                       {therapist.isFeatured ? "取消推荐" : "设为推荐"}
-                    </Button>
-                    <Button
-                      onClick={handleToggleBan}
-                      disabled={submitting}
-                      variant="destructive"
-                      className="flex-1"
-                    >
-                      {submitting ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : therapist.status === "BANNED" ? (
-                        <UserCheck className="w-4 h-4 mr-2" />
-                      ) : (
-                        <Ban className="w-4 h-4 mr-2" />
-                      )}
-                      {therapist.status === "BANNED" ? "解除封禁" : "封禁技师"}
                     </Button>
                   </div>
                 </div>

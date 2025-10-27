@@ -435,7 +435,7 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
                 type="button"
                 onClick={handleCloseDialog}
                 disabled={submitting}
-                className="border border-white/10 text-white hover:bg-white/10 bg-transparent"
+                className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white"
               >
                 取消
               </Button>

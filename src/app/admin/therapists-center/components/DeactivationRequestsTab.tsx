@@ -425,7 +425,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
               variant="outline"
               onClick={() => setAuditDialog({ open: false, request: null, action: null })}
               disabled={loading}
-              className="border-white/10 text-white hover:bg-white/10"
+              className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 hover:text-white"
             >
               取消
             </Button>

@@ -28,6 +28,7 @@ async function getTherapistsData() {
           select: {
             id: true,
             isPrimary: true,
+            url: true,
             mediumUrl: true,
           },
           orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
@@ -57,6 +58,7 @@ async function getTherapistsData() {
           select: {
             id: true,
             isPrimary: true,
+            url: true,
             mediumUrl: true,
           },
           orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],

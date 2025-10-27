@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2, Search } from "lucide-react";
 import EnhancedTherapistCard from "@/components/EnhancedTherapistCard";
+import { TherapistCardSkeleton } from "@/components/TherapistCardSkeleton";
 import TherapistDetailModal from "@/components/TherapistDetailModal";
 import CustomerServiceButton from "@/components/CustomerServiceButton";
 import ResizableNavigation from "@/components/ResizableNavigation";
@@ -66,6 +67,9 @@ export default function TherapistsPage() {
   const [selectedTherapistId, setSelectedTherapistId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // 🆕 无限滚动观察目标
+  const observerTarget = useRef<HTMLDivElement>(null);
+
   // 获取城市列表
   useEffect(() => {
     fetchCities();
@@ -75,6 +79,28 @@ export default function TherapistsPage() {
   useEffect(() => {
     fetchTherapists(1);
   }, [search, selectedCity, selectedArea, showFeaturedOnly, showNewOnly]);
+
+  // 🆕 无限滚动监听
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingMore && page < totalPages && !loading) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [loadingMore, page, totalPages, loading]);
 
   const fetchCities = async () => {
     try {
@@ -237,8 +263,10 @@ export default function TherapistsPage() {
 
           {/* 技师列表 */}
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary-cyan" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <TherapistCardSkeleton key={i} />
+              ))}
             </div>
           ) : therapists.length === 0 ? (
             <div className="text-center py-20 bg-transparent rounded-lg border border-white/5">
@@ -257,25 +285,18 @@ export default function TherapistsPage() {
                 ))}
               </div>
 
-              {/* 加载更多 */}
-              {page < totalPages && (
-                <div className="mt-8 text-center">
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
-                    className="bg-pure-white text-pure-black hover:bg-secondary/90"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        加载中...
-                      </>
-                    ) : (
-                      "加载更多"
-                    )}
-                  </Button>
-                </div>
-              )}
+              {/* 🆕 无限滚动触发器 */}
+              <div ref={observerTarget} className="mt-8 py-8 text-center">
+                {loadingMore && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary-cyan" />
+                    <span className="text-secondary/60">加载中...</span>
+                  </div>
+                )}
+                {page >= totalPages && therapists.length > 0 && (
+                  <p className="text-secondary/40">已加载全部技师</p>
+                )}
+              </div>
             </>
           )}
         </div>

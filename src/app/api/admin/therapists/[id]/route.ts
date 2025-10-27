@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { deleteTherapistFolders } from "@/lib/folder-manager";
 
 // 获取单个技师详细信息
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
 
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const therapist = await prisma.therapist.findUnique({
       where: { id },
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // 更新技师信息
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
 
@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const data = await request.json();
 
     // 准备更新数据
@@ -118,7 +118,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // 删除技师（完整删除所有数据）
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await auth();
 
@@ -126,7 +129,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 验证技师是否存在
     const therapist = await prisma.therapist.findUnique({

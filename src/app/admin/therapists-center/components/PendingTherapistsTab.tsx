@@ -33,7 +33,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { TherapistWithRelations } from "../types";
-import { Loader2, CheckCircle, XCircle, Search, Eye } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, Search, Eye, User } from "lucide-react";
 
 interface PendingTherapistsTabProps {
   initialData: TherapistWithRelations[];
@@ -61,15 +61,20 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
       header: "技师信息",
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
-          {row.original.photos.length > 0 && (
+          {row.original.photos.length > 0 ? (
             <img
               src={
-                row.original.photos.find((p) => p.isPrimary)?.mediumUrl ||
-                row.original.photos[0]?.mediumUrl
+                row.original.photos.find((p) => p.isPrimary)?.url ||
+                row.original.photos[0]?.url ||
+                "/placeholder-avatar.svg"
               }
               alt={row.original.nickname}
-              className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+              className="w-14 h-14 rounded-full object-cover border-2 border-gray-600"
             />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center border-2 border-gray-600">
+              <User className="w-7 h-7 text-gray-400" />
+            </div>
           )}
           <div>
             <div className="font-semibold text-base">{row.original.nickname}</div>
@@ -160,7 +165,7 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
           <div className="flex flex-col gap-1.5">
             <Button
               size="sm"
-              onClick={() => router.push(`/admin/therapists/${therapist.id}`)}
+              onClick={() => router.push(`/admin/therapists/${therapist.id}/edit`)}
               className="border border-white/10 text-white hover:bg-white/10 hover:text-primary-cyan bg-transparent text-xs justify-start"
             >
               <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
@@ -224,14 +229,16 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/therapists/${auditDialog.therapist.id}/audit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          approved: auditDialog.action === "approve",
-          reason: auditDialog.action === "reject" ? rejectReason : undefined,
-        }),
-      });
+      const endpoint = auditDialog.action === "approve" ? "approve" : "reject";
+      const response = await fetch(
+        `/api/admin/therapists/${auditDialog.therapist.id}/${endpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body:
+            auditDialog.action === "reject" ? JSON.stringify({ reason: rejectReason }) : undefined,
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -384,10 +391,9 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
           )}
           <DialogFooter>
             <Button
-              variant="outline"
               onClick={() => setAuditDialog({ open: false, therapist: null, action: null })}
               disabled={loading}
-              className="border-white/10 text-white hover:bg-white/10"
+              className="bg-gray-700 text-white border border-gray-600 hover:bg-gray-600 hover:text-white"
             >
               取消
             </Button>
@@ -396,8 +402,8 @@ export function PendingTherapistsTab({ initialData }: PendingTherapistsTabProps)
               disabled={loading}
               className={
                 auditDialog.action === "approve"
-                  ? "bg-green-600/20 text-green-400 border-green-600/30 hover:bg-green-600/30 font-semibold"
-                  : "bg-red-600/20 text-red-400 border-red-600/30 hover:bg-red-600/30 font-semibold"
+                  ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
+                  : "bg-red-600 text-white hover:bg-red-700 border-red-600"
               }
             >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

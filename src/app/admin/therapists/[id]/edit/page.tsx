@@ -500,7 +500,7 @@ export default function AdminTherapistEditPage() {
 
       if (data.success) {
         toast.success("技师资料更新成功");
-        router.push("/admin/therapists");
+        router.push("/admin/therapists-center");
       } else {
         toast.error(data.error || "更新失败");
       }
