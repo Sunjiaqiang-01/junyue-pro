@@ -43,16 +43,13 @@ export async function GET(
     };
     const contentType = mimeTypes[ext || ""] || "application/octet-stream";
 
-    // 返回文件（转换Buffer为ArrayBuffer）
-    return new NextResponse(
-      fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength),
-      {
-        headers: {
-          "Content-Type": contentType,
-          "Cache-Control": "public, max-age=31536000, immutable",
-        },
-      }
-    );
+    // 返回文件
+    return new NextResponse(new Blob([fileBuffer]), {
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   } catch (error) {
     console.error("文件服务错误:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
