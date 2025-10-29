@@ -233,10 +233,10 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
       // 刷新数据
       router.refresh();
       setAuditDialog({ open: false, request: null, action: null });
-    } catch (error: any) {
+    } catch (err: any) {
       toast({
         title: "错误",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     } finally {

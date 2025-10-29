@@ -31,7 +31,7 @@ export interface DirectListResponse<T> {
  * 统一API响应格式
  * @template T - 响应数据类型
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -49,14 +49,12 @@ export type PaginatedApiResponse<T> = ApiResponse<PaginatedListResponse<T>>;
 /**
  * 类型守卫函数：检查是否为分页列表响应
  */
-export function isPaginatedResponse<T>(
-  data: unknown
-): data is {
+export function isPaginatedResponse<T>(data: unknown): data is {
   items: T[];
   pagination: { page: number; pageSize: number; total: number; totalPages: number };
 } {
   if (typeof data !== "object" || data === null) return false;
-  const obj = data as any;
+  const obj = data as Record<string, unknown>;
   return (
     Array.isArray(obj.items) &&
     obj.pagination &&
@@ -72,6 +70,6 @@ export function isPaginatedResponse<T>(
  */
 export function isSuccessResponse<T>(response: unknown): response is ApiResponse<T> {
   if (typeof response !== "object" || response === null) return false;
-  const obj = response as any;
+  const obj = response as Record<string, unknown>;
   return obj.success === true;
 }

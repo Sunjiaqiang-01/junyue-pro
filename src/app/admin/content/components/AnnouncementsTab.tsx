@@ -136,7 +136,7 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -172,7 +172,7 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -204,7 +204,7 @@ export function AnnouncementsTab({ initialData }: AnnouncementsTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",

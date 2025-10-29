@@ -12,7 +12,6 @@ import {
   QrCode,
   Trash2,
   RefreshCw,
-  AlertTriangle,
   CheckCircle,
   Loader2,
 } from "lucide-react";
@@ -84,7 +83,7 @@ export default function MediaManagementPage() {
       if (data.success) {
         setStats(data.data);
       }
-    } catch (error) {
+    } catch {
       toast.error("加载存储统计失败");
     } finally {
       setLoading(false);
@@ -101,7 +100,7 @@ export default function MediaManagementPage() {
         setOrphanedFiles(data.data.files);
         toast.success(`扫描完成，发现 ${data.data.summary.totalCount} 个孤立文件`);
       }
-    } catch (error) {
+    } catch {
       toast.error("扫描孤立文件失败");
     } finally {
       setScanning(false);
@@ -141,7 +140,7 @@ export default function MediaManagementPage() {
           await scanOrphanedFiles();
         }
       }
-    } catch (error) {
+    } catch {
       toast.error("清理失败");
     } finally {
       setCleaning(false);

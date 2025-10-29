@@ -10,7 +10,7 @@ import { join } from "path";
 import { readdir, stat } from "fs/promises";
 import { existsSync } from "fs";
 import { PrismaClient } from "@prisma/client";
-import { deleteTherapistFolders } from "@/lib/folder-manager";
+// import { deleteTherapistFolders } from "@/lib/folder-manager";
 
 const prisma = new PrismaClient();
 

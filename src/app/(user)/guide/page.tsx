@@ -33,8 +33,8 @@ export default function GuidePage() {
       } else {
         toast.error("获取攻略失败");
       }
-    } catch (error) {
-      console.error("获取攻略失败:", error);
+    } catch (err) {
+      console.error("获取攻略失败:", err);
       toast.error("网络错误");
     } finally {
       setLoading(false);

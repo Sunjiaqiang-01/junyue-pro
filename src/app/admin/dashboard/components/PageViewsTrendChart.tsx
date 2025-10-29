@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 
 interface PageViewData {
   date: string;

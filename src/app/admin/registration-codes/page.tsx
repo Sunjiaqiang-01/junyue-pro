@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Loader2,
@@ -16,8 +16,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
-  ListFilter,
-  CircleX,
   Filter,
   Download,
 } from "lucide-react";

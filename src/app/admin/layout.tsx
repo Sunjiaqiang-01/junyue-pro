@@ -1,6 +1,6 @@
 "use client";
 
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
 import { usePathname } from "next/navigation";
 import AdminNavigation from "@/components/AdminNavigation";
 

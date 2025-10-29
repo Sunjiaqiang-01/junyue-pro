@@ -78,6 +78,7 @@ export default function TherapistsPage() {
   // 获取技师列表
   useEffect(() => {
     fetchTherapists(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, selectedCity, selectedArea, showFeaturedOnly, showNewOnly]);
 
   // 🆕 无限滚动监听
@@ -91,15 +92,17 @@ export default function TherapistsPage() {
       { threshold: 0.5 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingMore, page, totalPages, loading]);
 
   const fetchCities = async () => {
@@ -110,8 +113,8 @@ export default function TherapistsPage() {
       if (data.success) {
         setCities(data.data);
       }
-    } catch (error) {
-      console.error("获取城市列表失败:", error);
+    } catch (err) {
+      console.error("获取城市列表失败:", err);
     }
   };
 
@@ -150,8 +153,8 @@ export default function TherapistsPage() {
       } else {
         toast.error("获取技师列表失败");
       }
-    } catch (error) {
-      console.error("获取技师列表失败:", error);
+    } catch (err) {
+      console.error("获取技师列表失败:", err);
       toast.error("网络错误");
     } finally {
       setLoading(false);

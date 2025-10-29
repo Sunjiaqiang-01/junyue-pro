@@ -140,7 +140,7 @@ export function sanitizeFilename(filename: string): string {
   let cleaned = filename.replace(/\.\./g, "");
 
   // 只保留字母、数字、中文、下划线、连字符、点
-  cleaned = cleaned.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_\-\.]/g, "_");
+  cleaned = cleaned.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_\-.]/g, "_");
 
   // 移除开头的点（防止隐藏文件）
   cleaned = cleaned.replace(/^\.+/, "");

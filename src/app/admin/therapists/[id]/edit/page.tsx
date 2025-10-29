@@ -140,8 +140,8 @@ export default function AdminTherapistEditPage() {
       } else {
         toast.error("获取技师资料失败");
       }
-    } catch (error) {
-      console.error("获取技师资料失败:", error);
+    } catch (err) {
+      console.error("获取技师资料失败:", err);
       toast.error("网络错误");
     } finally {
       setLoading(false);
@@ -195,7 +195,7 @@ export default function AdminTherapistEditPage() {
             } else {
               reject(new Error(response.error || "上传失败"));
             }
-          } catch (error) {
+          } catch {
             reject(new Error("解析响应失败"));
           }
         } else {
@@ -282,11 +282,11 @@ export default function AdminTherapistEditPage() {
         } else {
           results.failed.push({ name: file.name, error: dbData.error || "数据库保存失败" });
         }
-      } catch (error) {
-        console.error(`上传 ${file.name} 失败:`, error);
+      } catch (err) {
+        console.error(`上传 ${file.name} 失败:`, err);
         results.failed.push({
           name: file.name,
-          error: error instanceof Error ? error.message : "上传失败",
+          error: err instanceof Error ? err.message : "上传失败",
         });
       }
     }
@@ -390,9 +390,9 @@ export default function AdminTherapistEditPage() {
       } else {
         toast.error(dbData.error || "视频保存失败");
       }
-    } catch (error) {
-      console.error("视频上传失败:", error);
-      toast.error(error instanceof Error ? error.message : "视频上传失败");
+    } catch (err) {
+      console.error("视频上传失败:", err);
+      toast.error(err instanceof Error ? err.message : "视频上传失败");
       setVideoPreview(null);
     } finally {
       setUploadingPhoto(false);
@@ -414,8 +414,8 @@ export default function AdminTherapistEditPage() {
       } else {
         toast.error("删除失败");
       }
-    } catch (error) {
-      console.error("删除照片失败:", error);
+    } catch (err) {
+      console.error("删除照片失败:", err);
       toast.error("网络错误");
     }
   };
@@ -434,8 +434,8 @@ export default function AdminTherapistEditPage() {
       } else {
         toast.error(data.error || "设置失败");
       }
-    } catch (error) {
-      console.error("设置主图失败:", error);
+    } catch (err) {
+      console.error("设置主图失败:", err);
       toast.error("网络错误");
     }
   };
@@ -504,8 +504,8 @@ export default function AdminTherapistEditPage() {
       } else {
         toast.error(data.error || "更新失败");
       }
-    } catch (error) {
-      console.error("更新技师资料失败:", error);
+    } catch (err) {
+      console.error("更新技师资料失败:", err);
       toast.error("网络错误");
     } finally {
       setSubmitting(false);

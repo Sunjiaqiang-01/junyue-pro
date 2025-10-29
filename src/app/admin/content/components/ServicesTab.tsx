@@ -153,7 +153,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -204,7 +204,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -235,7 +235,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -267,7 +267,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "错误",
         description: "网络错误",
@@ -327,7 +327,7 @@ export function ServicesTab({ initialData }: ServicesTabProps) {
             {initialData.length === 0 ? (
               <TableRow className="border-white/10">
                 <TableCell colSpan={7} className="text-center text-secondary/60 py-12">
-                  暂无客服配置，点击"添加客服"来创建
+                  暂无客服配置，点击&quot;添加客服&quot;来创建
                 </TableCell>
               </TableRow>
             ) : (

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PageVisitTracker from "@/components/PageVisitTracker";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
 import SystemMonitor from "@/components/admin/SystemMonitor";
@@ -66,8 +66,8 @@ async function getDashboardData() {
         trends = trendsData.data;
       }
     }
-  } catch (error) {
-    console.error("获取趋势数据失败:", error);
+  } catch (err) {
+    console.error("获取趋势数据失败:", err);
   }
 
   // 获取城市分布
@@ -144,8 +144,8 @@ async function getDashboardData() {
     totalViews = visits.length;
     const todayKey = today.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
     todayViews = dateMap.get(todayKey) || 0;
-  } catch (error) {
-    console.error("获取访问统计失败，使用默认值:", error);
+  } catch (err) {
+    console.error("获取访问统计失败，使用默认值:", err);
     // 如果查询失败，使用空数据
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();

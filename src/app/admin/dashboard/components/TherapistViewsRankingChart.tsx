@@ -12,7 +12,7 @@ import {
   Cell,
 } from "recharts";
 import { Trophy, Medal, Award } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 
 interface TherapistRanking {
   nickname: string;
@@ -38,18 +38,18 @@ const COLORS = [
 ];
 
 export function TherapistViewsRankingChart({ data }: TherapistViewsRankingChartProps) {
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="w-5 h-5 text-primary-cyan" />;
-      case 2:
-        return <Medal className="w-5 h-5 text-primary-cyan/70" />;
-      case 3:
-        return <Award className="w-5 h-5 text-primary-cyan/50" />;
-      default:
-        return null;
-    }
-  };
+  // const getRankIcon = (rank: number) => {
+  //   switch (rank) {
+  //     case 1:
+  //       return <Trophy className="w-5 h-5 text-primary-cyan" />;
+  //     case 2:
+  //       return <Medal className="w-5 h-5 text-primary-cyan/70" />;
+  //     case 3:
+  //       return <Award className="w-5 h-5 text-primary-cyan/50" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   return (
     <Card className="bg-white/5 backdrop-blur-sm border border-white/10">
