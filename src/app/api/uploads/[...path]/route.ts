@@ -43,8 +43,8 @@ export async function GET(
     };
     const contentType = mimeTypes[ext || ""] || "application/octet-stream";
 
-    // 返回文件
-    return new NextResponse(new Blob([fileBuffer]), {
+    // 返回文件（转换为Uint8Array兼容类型）
+    return new NextResponse(new Uint8Array(fileBuffer), {
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=31536000, immutable",
