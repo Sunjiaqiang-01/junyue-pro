@@ -3,14 +3,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 // PATCH /api/admin/registration-codes/[id]/toggle - 启用/禁用注册码
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user || session.user.role !== "admin") {
       return NextResponse.json({ success: false, error: "未授权" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 获取当前注册码
     const code = await prisma.registrationCode.findUnique({

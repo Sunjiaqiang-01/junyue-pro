@@ -3,14 +3,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 // DELETE /api/admin/registration-codes/[id] - 删除注册码
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user || session.user.role !== "admin") {
       return NextResponse.json({ success: false, error: "未授权" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 检查是否有技师使用了该注册码
     const therapistCount = await prisma.therapist.count({

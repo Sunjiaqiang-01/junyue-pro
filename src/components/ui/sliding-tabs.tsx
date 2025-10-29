@@ -122,7 +122,9 @@ export default function SlidingTabs({
             return (
               <Button
                 key={item.key}
-                ref={(el) => (tabRefs.current[i] = el)}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
                 variant="ghost"
                 size="sm"
                 role="tab"

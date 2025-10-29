@@ -7,7 +7,7 @@ import { Prisma } from "@prisma/client";
 
 // 根据手机号查找技师
 export async function findTherapistByPhone(phone: string) {
-  return prisma.therapist.findUnique({
+  return prisma.therapist.findFirst({
     where: { phone },
     include: {
       profile: true,
@@ -55,15 +55,7 @@ export async function getTherapistList(params: {
   keyword?: string;
   sortBy?: "createdAt" | "nickname";
 }) {
-  const {
-    page = 1,
-    pageSize = 20,
-    status,
-    city,
-    isOnline,
-    keyword,
-    sortBy = "createdAt",
-  } = params;
+  const { page = 1, pageSize = 20, status, city, isOnline, keyword, sortBy = "createdAt" } = params;
 
   const where: Prisma.TherapistWhereInput = {};
 
@@ -80,10 +72,7 @@ export async function getTherapistList(params: {
   }
 
   if (keyword) {
-    where.OR = [
-      { phone: { contains: keyword } },
-      { nickname: { contains: keyword } },
-    ];
+    where.OR = [{ phone: { contains: keyword } }, { nickname: { contains: keyword } }];
   }
 
   let orderBy: Prisma.TherapistOrderByWithRelationInput = { createdAt: "desc" };

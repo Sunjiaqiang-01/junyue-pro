@@ -118,7 +118,7 @@ export async function checkInviteCodeLimit(
 ): Promise<{ allowed: boolean; remaining?: number }> {
   const usageCount = await prisma.therapist.count({
     where: {
-      invitedBy: inviteCode,
+      registrationCodeId: inviteCode,
     },
   });
 

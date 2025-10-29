@@ -1,0 +1,47 @@
+# 君悦SPA - 仅数据库服务配置（混合部署方案）
+# 应用在宿主机运行，数据库在Docker中运行
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:16-alpine
+    container_name: junyue-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: junyue_user
+      POSTGRES_PASSWORD: junyue_password_dev
+      POSTGRES_DB: junyue_spa
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U junyue_user -d junyue_spa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: junyue-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+# 数据卷
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+

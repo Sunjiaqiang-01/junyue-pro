@@ -9,7 +9,7 @@ export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { href: "/home", label: "首页" },
+    { href: "/", label: "首页" },
     { href: "/therapists", label: "浏览技师" },
     { href: "#about", label: "关于我们" },
     { href: "#services", label: "服务特色" },
@@ -20,7 +20,7 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/home" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-12 h-12">
               <Image
                 src="/logo.png"

@@ -1,0 +1,114 @@
+
+> junyue-spa@0.1.0 build
+> next build --turbopack
+
+   ▲ Next.js 15.5.4 (Turbopack)
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Finished writing to disk in 112ms
+ ✓ Compiled successfully in 41s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/62) ...
+   Generating static pages (15/62) 
+   Generating static pages (30/62) 
+   Generating static pages (46/62) 
+ ✓ Generating static pages (62/62)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                 Size  First Load JS
+┌ ○ /                                                        0 B         127 kB
+├ ○ /_not-found                                              0 B         127 kB
+├ ○ /admin                                                   0 B         190 kB
+├ ƒ /admin/content                                       49.8 kB         240 kB
+├ ƒ /admin/dashboard                                      119 kB         310 kB
+├ ○ /admin/login                                         1.74 kB         192 kB
+├ ○ /admin/media-management                              17.7 kB         145 kB
+├ ○ /admin/registration-codes                            44.2 kB         248 kB
+├ ƒ /admin/therapists-center                               45 kB         249 kB
+├ ƒ /admin/therapists/[id]/edit                          21.6 kB         223 kB
+├ ƒ /api/admin/announcements                                 0 B            0 B
+├ ƒ /api/admin/announcements/[id]                            0 B            0 B
+├ ƒ /api/admin/announcements/[id]/toggle                     0 B            0 B
+├ ƒ /api/admin/customer-services                             0 B            0 B
+├ ƒ /api/admin/customer-services/[id]                        0 B            0 B
+├ ƒ /api/admin/customer-services/[id]/toggle                 0 B            0 B
+├ ƒ /api/admin/dashboard/stats                               0 B            0 B
+├ ƒ /api/admin/dashboard/stats-trend                         0 B            0 B
+├ ƒ /api/admin/deactivation                                  0 B            0 B
+├ ƒ /api/admin/deactivation/[id]                             0 B            0 B
+├ ƒ /api/admin/guide                                         0 B            0 B
+├ ƒ /api/admin/media/cleanup                                 0 B            0 B
+├ ƒ /api/admin/media/orphaned                                0 B            0 B
+├ ƒ /api/admin/media/stats                                   0 B            0 B
+├ ƒ /api/admin/registration-codes/[id]                       0 B            0 B
+├ ƒ /api/admin/registration-codes/[id]/therapists            0 B            0 B
+├ ƒ /api/admin/registration-codes/[id]/toggle                0 B            0 B
+├ ƒ /api/admin/registration-codes/batch                      0 B            0 B
+├ ƒ /api/admin/registration-codes/batch/toggle               0 B            0 B
+├ ƒ /api/admin/registration-codes/generate                   0 B            0 B
+├ ƒ /api/admin/registration-codes/list                       0 B            0 B
+├ ƒ /api/admin/system/stats                                  0 B            0 B
+├ ƒ /api/admin/therapists                                    0 B            0 B
+├ ƒ /api/admin/therapists/[id]                               0 B            0 B
+├ ƒ /api/admin/therapists/[id]/approve                       0 B            0 B
+├ ƒ /api/admin/therapists/[id]/feature                       0 B            0 B
+├ ƒ /api/admin/therapists/[id]/online                        0 B            0 B
+├ ƒ /api/admin/therapists/[id]/photos                        0 B            0 B
+├ ƒ /api/admin/therapists/[id]/photos/[photoId]              0 B            0 B
+├ ƒ /api/admin/therapists/[id]/photos/[photoId]/primary      0 B            0 B
+├ ƒ /api/admin/therapists/[id]/reject                        0 B            0 B
+├ ƒ /api/admin/therapists/pending                            0 B            0 B
+├ ƒ /api/auth/[...nextauth]                                  0 B            0 B
+├ ƒ /api/cities                                              0 B            0 B
+├ ƒ /api/customer-services                                   0 B            0 B
+├ ƒ /api/guide                                               0 B            0 B
+├ ƒ /api/tencent-map/geocoder                                0 B            0 B
+├ ƒ /api/tencent-map/search                                  0 B            0 B
+├ ƒ /api/therapist/auth/register                             0 B            0 B
+├ ƒ /api/therapist/check-username                            0 B            0 B
+├ ƒ /api/therapist/deactivation                              0 B            0 B
+├ ƒ /api/therapist/deactivation/cancel                       0 B            0 B
+├ ƒ /api/therapist/notifications                             0 B            0 B
+├ ƒ /api/therapist/notifications/[id]/read                   0 B            0 B
+├ ƒ /api/therapist/notifications/read-all                    0 B            0 B
+├ ƒ /api/therapist/notifications/unread-count                0 B            0 B
+├ ƒ /api/therapist/profile                                   0 B            0 B
+├ ƒ /api/therapist/profile/photos                            0 B            0 B
+├ ƒ /api/therapist/profile/photos/[id]                       0 B            0 B
+├ ƒ /api/therapist/profile/photos/[id]/primary               0 B            0 B
+├ ƒ /api/therapist/reset-password                            0 B            0 B
+├ ƒ /api/therapist/resubmit                                  0 B            0 B
+├ ƒ /api/therapist/send-reset-code                           0 B            0 B
+├ ƒ /api/therapist/toggle-online                             0 B            0 B
+├ ƒ /api/therapists                                          0 B            0 B
+├ ƒ /api/therapists/[id]                                     0 B            0 B
+├ ƒ /api/upload/images                                       0 B            0 B
+├ ƒ /api/upload/videos                                       0 B            0 B
+├ ƒ /api/visit/site                                          0 B            0 B
+├ ƒ /api/visit/stats                                         0 B            0 B
+├ ƒ /api/visit/therapist                                     0 B            0 B
+├ ○ /guide                                               66.7 kB         260 kB
+├ ○ /home                                                  12 kB         214 kB
+├ ○ /therapist                                           11.6 kB         202 kB
+├ ○ /therapist/dashboard                                 19.7 kB         210 kB
+├ ○ /therapist/login                                       251 B         190 kB
+├ ○ /therapist/notifications                             2.64 kB         193 kB
+├ ○ /therapist/profile/edit                              21.5 kB         222 kB
+├ ○ /therapist/register                                    253 B         190 kB
+├ ○ /therapist/settings                                  3.42 kB         204 kB
+└ ○ /therapists                                          39.7 kB         229 kB
++ First Load JS shared by all                             148 kB
+  ├ chunks/21729459061cf48d.js                             13 kB
+  ├ chunks/23dfbd4f953e9bea.js                           17.2 kB
+  ├ chunks/552ae4bf3ea0dfa2.js                           11.8 kB
+  ├ chunks/67ea754a7545ec92.js                           59.2 kB
+  ├ chunks/a213f35584b36951.css                          20.3 kB
+  └ other shared chunks (total)                          26.5 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -50,9 +50,10 @@ export async function POST() {
       if (!therapist.profile.introduction) {
         errors.push("请填写个人介绍");
       }
-      if (!therapist.profile.wechat && !therapist.profile.qq && !therapist.profile.phone) {
-        errors.push("请至少填写一种联系方式");
-      }
+    }
+
+    if (!therapist.phone) {
+      errors.push("请填写联系电话");
     }
 
     if (therapist.photos.length < 3) {
@@ -68,7 +69,7 @@ export async function POST() {
       where: { id: therapistId },
       data: {
         status: "PENDING",
-        rejectReason: null, // 清除拒绝原因
+        auditReason: null, // 清除审核原因
       },
     });
 

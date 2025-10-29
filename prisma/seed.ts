@@ -68,9 +68,10 @@ async function main() {
     update: {},
     create: {
       id: "cs-001",
+      name: "默认客服",
       wechatQrCode: "/customer-service-qr.jpg",
       wechatId: "junyue-spa",
-      phone: "400-123-4567",
+      qq: "400-123-4567",
       workingHours: "9:00 - 22:00",
       isActive: true,
       order: 1,
@@ -128,9 +129,10 @@ async function main() {
     const locationData = locations[i - 1];
 
     const therapist = await prisma.therapist.upsert({
-      where: { phone: `1390000000${i < 10 ? "0" + i : i}` },
+      where: { username: `test-therapist-${i}` },
       update: {},
       create: {
+        username: `test-therapist-${i}`,
         phone: `1390000000${i < 10 ? "0" + i : i}`,
         password: await bcrypt.hash("123456", 10),
         nickname: names[i - 1],
@@ -144,8 +146,6 @@ async function main() {
           .map((a) => a.name),
         location: locationData, // 🆕 位置信息（JSON）
         status: i <= 8 ? "APPROVED" : "PENDING",
-        inviteCode: `TECH${String(i).padStart(4, "0")}`,
-        invitedBy: i === 1 ? null : "TECH0001",
         isOnline: i <= 5,
         isFeatured: i <= 3,
         isNew: i > 7,
@@ -161,8 +161,6 @@ async function main() {
         introduction: bios[i - 1],
         specialties: ["按摩", "精油护理", "足疗"],
         serviceType: i <= 5 ? ["VISIT_CLIENT", "CLIENT_VISIT"] : ["CLIENT_VISIT"],
-        wechat: `wx_${names[i - 1]}`,
-        qq: `${888888 + i}`,
       },
     });
 

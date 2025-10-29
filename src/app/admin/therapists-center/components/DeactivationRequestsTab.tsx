@@ -64,13 +64,14 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
     action: "approve" | "reject" | null;
   }>({ open: false, request: null, action: null });
 
-  const [adminNote, setAdminNote] = useState("");
+  const [reviewNote, setReviewNote] = useState("");
 
   // 状态映射
   const statusMap = {
     PENDING: { label: "待处理", color: "bg-yellow-500", icon: Clock },
     APPROVED: { label: "已同意", color: "bg-green-500", icon: CheckCircle },
     REJECTED: { label: "已拒绝", color: "bg-red-500", icon: XCircle },
+    CANCELLED: { label: "已取消", color: "bg-gray-500", icon: XCircle },
   };
 
   // 列定义
@@ -92,20 +93,20 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
       cell: ({ row }) => row.original.therapist.city,
     },
     {
-      accessorKey: "reason",
-      header: "注销原因",
+      accessorKey: "reviewNote",
+      header: "审核备注",
       cell: ({ row }) => (
         <div className="max-w-md">
-          <p className="text-sm line-clamp-3">{row.original.reason}</p>
+          <p className="text-sm line-clamp-3">{row.original.reviewNote || "-"}</p>
         </div>
       ),
     },
     {
-      accessorKey: "submittedAt",
+      accessorKey: "requestedAt",
       header: "申请时间",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {new Date(row.original.submittedAt).toLocaleString("zh-CN")}
+          {new Date(row.original.requestedAt).toLocaleString("zh-CN")}
         </div>
       ),
     },
@@ -127,22 +128,22 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
       },
     },
     {
-      accessorKey: "processedAt",
+      accessorKey: "reviewedAt",
       header: "处理时间",
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {row.original.processedAt
-            ? new Date(row.original.processedAt).toLocaleString("zh-CN")
+          {row.original.reviewedAt
+            ? new Date(row.original.reviewedAt).toLocaleString("zh-CN")
             : "-"}
         </div>
       ),
     },
     {
-      accessorKey: "adminNote",
+      accessorKey: "reviewNote",
       header: "管理员备注",
       cell: ({ row }) => (
         <div className="max-w-xs">
-          <p className="text-xs line-clamp-2">{row.original.adminNote || "-"}</p>
+          <p className="text-xs line-clamp-2">{row.original.reviewNote || "-"}</p>
         </div>
       ),
     },
@@ -160,7 +161,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
               size="sm"
               onClick={() => {
                 setAuditDialog({ open: true, request, action: "approve" });
-                setAdminNote("");
+                setReviewNote("");
               }}
               className="bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30 text-xs font-semibold"
             >
@@ -171,7 +172,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
               size="sm"
               onClick={() => {
                 setAuditDialog({ open: true, request, action: "reject" });
-                setAdminNote("");
+                setReviewNote("");
               }}
               className="bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 text-xs font-semibold"
             >
@@ -215,7 +216,7 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           approved: auditDialog.action === "approve",
-          adminNote: adminNote.trim() || undefined,
+          reviewNote: reviewNote.trim() || undefined,
         }),
       });
 
@@ -400,7 +401,9 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
                     技师：{auditDialog.request.therapist.nickname} (@
                     {auditDialog.request.therapist.username})
                   </div>
-                  <div>原因：{auditDialog.request.reason}</div>
+                  <div>
+                    申请时间：{new Date(auditDialog.request.requestedAt).toLocaleString("zh-CN")}
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
@@ -409,8 +412,8 @@ export function DeactivationRequestsTab({ initialData }: DeactivationRequestsTab
                 </Label>
                 <Textarea
                   id="admin-note"
-                  value={adminNote}
-                  onChange={(e) => setAdminNote(e.target.value)}
+                  value={reviewNote}
+                  onChange={(e) => setReviewNote(e.target.value)}
                   placeholder={
                     auditDialog.action === "approve" ? "备注同意原因..." : "备注拒绝原因..."
                   }

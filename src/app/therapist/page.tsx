@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import PageVisitTracker from "@/components/PageVisitTracker";
 import LoginModal from "@/components/therapist/LoginModal";
@@ -22,7 +22,7 @@ import {
   Users,
 } from "lucide-react";
 
-export default function TherapistHomePage() {
+function TherapistHomeContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -340,5 +340,19 @@ export default function TherapistHomePage() {
         onSwitchToLogin={() => openModal("login")}
       />
     </div>
+  );
+}
+
+export default function TherapistHomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-pure-black flex items-center justify-center">
+          <div className="text-white">加载中...</div>
+        </div>
+      }
+    >
+      <TherapistHomeContent />
+    </Suspense>
   );
 }

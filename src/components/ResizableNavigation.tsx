@@ -18,7 +18,7 @@ import { NeonLogo } from "./NeonLogo";
 const JunyueLogo = () => {
   return (
     <a
-      href="/home"
+      href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
     >
       <NeonLogo size={40} variant="full" />
@@ -42,7 +42,7 @@ export default function ResizableNavigation() {
   const navItems = [
     {
       name: "首页",
-      link: "/home",
+      link: "/",
     },
     {
       name: "技师列表",

@@ -1,4 +1,5 @@
 // 技师管理中心类型定义
+import { ServiceType } from "@prisma/client";
 
 export interface TherapistWithRelations {
   id: string;
@@ -22,12 +23,12 @@ export interface TherapistWithRelations {
   createdAt: Date;
   updatedAt: Date;
   auditedAt: Date | null;
-  profile?: {
+  profile: {
     id: string;
     introduction: string;
     specialties: string[];
-    serviceType: string[];
-  };
+    serviceType: ServiceType[];
+  } | null;
   photos: Array<{
     id: string;
     isPrimary: boolean;
@@ -43,11 +44,14 @@ export interface TherapistWithRelations {
 
 export interface DeactivationRequestWithRelations {
   id: string;
-  reason: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  submittedAt: Date;
-  processedAt: Date | null;
-  adminNote: string | null;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  reviewerId: string | null;
+  reviewNote: string | null;
+  reviewedAt: Date | null;
+  requestedAt: Date;
+  executedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
   therapist: {
     id: string;
     username: string;

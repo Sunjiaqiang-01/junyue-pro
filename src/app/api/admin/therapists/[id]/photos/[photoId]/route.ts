@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; photoId: string } }
+  { params }: { params: Promise<{ id: string; photoId: string }> }
 ) {
   try {
     const session = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: "无权限" }, { status: 403 });
     }
 
-    const { id: therapistId, photoId } = params;
+    const { id: therapistId, photoId } = await params;
 
     // 验证照片是否属于该技师
     const photo = await prisma.therapistPhoto.findFirst({

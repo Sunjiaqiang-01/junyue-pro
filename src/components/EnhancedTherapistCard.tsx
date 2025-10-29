@@ -57,7 +57,7 @@ export function EnhancedTherapistCard({
           y: -4,
           filter: "blur(0px)",
           transition: {
-            type: "spring",
+            type: "spring" as const,
             stiffness: 400,
             damping: 28,
             mass: 0.6,
@@ -82,7 +82,7 @@ export function EnhancedTherapistCard({
       y: 0,
       filter: "blur(0px)",
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 400,
         damping: 28,
         mass: 0.6,
@@ -105,7 +105,7 @@ export function EnhancedTherapistCard({
       scale: 1,
       filter: "blur(0px)",
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 400,
         damping: 25,
         mass: 0.5,
@@ -122,7 +122,7 @@ export function EnhancedTherapistCard({
       opacity: 1,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         damping: 8,
         stiffness: 200,
         mass: 0.8,
@@ -267,7 +267,7 @@ export function EnhancedTherapistCard({
           }}
           whileHover={{
             scale: 1.02,
-            transition: { type: "spring", stiffness: 400, damping: 25 },
+            transition: { type: "spring" as const, stiffness: 400, damping: 25 },
           }}
           whileTap={{ scale: 0.98 }}
           className={cn(

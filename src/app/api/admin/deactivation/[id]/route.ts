@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 // 审核注销申请（通过或驳回）
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
 
@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     const { action, reviewNote } = await request.json();
-    const requestId = params.id;
+    const { id: requestId } = await params;
     const reviewerId = session.user.id;
 
     // 验证操作类型
