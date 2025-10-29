@@ -528,7 +528,7 @@ export default function AdminTherapistEditPage() {
     <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 flex items-center gap-4">
-          <Link href="/admin/therapists">
+          <Link href="/admin/therapists-center">
             <Button
               variant="ghost"
               size="sm"

@@ -155,8 +155,8 @@ export default function MediaManagementPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-pure-black">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-cyan" />
       </div>
     );
   }
@@ -164,192 +164,211 @@ export default function MediaManagementPage() {
   const diskUsage = stats?.disk ? parseFloat(stats.disk.usagePercent) : 0;
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">媒体资源管理</h1>
-          <p className="text-muted-foreground mt-2">监控存储空间，清理无用文件</p>
-        </div>
-        <Button
-          onClick={() => {
-            loadStats();
-            scanOrphanedFiles();
-          }}
-          disabled={scanning}
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${scanning ? "animate-spin" : ""}`} />
-          刷新数据
-        </Button>
-      </div>
-
-      {/* 存储空间概览 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">磁盘使用率</CardTitle>
-            <HardDrive className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{diskUsage}%</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {stats?.disk?.usedFormatted} / {stats?.disk?.totalFormatted}
-            </div>
-            <div className="w-full bg-secondary rounded-full h-2 mt-2">
-              <div
-                className={`h-2 rounded-full ${
-                  diskUsage > 80 ? "bg-red-500" : diskUsage > 60 ? "bg-yellow-500" : "bg-green-500"
-                }`}
-                style={{ width: `${Math.min(diskUsage, 100)}%` }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">技师照片</CardTitle>
-            <Image className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.media.therapistPhotos.fileCount}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {stats?.media.therapistPhotos.sizeFormatted}
-            </div>
-            {stats?.media.therapistPhotos.orphaned! > 0 && (
-              <Badge variant="destructive" className="mt-2">
-                {stats?.media.therapistPhotos.orphaned} 个孤立
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">技师视频</CardTitle>
-            <Video className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.media.therapistVideos.fileCount}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {stats?.media.therapistVideos.sizeFormatted}
-            </div>
-            {stats?.media.therapistVideos.orphaned! > 0 && (
-              <Badge variant="destructive" className="mt-2">
-                {stats?.media.therapistVideos.orphaned} 个孤立
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">客服二维码</CardTitle>
-            <QrCode className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.media.customerServiceQR.fileCount}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {stats?.media.customerServiceQR.sizeFormatted}
-            </div>
-            {stats?.media.customerServiceQR.orphaned! > 0 && (
-              <Badge variant="destructive" className="mt-2">
-                {stats?.media.customerServiceQR.orphaned} 个孤立
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 孤立文件列表 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>孤立文件</CardTitle>
-              <CardDescription>这些文件在数据库中没有对应记录，可以安全删除</CardDescription>
-            </div>
-            <div className="flex gap-2">
-              {selectedFiles.length > 0 && (
-                <>
-                  <Button variant="outline" onClick={() => cleanupFiles(true)} disabled={cleaning}>
-                    预览删除
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => cleanupFiles(false)}
-                    disabled={cleaning}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    删除 ({selectedFiles.length})
-                  </Button>
-                </>
-              )}
-            </div>
+    <div className="min-h-screen bg-pure-black p-4 md:p-8 pt-24 md:pt-28">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-pure-white mb-2">媒体资源管理</h1>
+            <p className="text-secondary/60">监控存储空间，清理无用文件</p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {orphanedFiles.length === 0 ? (
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>太棒了！没有发现孤立文件。</AlertDescription>
-            </Alert>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setSelectedFiles(
-                      selectedFiles.length === orphanedFiles.length
-                        ? []
-                        : orphanedFiles.map((f) => f.path)
-                    )
-                  }
-                >
-                  {selectedFiles.length === orphanedFiles.length ? "取消全选" : "全选"}
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  共 {orphanedFiles.length} 个文件
-                </span>
-              </div>
+          <Button
+            onClick={() => {
+              loadStats();
+              scanOrphanedFiles();
+            }}
+            disabled={scanning}
+            className="bg-primary-cyan hover:bg-primary-cyan/90 text-pure-black font-semibold"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${scanning ? "animate-spin" : ""}`} />
+            刷新数据
+          </Button>
+        </div>
 
-              <div className="border rounded-lg divide-y max-h-96 overflow-y-auto">
-                {orphanedFiles.map((file) => (
-                  <div
-                    key={file.path}
-                    className="p-4 flex items-center justify-between hover:bg-muted/50 cursor-pointer"
+        {/* 存储空间概览 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white/5 border-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-pure-white">磁盘使用率</CardTitle>
+              <HardDrive className="w-4 h-4 text-primary-cyan" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-pure-white">{diskUsage}%</div>
+              <div className="text-xs text-secondary/60 mt-1">
+                {stats?.disk?.usedFormatted} / {stats?.disk?.totalFormatted}
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2 mt-2">
+                <div
+                  className={`h-2 rounded-full ${
+                    diskUsage > 80
+                      ? "bg-red-500"
+                      : diskUsage > 60
+                        ? "bg-yellow-500"
+                        : "bg-primary-cyan"
+                  }`}
+                  style={{ width: `${Math.min(diskUsage, 100)}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/5 border-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-pure-white">技师照片</CardTitle>
+              <Image className="w-4 h-4 text-primary-cyan" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-pure-white">
+                {stats?.media.therapistPhotos.fileCount}
+              </div>
+              <div className="text-xs text-secondary/60 mt-1">
+                {stats?.media.therapistPhotos.sizeFormatted}
+              </div>
+              {stats?.media.therapistPhotos.orphaned! > 0 && (
+                <Badge variant="destructive" className="mt-2">
+                  {stats?.media.therapistPhotos.orphaned} 个孤立
+                </Badge>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/5 border-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-pure-white">技师视频</CardTitle>
+              <Video className="w-4 h-4 text-primary-cyan" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-pure-white">
+                {stats?.media.therapistVideos.fileCount}
+              </div>
+              <div className="text-xs text-secondary/60 mt-1">
+                {stats?.media.therapistVideos.sizeFormatted}
+              </div>
+              {stats?.media.therapistVideos.orphaned! > 0 && (
+                <Badge variant="destructive" className="mt-2">
+                  {stats?.media.therapistVideos.orphaned} 个孤立
+                </Badge>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/5 border-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-pure-white">客服二维码</CardTitle>
+              <QrCode className="w-4 h-4 text-primary-cyan" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-pure-white">
+                {stats?.media.customerServiceQR.fileCount}
+              </div>
+              <div className="text-xs text-secondary/60 mt-1">
+                {stats?.media.customerServiceQR.sizeFormatted}
+              </div>
+              {stats?.media.customerServiceQR.orphaned! > 0 && (
+                <Badge variant="destructive" className="mt-2">
+                  {stats?.media.customerServiceQR.orphaned} 个孤立
+                </Badge>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 孤立文件列表 */}
+        <Card className="bg-white/5 border-gray-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-pure-white">孤立文件</CardTitle>
+                <CardDescription className="text-secondary/60">
+                  这些文件在数据库中没有对应记录，可以安全删除
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                {selectedFiles.length > 0 && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => cleanupFiles(true)}
+                      disabled={cleaning}
+                    >
+                      预览删除
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => cleanupFiles(false)}
+                      disabled={cleaning}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      删除 ({selectedFiles.length})
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {orphanedFiles.length === 0 ? (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>太棒了！没有发现孤立文件。</AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() =>
-                      setSelectedFiles((prev) =>
-                        prev.includes(file.path)
-                          ? prev.filter((p) => p !== file.path)
-                          : [...prev, file.path]
+                      setSelectedFiles(
+                        selectedFiles.length === orphanedFiles.length
+                          ? []
+                          : orphanedFiles.map((f) => f.path)
                       )
                     }
                   >
-                    <div className="flex items-center gap-4 flex-1">
-                      <input
-                        type="checkbox"
-                        checked={selectedFiles.includes(file.path)}
-                        onChange={() => {}}
-                        className="w-4 h-4"
-                      />
-                      <div className="flex-1">
-                        <div className="font-medium">{file.relativePath}</div>
-                        <div className="text-sm text-muted-foreground">{file.reason}</div>
+                    {selectedFiles.length === orphanedFiles.length ? "取消全选" : "全选"}
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    共 {orphanedFiles.length} 个文件
+                  </span>
+                </div>
+
+                <div className="border rounded-lg divide-y max-h-96 overflow-y-auto">
+                  {orphanedFiles.map((file) => (
+                    <div
+                      key={file.path}
+                      className="p-4 flex items-center justify-between hover:bg-muted/50 cursor-pointer"
+                      onClick={() =>
+                        setSelectedFiles((prev) =>
+                          prev.includes(file.path)
+                            ? prev.filter((p) => p !== file.path)
+                            : [...prev, file.path]
+                        )
+                      }
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <input
+                          type="checkbox"
+                          checked={selectedFiles.includes(file.path)}
+                          onChange={() => {}}
+                          className="w-4 h-4"
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium">{file.relativePath}</div>
+                          <div className="text-sm text-muted-foreground">{file.reason}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline">{file.type}</Badge>
+                        <span className="text-sm text-muted-foreground">{file.sizeFormatted}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline">{file.type}</Badge>
-                      <span className="text-sm text-muted-foreground">{file.sizeFormatted}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

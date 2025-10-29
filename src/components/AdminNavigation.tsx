@@ -16,7 +16,6 @@ const adminLinks = [
   { href: "/admin/dashboard", label: "数据看板" },
   { href: "/admin/therapists-center", label: "技师中心", badge: true },
   { href: "/admin/content", label: "内容管理" },
-  { href: "/admin/media-management", label: "媒体资源" },
   { href: "/admin/registration-codes", label: "注册码" },
 ];
 

@@ -3,12 +3,15 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PageVisitTracker from "@/components/PageVisitTracker";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
 import SystemMonitor from "@/components/admin/SystemMonitor";
 import { PageViewsTrendChart } from "./components/PageViewsTrendChart";
 import { TherapistViewsRankingChart } from "./components/TherapistViewsRankingChart";
 import { TherapistCityDistributionChart } from "./components/TherapistCityDistributionChart";
+import { HardDrive, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 async function getDashboardData() {
   // 获取基本统计
@@ -224,6 +227,30 @@ export default async function AdminDashboard() {
       </Suspense>
 
       {/* 数据可视化区域 */}
+      {/* 快捷入口卡片 */}
+      <div className="mb-6">
+        <Link href="/admin/media-management">
+          <Card className="bg-white/5 border-gray-800 hover:border-primary-cyan/50 transition-all cursor-pointer group">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-primary-cyan/10 rounded-lg group-hover:bg-primary-cyan/20 transition-all">
+                    <HardDrive className="w-6 h-6 text-primary-cyan" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-pure-white">媒体资源管理</CardTitle>
+                    <CardDescription className="text-secondary/60">
+                      存储空间 · 文件清理 · 资源统计
+                    </CardDescription>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-secondary/40 group-hover:text-primary-cyan group-hover:translate-x-1 transition-all" />
+              </div>
+            </CardHeader>
+          </Card>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* 浏览量趋势图 */}
         <div className="lg:col-span-2">

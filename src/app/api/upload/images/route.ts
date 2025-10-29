@@ -5,11 +5,15 @@ import { auth } from "@/auth";
 import { processImage } from "@/lib/image-processor";
 import { ensureTherapistFolder } from "@/lib/folder-manager";
 import prisma from "@/lib/prisma";
+import { validateUploadedFile, sanitizeFilename } from "@/lib/file-validator";
+import { checkUploadRateLimit, recordUploadAttempt } from "@/lib/upload-rate-limit";
+import { createSafeErrorResponse, logSafe } from "@/lib/error-sanitizer";
 
 // 文件大小限制
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ALLOWED_FILE_TYPES = ["jpeg", "png", "webp"]; // Magic Number验证用
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +22,30 @@ export async function POST(request: NextRequest) {
 
     if (!session || !session.user) {
       return NextResponse.json({ success: false, error: "请先登录" }, { status: 401 });
+    }
+
+    // 🔒 获取客户端IP（用于速率限制）
+    const ipAddress =
+      request.headers.get("x-forwarded-for")?.split(",")[0] ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    // 🔒 检查上传速率限制
+    const rateLimitCheck = await checkUploadRateLimit(session.user.id, ipAddress);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `上传过于频繁，请${rateLimitCheck.resetIn}秒后再试`,
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimitCheck.resetIn),
+          },
+        }
+      );
     }
 
     const formData = await request.formData();
@@ -39,13 +67,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "未选择文件" }, { status: 400 });
     }
 
-    // 验证文件类型 - 只允许图片
-    const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
-
-    if (!isImage) {
-      return NextResponse.json({ error: "不支持的文件类型，请上传图片文件" }, { status: 400 });
-    }
-
     // 验证文件大小
     if (file.size > MAX_IMAGE_SIZE) {
       return NextResponse.json(
@@ -53,6 +74,22 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 🔒 读取文件内容进行深度验证
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 🔒 验证文件真实类型（Magic Number检测）
+    const validationResult = await validateUploadedFile(file, buffer, ALLOWED_FILE_TYPES);
+    if (!validationResult.valid) {
+      return NextResponse.json(
+        { success: false, error: validationResult.error || "文件验证失败" },
+        { status: 400 }
+      );
+    }
+
+    // 🔒 记录上传行为（用于速率限制跟踪）
+    recordUploadAttempt(session.user.id, ipAddress);
 
     // 生成唯一文件名基础
     const timestamp = Date.now();
@@ -83,10 +120,7 @@ export async function POST(request: NextRequest) {
       uploadDir = join(process.cwd(), "public", "uploads", type || "avatars");
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // 处理图片: 生成单一优化版本
+    // 处理图片: 生成单一优化版本（使用已验证的buffer）
     console.log(`📸 开始处理图片: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
     const url = await processImage(buffer, uploadDir, baseFileName);
@@ -106,7 +140,11 @@ export async function POST(request: NextRequest) {
       fileType: "image",
     });
   } catch (error) {
-    console.error("图片上传错误:", error);
-    return NextResponse.json({ error: "图片上传失败" }, { status: 500 });
+    // 🔒 使用脱敏日志记录
+    logSafe("error", "图片上传错误", error);
+
+    // 🔒 返回安全的错误响应（不泄露技术细节）
+    const safeError = createSafeErrorResponse(error, "file", 500);
+    return NextResponse.json(safeError, { status: safeError.code });
   }
 }

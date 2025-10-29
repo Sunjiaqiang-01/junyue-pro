@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**", // 🆕 允许所有HTTPS域名（生产环境替换为实际域名）
+        hostname: "junyue.org", // 🔒 只允许自己的域名
       },
     ],
     deviceSizes: [640, 750, 828, 1080, 1200],
@@ -26,6 +26,48 @@ const nextConfig: NextConfig = {
       {
         source: "/uploads/:path*",
         destination: "/api/uploads/:path*",
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY", // 防止被iframe嵌入（点击劫持）
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff", // 防止MIME类型嗅探
+          },
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block", // XSS过滤器
+          },
+          {
+            key: "Referrer-Policy",
+            value: "origin-when-cross-origin", // 控制Referer信息
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()", // 禁用敏感API
+          },
+        ],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+        ],
       },
     ];
   },

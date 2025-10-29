@@ -6,3 +6,21 @@
    - Environments: .env
 
    Creating an optimized production build ...
+ ✓ Finished writing to disk in 194ms
+ ✓ Compiled successfully in 48s
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/api/uploads/[...path]/route.ts:48:7
+Type error: Argument of type 'ArrayBuffer | SharedArrayBuffer' is not assignable to parameter of type 'BodyInit | null | undefined'.
+  Type 'SharedArrayBuffer' is not assignable to type 'BodyInit | null | undefined'.
+    Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+
+[0m [90m 46 |[39m     [90m// 返回文件（转换Buffer为ArrayBuffer）[39m
+ [90m 47 |[39m     [36mreturn[39m [36mnew[39m [33mNextResponse[39m(
+[31m[1m>[22m[39m[90m 48 |[39m       fileBuffer[33m.[39mbuffer[33m.[39mslice(fileBuffer[33m.[39mbyteOffset[33m,[39m fileBuffer[33m.[39mbyteOffset [33m+[39m fileBuffer[33m.[39mbyteLength)[33m,[39m
+ [90m    |[39m       [31m[1m^[22m[39m
+ [90m 49 |[39m       {
+ [90m 50 |[39m         headers[33m:[39m {
+ [90m 51 |[39m           [32m"Content-Type"[39m[33m:[39m contentType[33m,[39m[0m
+Next.js build worker exited with code: 1 and signal: null
