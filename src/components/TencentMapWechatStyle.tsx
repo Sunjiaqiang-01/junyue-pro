@@ -82,32 +82,54 @@ export default function TencentMapWechatStyle({
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current || mapInstance.current) return;
 
-    try {
-      const center = value
-        ? new window.TMap.LatLng(value.latitude, value.longitude)
-        : new window.TMap.LatLng(defaultCenter.lat, defaultCenter.lng);
+    // 延迟初始化，确保DOM完全渲染
+    const timer = setTimeout(() => {
+      try {
+        const center = value
+          ? new window.TMap.LatLng(value.latitude, value.longitude)
+          : new window.TMap.LatLng(defaultCenter.lat, defaultCenter.lng);
 
-      const map = new window.TMap.Map(mapRef.current, {
-        center: center,
-        zoom: 16,
-        viewMode: "2D",
-      });
+        console.log("🗺️ 开始初始化地图", {
+          container: mapRef.current,
+          containerSize: {
+            width: mapRef.current?.offsetWidth,
+            height: mapRef.current?.offsetHeight,
+          },
+          center: { lat: center.lat, lng: center.lng },
+        });
 
-      mapInstance.current = map;
-      console.log("✅ 地图初始化成功");
+        const map = new window.TMap.Map(mapRef.current, {
+          center: center,
+          zoom: 16,
+          viewMode: "2D",
+          baseMap: {
+            type: "vector",
+          },
+        });
 
-      // 监听地图拖动结束事件
-      map.on("dragend", () => {
-        const center = map.getCenter();
+        mapInstance.current = map;
+        console.log("✅ 地图初始化成功");
+
+        // 监听地图加载完成事件
+        map.on("tilesloaded", () => {
+          console.log("✅ 地图瓦片加载完成");
+        });
+
+        // 监听地图拖动结束事件
+        map.on("dragend", () => {
+          const center = map.getCenter();
+          handleMapCenterChange(center.lat, center.lng);
+        });
+
+        // 初始化时获取中心点位置信息
         handleMapCenterChange(center.lat, center.lng);
-      });
+      } catch (error) {
+        console.error("❌ 地图初始化失败:", error);
+        toast.error("地图初始化失败");
+      }
+    }, 100);
 
-      // 初始化时获取中心点位置信息
-      handleMapCenterChange(center.lat, center.lng);
-    } catch (error) {
-      console.error("❌ 地图初始化失败:", error);
-      toast.error("地图初始化失败");
-    }
+    return () => clearTimeout(timer);
   }, [isMapLoaded, defaultCenter, value]);
 
   // 处理地图中心点变化
@@ -298,6 +320,11 @@ export default function TencentMapWechatStyle({
             "w-full h-full transition-opacity duration-200",
             showSearchResults && "opacity-0"
           )}
+          style={{
+            width: "100%",
+            height: "480px",
+            position: "relative",
+          }}
         />
 
         {/* 中心固定标记 */}
