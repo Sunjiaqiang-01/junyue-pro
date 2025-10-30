@@ -57,11 +57,12 @@ export function isPaginatedResponse<T>(data: unknown): data is {
   const obj = data as Record<string, unknown>;
   return (
     Array.isArray(obj.items) &&
-    obj.pagination &&
-    typeof obj.pagination.page === "number" &&
-    typeof obj.pagination.pageSize === "number" &&
-    typeof obj.pagination.total === "number" &&
-    typeof obj.pagination.totalPages === "number"
+    typeof obj.pagination === "object" &&
+    obj.pagination !== null &&
+    typeof (obj.pagination as Record<string, unknown>).page === "number" &&
+    typeof (obj.pagination as Record<string, unknown>).pageSize === "number" &&
+    typeof (obj.pagination as Record<string, unknown>).total === "number" &&
+    typeof (obj.pagination as Record<string, unknown>).totalPages === "number"
   );
 }
 

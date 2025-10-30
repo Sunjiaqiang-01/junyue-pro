@@ -216,9 +216,11 @@ export async function renameTherapistFolder(
     // 1. 获取当前文件夹
     const currentFolder = await getCurrentTherapistFolder(baseDir, therapistId);
     if (!currentFolder) {
+      // 文件夹不存在是正常的（技师可能还没上传过该类型的文件）
+      console.log(`ℹ️ 跳过重命名: 技师文件夹不存在 (${baseDir}, ${therapistId})`);
       return {
-        success: false,
-        message: "未找到技师文件夹",
+        success: true,
+        message: "文件夹不存在，无需重命名",
       };
     }
 
