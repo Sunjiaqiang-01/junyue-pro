@@ -104,7 +104,9 @@ export default function TencentMapWechatStyle({
           viewMode: "2D",
           baseMap: {
             type: "vector",
+            features: ["base", "building2d", "building3d", "point"],
           },
+          showControl: false,
         });
 
         mapInstance.current = map;
